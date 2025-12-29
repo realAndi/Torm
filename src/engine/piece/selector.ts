@@ -242,7 +242,11 @@ export class PieceAvailability {
    */
   getRarestPieces(exclude: Set<number>): number[] {
     // Check if we can use cached ranking (same exclude set and cache valid)
-    if (this.cachedRanking && this.lastExcludeSet && this.setsEqual(exclude, this.lastExcludeSet)) {
+    if (
+      this.cachedRanking &&
+      this.lastExcludeSet &&
+      this.setsEqual(exclude, this.lastExcludeSet)
+    ) {
       return this.cachedRanking;
     }
 
@@ -387,7 +391,10 @@ export class PieceSelector {
    * @param pieceCount - Total number of pieces in the torrent
    * @param strategy - Selection strategy to use (default: RarestFirst)
    */
-  constructor(pieceCount: number, strategy: SelectionStrategy = SelectionStrategy.RarestFirst) {
+  constructor(
+    pieceCount: number,
+    strategy: SelectionStrategy = SelectionStrategy.RarestFirst
+  ) {
     this.pieceCount = pieceCount;
     this.strategy = strategy;
     this.availability = new PieceAvailability(pieceCount);
@@ -429,9 +436,17 @@ export class PieceSelector {
    * }
    * ```
    */
-  selectPiece(ownBitfield: Buffer, peerBitfield: Buffer, inProgress: Set<number>): number | null {
+  selectPiece(
+    ownBitfield: Buffer,
+    peerBitfield: Buffer,
+    inProgress: Set<number>
+  ): number | null {
     // Get candidate pieces (peer has, we don't have, not in progress)
-    const candidates = this.getCandidatePieces(ownBitfield, peerBitfield, inProgress);
+    const candidates = this.getCandidatePieces(
+      ownBitfield,
+      peerBitfield,
+      inProgress
+    );
 
     if (candidates.length === 0) {
       return null;
@@ -557,7 +572,10 @@ export class PieceSelector {
 
     for (let i = 1; i < candidates.length; i++) {
       const avail = this.availability.getAvailability(candidates[i]);
-      if (avail < rarestAvail || (avail === rarestAvail && candidates[i] < rarestIndex)) {
+      if (
+        avail < rarestAvail ||
+        (avail === rarestAvail && candidates[i] < rarestIndex)
+      ) {
         rarestAvail = avail;
         rarestIndex = candidates[i];
       }

@@ -40,7 +40,10 @@ interface PauseResultProps {
 /**
  * Find a torrent by ID (full hash or prefix)
  */
-function findTorrent(engine: TormEngine, torrentId: string): { torrent: Torrent | undefined; hash: string } {
+function findTorrent(
+  engine: TormEngine,
+  torrentId: string
+): { torrent: Torrent | undefined; hash: string } {
   const { type, value } = parseTorrentId(torrentId);
 
   if (type === 'hash') {
@@ -58,7 +61,7 @@ function findTorrent(engine: TormEngine, torrentId: string): { torrent: Torrent 
   if (matches.length > 1) {
     throw new Error(
       `Ambiguous torrent ID "${torrentId}" matches ${matches.length} torrents. ` +
-      'Please provide a longer prefix.'
+        'Please provide a longer prefix.'
     );
   }
 
@@ -72,7 +75,12 @@ function findTorrent(engine: TormEngine, torrentId: string): { torrent: Torrent 
 /**
  * Component to display the result of pausing a torrent
  */
-const PauseResult: React.FC<PauseResultProps> = ({ torrent, error, loading, success }) => {
+const PauseResult: React.FC<PauseResultProps> = ({
+  torrent,
+  error,
+  loading,
+  success,
+}) => {
   if (loading) {
     return (
       <Box>
@@ -117,7 +125,9 @@ const PauseResult: React.FC<PauseResultProps> = ({ torrent, error, loading, succ
  *
  * @param options - Command options
  */
-export async function executePause(options: PauseCommandOptions): Promise<void> {
+export async function executePause(
+  options: PauseCommandOptions
+): Promise<void> {
   const { torrentId } = options;
 
   const engine = new TormEngine();
@@ -156,7 +166,9 @@ export async function executePause(options: PauseCommandOptions): Promise<void> 
 /**
  * Pause command component using Ink for rendering
  */
-export function PauseCommand({ torrentId }: PauseCommandOptions): React.ReactElement {
+export function PauseCommand({
+  torrentId,
+}: PauseCommandOptions): React.ReactElement {
   const [torrent, setTorrent] = useState<Torrent | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -196,7 +208,14 @@ export function PauseCommand({ torrentId }: PauseCommandOptions): React.ReactEle
     doPause();
   }, [torrentId]);
 
-  return <PauseResult torrent={torrent} error={error} loading={loading} success={success} />;
+  return (
+    <PauseResult
+      torrent={torrent}
+      error={error}
+      loading={loading}
+      success={success}
+    />
+  );
 }
 
 /**

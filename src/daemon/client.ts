@@ -9,7 +9,12 @@
 
 import { createConnection, type Socket } from 'net';
 import { EventEmitter } from 'events';
-import type { Torrent, Peer, EngineConfig, EngineStats } from '../engine/types.js';
+import type {
+  Torrent,
+  Peer,
+  EngineConfig,
+  EngineStats,
+} from '../engine/types.js';
 import {
   type Message,
   type Request,
@@ -207,7 +212,10 @@ export class DaemonClient extends EventEmitter {
       this.emit('disconnected');
 
       // Attempt reconnection if enabled
-      if (this.autoReconnect && this.reconnectAttempts < this.maxReconnectAttempts) {
+      if (
+        this.autoReconnect &&
+        this.reconnectAttempts < this.maxReconnectAttempts
+      ) {
         this.scheduleReconnect();
       }
     }
@@ -228,7 +236,10 @@ export class DaemonClient extends EventEmitter {
         await this.connect();
         this.emit('reconnected');
       } catch {
-        if (this.autoReconnect && this.reconnectAttempts < this.maxReconnectAttempts) {
+        if (
+          this.autoReconnect &&
+          this.reconnectAttempts < this.maxReconnectAttempts
+        ) {
           this.scheduleReconnect();
         } else {
           this.emit('reconnect_failed');
@@ -267,7 +278,10 @@ export class DaemonClient extends EventEmitter {
         this.handleEvent(message.data);
       }
     } catch (err) {
-      this.emit('error', new Error(`Failed to parse message: ${(err as Error).message}`));
+      this.emit(
+        'error',
+        new Error(`Failed to parse message: ${(err as Error).message}`)
+      );
     }
   }
 

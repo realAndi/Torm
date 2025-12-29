@@ -69,7 +69,10 @@ const MODAL_WIDTH = 37;
  * @example
  * <HelpOverlay visible={showHelp} onClose={() => setShowHelp(false)} />
  */
-export const HelpOverlay: React.FC<HelpOverlayProps> = ({ visible, onClose }) => {
+export const HelpOverlay: React.FC<HelpOverlayProps> = ({
+  visible,
+  onClose,
+}) => {
   // Capture any keypress to close the overlay
   useInput(
     () => {

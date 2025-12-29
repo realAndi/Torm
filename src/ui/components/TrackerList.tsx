@@ -2,7 +2,11 @@ import React from 'react';
 import { Box, Text } from 'ink';
 import type { TrackerInfo, TrackerStatus } from '../../engine/types.js';
 import { colors, borders } from '../theme/index.js';
-import { formatRelativeTime, formatTimeUntil, truncateText } from '../utils/format.js';
+import {
+  formatRelativeTime,
+  formatTimeUntil,
+  truncateText,
+} from '../utils/format.js';
 
 export interface TrackerListProps {
   /** Array of trackers to display */
@@ -35,9 +39,17 @@ const STATUS_DISPLAY: Record<string, { color: string; label: string }> = {
 /**
  * Get display configuration for a tracker status
  */
-function getStatusDisplay(status: TrackerStatus | string): { color: string; label: string } {
-  const statusKey = typeof status === 'string' ? status.toLowerCase() : String(status).toLowerCase();
-  return STATUS_DISPLAY[statusKey] || { color: colors.muted, label: String(status) };
+function getStatusDisplay(status: TrackerStatus | string): {
+  color: string;
+  label: string;
+} {
+  const statusKey =
+    typeof status === 'string'
+      ? status.toLowerCase()
+      : String(status).toLowerCase();
+  return (
+    STATUS_DISPLAY[statusKey] || { color: colors.muted, label: String(status) }
+  );
 }
 
 /**
@@ -62,37 +74,51 @@ const TrackerListHeader: React.FC = () => {
     <Box flexDirection="column">
       <Box flexDirection="row" paddingX={1}>
         <Box width={COLUMN_WIDTHS.url}>
-          <Text color={colors.primary} bold>Tracker</Text>
+          <Text color={colors.primary} bold>
+            Tracker
+          </Text>
         </Box>
         <Box width={COLUMN_WIDTHS.status}>
-          <Text color={colors.primary} bold>Status</Text>
+          <Text color={colors.primary} bold>
+            Status
+          </Text>
         </Box>
         <Box width={COLUMN_WIDTHS.peers} justifyContent="flex-end">
-          <Text color={colors.primary} bold>Peers</Text>
+          <Text color={colors.primary} bold>
+            Peers
+          </Text>
         </Box>
         <Box width={COLUMN_WIDTHS.seeds} justifyContent="flex-end">
-          <Text color={colors.primary} bold>Seeds</Text>
+          <Text color={colors.primary} bold>
+            Seeds
+          </Text>
         </Box>
         <Box width={COLUMN_WIDTHS.leeches} justifyContent="flex-end">
-          <Text color={colors.primary} bold>Leech</Text>
+          <Text color={colors.primary} bold>
+            Leech
+          </Text>
         </Box>
         <Box width={COLUMN_WIDTHS.lastAnnounce} justifyContent="flex-end">
-          <Text color={colors.primary} bold>Last</Text>
+          <Text color={colors.primary} bold>
+            Last
+          </Text>
         </Box>
         <Box width={COLUMN_WIDTHS.nextAnnounce} justifyContent="flex-end">
-          <Text color={colors.primary} bold>Next</Text>
+          <Text color={colors.primary} bold>
+            Next
+          </Text>
         </Box>
       </Box>
       <Box paddingX={1}>
         <Text color={colors.muted}>
           {borders.horizontal.repeat(
             COLUMN_WIDTHS.url +
-            COLUMN_WIDTHS.status +
-            COLUMN_WIDTHS.peers +
-            COLUMN_WIDTHS.seeds +
-            COLUMN_WIDTHS.leeches +
-            COLUMN_WIDTHS.lastAnnounce +
-            COLUMN_WIDTHS.nextAnnounce
+              COLUMN_WIDTHS.status +
+              COLUMN_WIDTHS.peers +
+              COLUMN_WIDTHS.seeds +
+              COLUMN_WIDTHS.leeches +
+              COLUMN_WIDTHS.lastAnnounce +
+              COLUMN_WIDTHS.nextAnnounce
           )}
         </Text>
       </Box>
@@ -115,7 +141,9 @@ const TrackerRow: React.FC<{ tracker: TrackerInfo }> = ({ tracker }) => {
         <Text>{url.padEnd(COLUMN_WIDTHS.url)}</Text>
       </Box>
       <Box width={COLUMN_WIDTHS.status}>
-        <Text color={statusInfo.color}>{statusInfo.label.padEnd(COLUMN_WIDTHS.status)}</Text>
+        <Text color={statusInfo.color}>
+          {statusInfo.label.padEnd(COLUMN_WIDTHS.status)}
+        </Text>
       </Box>
       <Box width={COLUMN_WIDTHS.peers} justifyContent="flex-end">
         <Text color={tracker.peers > 0 ? colors.success : colors.muted}>
@@ -133,10 +161,14 @@ const TrackerRow: React.FC<{ tracker: TrackerInfo }> = ({ tracker }) => {
         </Text>
       </Box>
       <Box width={COLUMN_WIDTHS.lastAnnounce} justifyContent="flex-end">
-        <Text color={colors.muted}>{lastAnnounce.padStart(COLUMN_WIDTHS.lastAnnounce)}</Text>
+        <Text color={colors.muted}>
+          {lastAnnounce.padStart(COLUMN_WIDTHS.lastAnnounce)}
+        </Text>
       </Box>
       <Box width={COLUMN_WIDTHS.nextAnnounce} justifyContent="flex-end">
-        <Text color={colors.muted}>{nextAnnounce.padStart(COLUMN_WIDTHS.nextAnnounce)}</Text>
+        <Text color={colors.muted}>
+          {nextAnnounce.padStart(COLUMN_WIDTHS.nextAnnounce)}
+        </Text>
       </Box>
     </Box>
   );
@@ -149,7 +181,8 @@ const TrackerErrorRow: React.FC<{ message: string }> = ({ message }) => {
   return (
     <Box paddingX={3}>
       <Text color={colors.error}>
-        {'\u2514'}{'\u2500'} {truncateText(message, 70)}
+        {'\u2514'}
+        {'\u2500'} {truncateText(message, 70)}
       </Text>
     </Box>
   );

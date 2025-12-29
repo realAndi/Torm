@@ -116,24 +116,21 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           <Text>
             <Text color={colors.muted}>[</Text>
             <Text>Enter</Text>
-            <Text color={colors.muted}>]</Text>
-            {' '}
+            <Text color={colors.muted}>]</Text>{' '}
             <Text color={confirmColor}>{confirmLabel}</Text>
             {'    '}
             {hasCheckbox && (
               <>
                 <Text color={colors.muted}>[</Text>
                 <Text>Space</Text>
-                <Text color={colors.muted}>]</Text>
-                {' '}
+                <Text color={colors.muted}>]</Text>{' '}
                 <Text color={colors.muted}>Toggle</Text>
                 {'    '}
               </>
             )}
             <Text color={colors.muted}>[</Text>
             <Text>Esc</Text>
-            <Text color={colors.muted}>]</Text>
-            {' '}
+            <Text color={colors.muted}>]</Text>{' '}
             <Text color={colors.muted}>{cancelLabel}</Text>
           </Text>
         </Box>

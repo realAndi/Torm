@@ -70,7 +70,8 @@ export function formatSpeed(bytesPerSecond: number): string {
     return `${Math.round(value)} ${units[unitIndex]}`;
   }
 
-  const formatted = value >= 100 ? Math.round(value).toString() : value.toFixed(1);
+  const formatted =
+    value >= 100 ? Math.round(value).toString() : value.toFixed(1);
   return `${formatted} ${units[unitIndex]}`;
 }
 
@@ -93,7 +94,9 @@ export function formatEta(seconds: number | null): string {
 
   if (hours > 0) {
     const remainingMinutes = minutes % 60;
-    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+    return remainingMinutes > 0
+      ? `${hours}h ${remainingMinutes}m`
+      : `${hours}h`;
   }
 
   if (minutes > 0) {
@@ -151,23 +154,33 @@ export const StatusBar: React.FC<StatusBarProps> = ({
 
     // Truncate name if too long
     const maxNameLength = Math.max(20, innerWidth - 50);
-    const displayName = name.length > maxNameLength
-      ? name.slice(0, maxNameLength - 1) + '\u2026'
-      : name;
+    const displayName =
+      name.length > maxNameLength
+        ? name.slice(0, maxNameLength - 1) + '\u2026'
+        : name;
 
     return (
       <Text>
-        <Text color={colors.primary} bold>[{selectedIndex}]</Text>
+        <Text color={colors.primary} bold>
+          [{selectedIndex}]
+        </Text>
         <Text color={colors.text}> {displayName}</Text>
         <Text color={colors.muted}> </Text>
-        <Text color={colors.success} bold>{percentage}%</Text>
-        <Text color={colors.muted}> {downloadedStr}/{sizeStr}</Text>
+        <Text color={colors.success} bold>
+          {percentage}%
+        </Text>
+        <Text color={colors.muted}>
+          {' '}
+          {downloadedStr}/{sizeStr}
+        </Text>
         <Text color={colors.muted}> ETA:</Text>
         <Text color={colors.secondary}>{etaStr}</Text>
         {isFiltered && (
           <>
             <Text color={colors.muted}> </Text>
-            <Text color={colors.warning}>[{filteredCount}/{totalCount}]</Text>
+            <Text color={colors.warning}>
+              [{filteredCount}/{totalCount}]
+            </Text>
           </>
         )}
       </Text>
@@ -219,8 +232,10 @@ export const StatusBar: React.FC<StatusBarProps> = ({
           <Box>
             {shortcuts.map((s, i) => (
               <React.Fragment key={s.key}>
-                {i > 0 && <Text color={colors.dim}>  </Text>}
-                <Text color={colors.primary} bold>{s.key}</Text>
+                {i > 0 && <Text color={colors.dim}> </Text>}
+                <Text color={colors.primary} bold>
+                  {s.key}
+                </Text>
                 <Text color={colors.muted}>:{s.action}</Text>
               </React.Fragment>
             ))}
@@ -231,7 +246,15 @@ export const StatusBar: React.FC<StatusBarProps> = ({
             <Box gap={2}>
               {/* Daemon status */}
               <Box>
-                <Text color={daemonConnected ? colors.success : connectionStatus ? colors.warning : colors.error}>
+                <Text
+                  color={
+                    daemonConnected
+                      ? colors.success
+                      : connectionStatus
+                        ? colors.warning
+                        : colors.error
+                  }
+                >
                   {daemonConnected ? '●' : connectionStatus ? '◐' : '○'}
                 </Text>
                 <Text color={colors.muted}> </Text>
@@ -241,7 +264,10 @@ export const StatusBar: React.FC<StatusBarProps> = ({
                   <>
                     <Text color={colors.muted}>Daemon</Text>
                     {daemonConnected && daemonUptime !== undefined && (
-                      <Text color={colors.dim}> ({formatUptime(daemonUptime)})</Text>
+                      <Text color={colors.dim}>
+                        {' '}
+                        ({formatUptime(daemonUptime)})
+                      </Text>
                     )}
                   </>
                 )}
@@ -249,11 +275,15 @@ export const StatusBar: React.FC<StatusBarProps> = ({
               <Text color={colors.borderDim}>│</Text>
               <Box>
                 <Text color={colors.success}>↓ </Text>
-                <Text color={colors.text} bold>{formatSpeed(totalDownloadSpeed)}</Text>
+                <Text color={colors.text} bold>
+                  {formatSpeed(totalDownloadSpeed)}
+                </Text>
               </Box>
               <Box>
                 <Text color={colors.warning}>↑ </Text>
-                <Text color={colors.text} bold>{formatSpeed(totalUploadSpeed)}</Text>
+                <Text color={colors.text} bold>
+                  {formatSpeed(totalUploadSpeed)}
+                </Text>
               </Box>
             </Box>
           )}
@@ -275,15 +305,27 @@ export const StatusBar: React.FC<StatusBarProps> = ({
               <Box gap={3}>
                 <Box>
                   <Text color={colors.success}>↓ </Text>
-                  <Text color={colors.text} bold>{formatSpeed(totalDownloadSpeed)}</Text>
+                  <Text color={colors.text} bold>
+                    {formatSpeed(totalDownloadSpeed)}
+                  </Text>
                 </Box>
                 <Box>
                   <Text color={colors.warning}>↑ </Text>
-                  <Text color={colors.text} bold>{formatSpeed(totalUploadSpeed)}</Text>
+                  <Text color={colors.text} bold>
+                    {formatSpeed(totalUploadSpeed)}
+                  </Text>
                 </Box>
               </Box>
               <Box>
-                <Text color={daemonConnected ? colors.success : connectionStatus ? colors.warning : colors.error}>
+                <Text
+                  color={
+                    daemonConnected
+                      ? colors.success
+                      : connectionStatus
+                        ? colors.warning
+                        : colors.error
+                  }
+                >
                   {daemonConnected ? '●' : connectionStatus ? '◐' : '○'}
                 </Text>
                 <Text color={colors.muted}> </Text>
@@ -293,7 +335,10 @@ export const StatusBar: React.FC<StatusBarProps> = ({
                   <>
                     <Text color={colors.muted}>Daemon</Text>
                     {daemonConnected && daemonUptime !== undefined && (
-                      <Text color={colors.dim}> ({formatUptime(daemonUptime)})</Text>
+                      <Text color={colors.dim}>
+                        {' '}
+                        ({formatUptime(daemonUptime)})
+                      </Text>
                     )}
                   </>
                 )}

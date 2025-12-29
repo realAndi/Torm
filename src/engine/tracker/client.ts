@@ -641,10 +641,8 @@ export class TrackerClient extends TypedEventEmitter<TrackerClientEvents> {
 
       // Schedule next announce (unless stopping)
       if (event !== 'stopped' && !this.stopped && torrent.active) {
-        const nextAnnounceMs = Math.max(
-          tracker.interval,
-          tracker.minInterval
-        ) * 1000;
+        const nextAnnounceMs =
+          Math.max(tracker.interval, tracker.minInterval) * 1000;
         tracker.nextAnnounce = new Date(Date.now() + nextAnnounceMs);
 
         tracker.timer = setTimeout(() => {
@@ -692,8 +690,7 @@ export class TrackerClient extends TypedEventEmitter<TrackerClientEvents> {
       // Handle failure
       tracker.status = TrackerStatus.Error;
       tracker.failureCount++;
-      tracker.errorMessage =
-        err instanceof Error ? err.message : String(err);
+      tracker.errorMessage = err instanceof Error ? err.message : String(err);
 
       // Emit error event
       this.emit('error', {
@@ -795,7 +792,11 @@ export class TrackerClient extends TypedEventEmitter<TrackerClientEvents> {
     }
 
     // Convert event string to the expected type
-    const event = params.event as 'started' | 'completed' | 'stopped' | undefined;
+    const event = params.event as
+      | 'started'
+      | 'completed'
+      | 'stopped'
+      | undefined;
 
     // Perform the announce
     const response = await tracker.announce({

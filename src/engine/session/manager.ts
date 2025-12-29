@@ -17,10 +17,17 @@ import {
 } from '../types.js';
 import { mergeWithDefaults } from '../config/defaults.js';
 import { BandwidthLimiter } from './bandwidth.js';
-import { TorrentSession as TorrentSessionFull, TorrentSessionOptions } from './session.js';
+import {
+  TorrentSession as TorrentSessionFull,
+  TorrentSessionOptions,
+} from './session.js';
 import { TorrentMetadata, parseTorrent } from '../torrent/parser.js';
 import { PeerManager, PeerManagerOptions } from '../peer/manager.js';
-import { TrackerClient, TrackerClientOptions, TrackerInfo } from '../tracker/client.js';
+import {
+  TrackerClient,
+  TrackerClientOptions,
+  TrackerInfo,
+} from '../tracker/client.js';
 import { readFile, rm } from 'fs/promises';
 import { randomBytes } from 'crypto';
 import { join } from 'path';
@@ -380,17 +387,19 @@ class TorrentSessionImpl implements TorrentSession {
   }
 
   on(event: string, listener: (...args: unknown[]) => void): void {
-    (this.events as unknown as { on: (e: string, l: (...args: unknown[]) => void) => void }).on(
-      event,
-      listener
-    );
+    (
+      this.events as unknown as {
+        on: (e: string, l: (...args: unknown[]) => void) => void;
+      }
+    ).on(event, listener);
   }
 
   off(event: string, listener: (...args: unknown[]) => void): void {
-    (this.events as unknown as { off: (e: string, l: (...args: unknown[]) => void) => void }).off(
-      event,
-      listener
-    );
+    (
+      this.events as unknown as {
+        off: (e: string, l: (...args: unknown[]) => void) => void;
+      }
+    ).off(event, listener);
   }
 
   /**
@@ -407,7 +416,10 @@ class TorrentSessionImpl implements TorrentSession {
     const files = this.metadata.files;
 
     // Multi-file torrent: delete the entire directory at once (fastest)
-    if (files.length > 1 || (files.length === 1 && files[0].path.includes('/'))) {
+    if (
+      files.length > 1 ||
+      (files.length === 1 && files[0].path.includes('/'))
+    ) {
       const torrentDir = join(this.downloadPath, this.metadata.name);
       await rm(torrentDir, { recursive: true, force: true });
       return;
@@ -564,7 +576,8 @@ export class SessionManager extends TypedEventEmitter<SessionManagerEvents> {
     super();
 
     this.config = mergeWithDefaults(options);
-    this.maxActiveTorrents = options?.maxActiveTorrents ?? DEFAULT_MAX_ACTIVE_TORRENTS;
+    this.maxActiveTorrents =
+      options?.maxActiveTorrents ?? DEFAULT_MAX_ACTIVE_TORRENTS;
     this.peerId = options?.peerId ?? generatePeerId();
   }
 
@@ -757,7 +770,8 @@ export class SessionManager extends TypedEventEmitter<SessionManagerEvents> {
     const downloadPath = options?.downloadPath ?? this.config.downloadPath;
 
     // Determine if we should start immediately
-    const startImmediately = options?.startImmediately ?? this.config.startOnAdd;
+    const startImmediately =
+      options?.startImmediately ?? this.config.startOnAdd;
 
     // Create session options
     const sessionOptions: TorrentSessionOptions = {
@@ -816,7 +830,10 @@ export class SessionManager extends TypedEventEmitter<SessionManagerEvents> {
     session.on('completed', completedListener as (...args: unknown[]) => void);
     session.on('error', errorListener as (...args: unknown[]) => void);
     session.on('progress', progressListener as (...args: unknown[]) => void);
-    session.on('pieceComplete', pieceCompleteListener as (...args: unknown[]) => void);
+    session.on(
+      'pieceComplete',
+      pieceCompleteListener as (...args: unknown[]) => void
+    );
 
     // Store the managed torrent
     const managedTorrent: ManagedTorrent = {
@@ -839,7 +856,9 @@ export class SessionManager extends TypedEventEmitter<SessionManagerEvents> {
       if (this.activeTorrents < this.maxActiveTorrents) {
         // Fire and forget - don't block on start
         session.start().catch((err) => {
-          this.emit('error', { error: err instanceof Error ? err : new Error(String(err)) });
+          this.emit('error', {
+            error: err instanceof Error ? err : new Error(String(err)),
+          });
         });
       } else {
         // Queue the torrent
@@ -857,7 +876,10 @@ export class SessionManager extends TypedEventEmitter<SessionManagerEvents> {
    * @param infoHash - Info hash of the torrent to remove
    * @param deleteFiles - Whether to delete downloaded files (default: false)
    */
-  async removeTorrent(infoHash: string, deleteFiles: boolean = false): Promise<void> {
+  async removeTorrent(
+    infoHash: string,
+    deleteFiles: boolean = false
+  ): Promise<void> {
     if (!this.running) {
       throw new TormError('SessionManager is not running');
     }
@@ -867,7 +889,8 @@ export class SessionManager extends TypedEventEmitter<SessionManagerEvents> {
       throw new TormError(`Torrent not found: ${infoHash}`);
     }
 
-    const { session, stateListener, completedListener, errorListener } = managedTorrent;
+    const { session, stateListener, completedListener, errorListener } =
+      managedTorrent;
 
     // Remove from map FIRST to prevent race condition with getAllTorrents() polling
     // during the async operations below (stop/deleteFiles)
@@ -890,14 +913,20 @@ export class SessionManager extends TypedEventEmitter<SessionManagerEvents> {
       try {
         await session.deleteFiles();
       } catch (err) {
-        console.error(`Failed to delete files for ${infoHash}:`, (err as Error).message);
+        console.error(
+          `Failed to delete files for ${infoHash}:`,
+          (err as Error).message
+        );
       }
     }
 
     // Stop the session in background - don't await the slow tracker announce
     // The disk manager stop is idempotent so it's fine if deleteFiles already stopped it
     session.stop().catch((err) => {
-      console.error(`Failed to stop session for ${infoHash}:`, (err as Error).message);
+      console.error(
+        `Failed to stop session for ${infoHash}:`,
+        (err as Error).message
+      );
     });
 
     // Emit event
@@ -925,7 +954,10 @@ export class SessionManager extends TypedEventEmitter<SessionManagerEvents> {
     const { session } = managedTorrent;
 
     // Check if we're under the active limit
-    if (this.activeTorrents >= this.maxActiveTorrents && !isActiveState(session.state)) {
+    if (
+      this.activeTorrents >= this.maxActiveTorrents &&
+      !isActiveState(session.state)
+    ) {
       // Add to queue instead
       if (!this.queue.includes(infoHash)) {
         this.queue.push(infoHash);
@@ -1013,7 +1045,10 @@ export class SessionManager extends TypedEventEmitter<SessionManagerEvents> {
 
     // Update bandwidth limiter if limits changed
     if (this.bandwidthLimiter) {
-      if (config.maxDownloadSpeed !== undefined || config.maxUploadSpeed !== undefined) {
+      if (
+        config.maxDownloadSpeed !== undefined ||
+        config.maxUploadSpeed !== undefined
+      ) {
         this.bandwidthLimiter.setGlobalLimits(
           config.maxDownloadSpeed ?? this.config.maxDownloadSpeed,
           config.maxUploadSpeed ?? this.config.maxUploadSpeed
@@ -1097,7 +1132,10 @@ export class SessionManager extends TypedEventEmitter<SessionManagerEvents> {
    * Process the queue to start waiting torrents
    */
   private processQueue(): void {
-    while (this.queue.length > 0 && this.activeTorrents < this.maxActiveTorrents) {
+    while (
+      this.queue.length > 0 &&
+      this.activeTorrents < this.maxActiveTorrents
+    ) {
       const infoHash = this.queue.shift()!;
       const managedTorrent = this.torrents.get(infoHash);
 

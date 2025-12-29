@@ -112,7 +112,9 @@ async function readExact(
       // Append to buffer
       if (offset + totalRead + data.length > currentBuffer.length) {
         // Need to grow buffer
-        const newBuffer = Buffer.alloc(Math.max(currentBuffer.length * 2, offset + totalRead + data.length));
+        const newBuffer = Buffer.alloc(
+          Math.max(currentBuffer.length * 2, offset + totalRead + data.length)
+        );
         currentBuffer.copy(newBuffer);
         currentBuffer = newBuffer;
       }
@@ -197,7 +199,10 @@ async function _readUntilPattern(
 
       // Grow buffer if needed
       if (offset + totalRead + data.length > currentBuffer.length) {
-        const newSize = Math.min(Math.max(currentBuffer.length * 2, offset + totalRead + data.length), maxLength);
+        const newSize = Math.min(
+          Math.max(currentBuffer.length * 2, offset + totalRead + data.length),
+          maxLength
+        );
         const newBuffer = Buffer.alloc(newSize);
         currentBuffer.copy(newBuffer);
         currentBuffer = newBuffer;
@@ -209,7 +214,11 @@ async function _readUntilPattern(
       const patternPos = checkPattern();
       if (patternPos >= 0) {
         cleanup();
-        resolve({ buffer: currentBuffer, patternOffset: patternPos, totalRead });
+        resolve({
+          buffer: currentBuffer,
+          patternOffset: patternPos,
+          totalRead,
+        });
       }
     };
 
@@ -226,7 +235,11 @@ async function _readUntilPattern(
     // Check if pattern already exists in buffer
     const existingPatternPos = checkPattern();
     if (existingPatternPos >= 0) {
-      resolve({ buffer: currentBuffer, patternOffset: existingPatternPos, totalRead });
+      resolve({
+        buffer: currentBuffer,
+        patternOffset: existingPatternPos,
+        totalRead,
+      });
       return;
     }
 
@@ -337,7 +350,9 @@ export async function performMSEHandshake(
 
     // Build step 3 message (before encryption starts)
     // Format: req1Hash(20) + skeyXor(20) + VC(8) + crypto_provide(4) + len(PadC)(2) + PadC + len(IA)(2) + IA
-    const step3Plain = Buffer.alloc(20 + 20 + 8 + 4 + 2 + padCLength + 2 + initialPayload.length);
+    const step3Plain = Buffer.alloc(
+      20 + 20 + 8 + 4 + 2 + padCLength + 2 + initialPayload.length
+    );
     let offset = 0;
 
     req1Hash.copy(step3Plain, offset);
@@ -450,7 +465,9 @@ export async function performMSEHandshake(
     }
 
     // Decrypt the response
-    const encryptedResponse = Buffer.from(searchBuffer.subarray(vcOffset, vcOffset + minResponseSize));
+    const encryptedResponse = Buffer.from(
+      searchBuffer.subarray(vcOffset, vcOffset + minResponseSize)
+    );
     finalDecryptStream.process(encryptedResponse);
 
     // Parse response
@@ -492,13 +509,20 @@ export async function performMSEHandshake(
         totalReceived += padBytes;
       }
       // Decrypt PadD (we need to consume it from the stream)
-      const padD = Buffer.from(searchBuffer.subarray(vcOffset + minResponseSize, vcOffset + minResponseSize + padDLength));
+      const padD = Buffer.from(
+        searchBuffer.subarray(
+          vcOffset + minResponseSize,
+          vcOffset + minResponseSize + padDLength
+        )
+      );
       finalDecryptStream.process(padD);
     }
 
     // Calculate remainder (any data after the handshake)
     const handshakeEnd = vcOffset + minResponseSize + padDLength;
-    const remainder = Buffer.from(searchBuffer.subarray(handshakeEnd, totalReceived));
+    const remainder = Buffer.from(
+      searchBuffer.subarray(handshakeEnd, totalReceived)
+    );
 
     // If RC4 selected, decrypt the remainder
     if (selectedMethod === 'rc4' && remainder.length > 0) {

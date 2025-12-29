@@ -95,7 +95,12 @@ function isBuffer(value: BencodeValue): value is Buffer {
  * Type guard to check if a value is a dictionary
  */
 function isDict(value: BencodeValue): value is { [key: string]: BencodeValue } {
-  return typeof value === 'object' && value !== null && !Buffer.isBuffer(value) && !Array.isArray(value);
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    !Buffer.isBuffer(value) &&
+    !Array.isArray(value)
+  );
 }
 
 /**
@@ -122,13 +127,19 @@ function bufferToString(buffer: Buffer): string {
 /**
  * Extract a required Buffer field from a dictionary
  */
-function getRequiredBuffer(dict: { [key: string]: BencodeValue }, key: string, context: string): Buffer {
+function getRequiredBuffer(
+  dict: { [key: string]: BencodeValue },
+  key: string,
+  context: string
+): Buffer {
   const value = dict[key];
   if (value === undefined) {
     throw new MetadataError(`Missing required field '${key}' in ${context}`);
   }
   if (!isBuffer(value)) {
-    throw new MetadataError(`Field '${key}' in ${context} must be a byte string`);
+    throw new MetadataError(
+      `Field '${key}' in ${context} must be a byte string`
+    );
   }
   return value;
 }
@@ -136,7 +147,11 @@ function getRequiredBuffer(dict: { [key: string]: BencodeValue }, key: string, c
 /**
  * Extract a required number field from a dictionary
  */
-function getRequiredNumber(dict: { [key: string]: BencodeValue }, key: string, context: string): number {
+function getRequiredNumber(
+  dict: { [key: string]: BencodeValue },
+  key: string,
+  context: string
+): number {
   const value = dict[key];
   if (value === undefined) {
     throw new MetadataError(`Missing required field '${key}' in ${context}`);
@@ -150,7 +165,10 @@ function getRequiredNumber(dict: { [key: string]: BencodeValue }, key: string, c
 /**
  * Extract an optional Buffer field from a dictionary
  */
-function getOptionalBuffer(dict: { [key: string]: BencodeValue }, key: string): Buffer | undefined {
+function getOptionalBuffer(
+  dict: { [key: string]: BencodeValue },
+  key: string
+): Buffer | undefined {
   const value = dict[key];
   if (value === undefined) {
     return undefined;
@@ -164,7 +182,10 @@ function getOptionalBuffer(dict: { [key: string]: BencodeValue }, key: string): 
 /**
  * Extract an optional number field from a dictionary
  */
-function getOptionalNumber(dict: { [key: string]: BencodeValue }, key: string): number | undefined {
+function getOptionalNumber(
+  dict: { [key: string]: BencodeValue },
+  key: string
+): number | undefined {
   const value = dict[key];
   if (value === undefined) {
     return undefined;
@@ -253,7 +274,9 @@ function parseMultiFileInfo(
       const partStr = bufferToString(part);
       // Validate path component doesn't contain path separators or is empty
       if (partStr === '' || partStr === '.' || partStr === '..') {
-        throw new MetadataError(`Invalid path component '${partStr}' in files[${i}]`);
+        throw new MetadataError(
+          `Invalid path component '${partStr}' in files[${i}]`
+        );
       }
       pathParts.push(partStr);
     }
@@ -339,7 +362,9 @@ export function parseTorrent(data: Buffer): TorrentMetadata {
   try {
     decoded = decode(data);
   } catch (err) {
-    throw new MetadataError(`Failed to decode torrent file: ${(err as Error).message}`);
+    throw new MetadataError(
+      `Failed to decode torrent file: ${(err as Error).message}`
+    );
   }
 
   // Validate top-level structure is a dictionary
@@ -403,16 +428,24 @@ export function parseTorrent(data: Buffer): TorrentMetadata {
   // Extract announce URL (required unless announce-list is present)
   const announceBuffer = getOptionalBuffer(decoded, 'announce');
   const announceListRaw = decoded['announce-list'];
-  const announceList = announceListRaw ? parseAnnounceList(announceListRaw) : undefined;
+  const announceList = announceListRaw
+    ? parseAnnounceList(announceListRaw)
+    : undefined;
 
   let announce: string;
   if (announceBuffer) {
     announce = bufferToString(announceBuffer);
-  } else if (announceList && announceList.length > 0 && announceList[0].length > 0) {
+  } else if (
+    announceList &&
+    announceList.length > 0 &&
+    announceList[0].length > 0
+  ) {
     // Use first tracker from announce-list if no announce field
     announce = announceList[0][0];
   } else {
-    throw new MetadataError("Missing 'announce' URL and no valid 'announce-list'");
+    throw new MetadataError(
+      "Missing 'announce' URL and no valid 'announce-list'"
+    );
   }
 
   // Extract optional fields
@@ -420,7 +453,9 @@ export function parseTorrent(data: Buffer): TorrentMetadata {
   const creationDate = creationDateRaw ? creationDateRaw : undefined;
 
   const createdByBuffer = getOptionalBuffer(decoded, 'created by');
-  const createdBy = createdByBuffer ? bufferToString(createdByBuffer) : undefined;
+  const createdBy = createdByBuffer
+    ? bufferToString(createdByBuffer)
+    : undefined;
 
   const commentBuffer = getOptionalBuffer(decoded, 'comment');
   const comment = commentBuffer ? bufferToString(commentBuffer) : undefined;
@@ -452,7 +487,10 @@ export function parseTorrent(data: Buffer): TorrentMetadata {
  * @returns 20-byte SHA-1 hash for the piece
  * @throws Error if pieceIndex is out of range
  */
-export function getPieceHash(metadata: TorrentMetadata, pieceIndex: number): Buffer {
+export function getPieceHash(
+  metadata: TorrentMetadata,
+  pieceIndex: number
+): Buffer {
   if (pieceIndex < 0 || pieceIndex >= metadata.pieceCount) {
     throw new Error(
       `Invalid piece index: ${pieceIndex} (valid range: 0-${metadata.pieceCount - 1})`
@@ -474,7 +512,10 @@ export function getPieceHash(metadata: TorrentMetadata, pieceIndex: number): Buf
  * @returns Piece length in bytes
  * @throws Error if pieceIndex is out of range
  */
-export function getActualPieceLength(metadata: TorrentMetadata, pieceIndex: number): number {
+export function getActualPieceLength(
+  metadata: TorrentMetadata,
+  pieceIndex: number
+): number {
   if (pieceIndex < 0 || pieceIndex >= metadata.pieceCount) {
     throw new Error(
       `Invalid piece index: ${pieceIndex} (valid range: 0-${metadata.pieceCount - 1})`
@@ -514,7 +555,11 @@ export function getFilesForPiece(
   const pieceLength = getActualPieceLength(metadata, pieceIndex);
   const pieceEnd = pieceStart + pieceLength;
 
-  const result: Array<{ file: TorrentFileInfo; fileOffset: number; length: number }> = [];
+  const result: Array<{
+    file: TorrentFileInfo;
+    fileOffset: number;
+    length: number;
+  }> = [];
 
   for (const file of metadata.files) {
     const fileStart = file.offset;
@@ -609,7 +654,9 @@ export function parseMagnetUri(magnetUri: string): MagnetMetadata {
     infoHash = base32Decode(infoHashHex.toUpperCase());
     infoHashHex = infoHash.toString('hex');
   } else {
-    throw new Error(`Invalid magnet URI: info hash must be 40 hex chars or 32 base32 chars, got ${infoHashHex.length}`);
+    throw new Error(
+      `Invalid magnet URI: info hash must be 40 hex chars or 32 base32 chars, got ${infoHashHex.length}`
+    );
   }
 
   if (infoHash.length !== 20) {

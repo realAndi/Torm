@@ -98,7 +98,8 @@ export const LabelList: React.FC<LabelListProps> = ({
       ))}
       {remaining > 0 && (
         <Text inverse={isSelected} color={isSelected ? undefined : 'gray'}>
-          {' '}+{remaining}
+          {' '}
+          +{remaining}
         </Text>
       )}
     </Text>

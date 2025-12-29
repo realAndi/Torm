@@ -66,21 +66,23 @@ const AddResult: React.FC<AddResultProps> = ({ torrent, error, loading }) => {
   if (torrent) {
     return (
       <Box flexDirection="column" paddingY={1}>
-        <Text color="green" bold>[OK] Torrent added successfully</Text>
+        <Text color="green" bold>
+          [OK] Torrent added successfully
+        </Text>
         <Box marginTop={1} flexDirection="column">
-          <Text dimColor>Name:       </Text>
+          <Text dimColor>Name: </Text>
           <Text>{torrent.name}</Text>
         </Box>
         <Box flexDirection="column">
-          <Text dimColor>Hash:       </Text>
+          <Text dimColor>Hash: </Text>
           <Text>{torrent.infoHash}</Text>
         </Box>
         <Box flexDirection="column">
-          <Text dimColor>Size:       </Text>
+          <Text dimColor>Size: </Text>
           <Text>{formatBytes(torrent.size)}</Text>
         </Box>
         <Box flexDirection="column">
-          <Text dimColor>Files:      </Text>
+          <Text dimColor>Files: </Text>
           <Text>{torrent.files.length} file(s)</Text>
         </Box>
       </Box>
@@ -112,8 +114,8 @@ async function validateSource(source: string): Promise<string> {
 
   throw new Error(
     `Invalid torrent source: "${source}"\n` +
-    'Expected a magnet link (magnet:?...) or path to a .torrent file.\n' +
-    'Tip: Use quotes around magnet links or use "torm add -c" to paste from clipboard.'
+      'Expected a magnet link (magnet:?...) or path to a .torrent file.\n' +
+      'Tip: Use quotes around magnet links or use "torm add -c" to paste from clipboard.'
   );
 }
 
@@ -167,7 +169,11 @@ export async function executeAdd(options: AddCommandOptions): Promise<void> {
 /**
  * Interactive add command using Ink for rendering
  */
-export function AddCommand({ source, downloadPath, start = true }: AddCommandOptions): React.ReactElement {
+export function AddCommand({
+  source,
+  downloadPath,
+  start = true,
+}: AddCommandOptions): React.ReactElement {
   const [torrent, setTorrent] = useState<Torrent | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);

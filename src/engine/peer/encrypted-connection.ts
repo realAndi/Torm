@@ -328,7 +328,9 @@ async function performMSEHandshakeOnSocket(
 
     // Build step 3 message
     // Format: req1Hash(20) + skeyXor(20) + VC(8) + crypto_provide(4) + len(PadC)(2) + PadC + len(IA)(2) + IA
-    const step3Plain = Buffer.alloc(20 + 20 + 8 + 4 + 2 + padCLength + 2 + initialPayload.length);
+    const step3Plain = Buffer.alloc(
+      20 + 20 + 8 + 4 + 2 + padCLength + 2 + initialPayload.length
+    );
     let offset = 0;
 
     req1Hash.copy(step3Plain, offset);
@@ -406,12 +408,18 @@ async function performMSEHandshakeOnSocket(
 
     // Read more if needed
     if (searchBuffer.length < responseEnd) {
-      const extraData = await readMinBytes(socket, responseEnd - searchBuffer.length, timeout);
+      const extraData = await readMinBytes(
+        socket,
+        responseEnd - searchBuffer.length,
+        timeout
+      );
       searchBuffer = Buffer.concat([searchBuffer, extraData]);
     }
 
     // Decrypt the response
-    const encryptedResponse = Buffer.from(searchBuffer.subarray(vcOffset, vcOffset + minResponseSize));
+    const encryptedResponse = Buffer.from(
+      searchBuffer.subarray(vcOffset, vcOffset + minResponseSize)
+    );
     finalDecryptStream.process(encryptedResponse);
 
     // Parse response - skip VC (already verified)
@@ -440,13 +448,19 @@ async function performMSEHandshakeOnSocket(
     // Read PadD if present
     const handshakeEnd = vcOffset + minResponseSize + padDLength;
     if (searchBuffer.length < handshakeEnd) {
-      const extraData = await readMinBytes(socket, handshakeEnd - searchBuffer.length, timeout);
+      const extraData = await readMinBytes(
+        socket,
+        handshakeEnd - searchBuffer.length,
+        timeout
+      );
       searchBuffer = Buffer.concat([searchBuffer, extraData]);
     }
 
     // Decrypt PadD (consume from stream)
     if (padDLength > 0) {
-      const padD = Buffer.from(searchBuffer.subarray(vcOffset + minResponseSize, handshakeEnd));
+      const padD = Buffer.from(
+        searchBuffer.subarray(vcOffset + minResponseSize, handshakeEnd)
+      );
       finalDecryptStream.process(padD);
     }
 

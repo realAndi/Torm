@@ -193,7 +193,8 @@ interface TokenBucket {
  * @returns New token bucket
  */
 function createBucket(rate: number, burst?: number): TokenBucket {
-  const maxTokens = burst ?? Math.max(rate * DEFAULT_BURST_MULTIPLIER, MIN_GRANT_SIZE);
+  const maxTokens =
+    burst ?? Math.max(rate * DEFAULT_BURST_MULTIPLIER, MIN_GRANT_SIZE);
 
   return {
     tokens: maxTokens,
@@ -315,7 +316,10 @@ export class BandwidthLimiter extends TypedEventEmitter<BandwidthLimiterEvents> 
     const downloadRate = config?.downloadRate ?? 0;
     const uploadRate = config?.uploadRate ?? 0;
 
-    this.globalDownloadBucket = createBucket(downloadRate, config?.downloadBurst);
+    this.globalDownloadBucket = createBucket(
+      downloadRate,
+      config?.downloadBurst
+    );
     this.globalUploadBucket = createBucket(uploadRate, config?.uploadBurst);
 
     // Initialize per-torrent bucket maps
@@ -355,14 +359,15 @@ export class BandwidthLimiter extends TypedEventEmitter<BandwidthLimiterEvents> 
     }
 
     // Get the relevant buckets
-    const globalBucket = direction === 'download'
-      ? this.globalDownloadBucket
-      : this.globalUploadBucket;
+    const globalBucket =
+      direction === 'download'
+        ? this.globalDownloadBucket
+        : this.globalUploadBucket;
 
     const torrentBucket = torrentId
-      ? (direction === 'download'
+      ? direction === 'download'
         ? this.torrentDownloadBuckets.get(torrentId)
-        : this.torrentUploadBuckets.get(torrentId))
+        : this.torrentUploadBuckets.get(torrentId)
       : undefined;
 
     // Check if both buckets are unlimited
@@ -549,7 +554,8 @@ export class BandwidthLimiter extends TypedEventEmitter<BandwidthLimiterEvents> 
         ? getBucketStats(uploadBucket)
         : defaultStats;
 
-      totalPendingRequests += downloadStats.pendingRequests + uploadStats.pendingRequests;
+      totalPendingRequests +=
+        downloadStats.pendingRequests + uploadStats.pendingRequests;
 
       torrents.push({
         torrentId,
@@ -687,9 +693,10 @@ export class BandwidthLimiter extends TypedEventEmitter<BandwidthLimiterEvents> 
       };
 
       // Add to global queue
-      const globalBucket = direction === 'download'
-        ? this.globalDownloadBucket
-        : this.globalUploadBucket;
+      const globalBucket =
+        direction === 'download'
+          ? this.globalDownloadBucket
+          : this.globalUploadBucket;
 
       if (!isUnlimited(globalBucket)) {
         globalBucket.pendingQueue.push(request);
@@ -697,9 +704,10 @@ export class BandwidthLimiter extends TypedEventEmitter<BandwidthLimiterEvents> 
 
       // Add to torrent queue if applicable
       if (torrentId) {
-        const torrentBucket = direction === 'download'
-          ? this.torrentDownloadBuckets.get(torrentId)
-          : this.torrentUploadBuckets.get(torrentId);
+        const torrentBucket =
+          direction === 'download'
+            ? this.torrentDownloadBuckets.get(torrentId)
+            : this.torrentUploadBuckets.get(torrentId);
 
         if (torrentBucket && !isUnlimited(torrentBucket)) {
           torrentBucket.pendingQueue.push(request);
@@ -807,15 +815,15 @@ export class BandwidthLimiter extends TypedEventEmitter<BandwidthLimiterEvents> 
       // Check if we can fulfill this request
       // For fairness, grant if request size <= fair share OR if enough tokens exist
       const canFulfill =
-        request.bytes <= fairShare ||
-        request.bytes <= bucket.tokens;
+        request.bytes <= fairShare || request.bytes <= bucket.tokens;
 
       if (canFulfill && bucket.tokens >= request.bytes) {
         // Check per-torrent bucket if this is a global queue
         if (!torrentId && request.torrentId) {
-          const torrentBucket = direction === 'download'
-            ? this.torrentDownloadBuckets.get(request.torrentId)
-            : this.torrentUploadBuckets.get(request.torrentId);
+          const torrentBucket =
+            direction === 'download'
+              ? this.torrentDownloadBuckets.get(request.torrentId)
+              : this.torrentUploadBuckets.get(request.torrentId);
 
           if (torrentBucket && !isUnlimited(torrentBucket)) {
             if (torrentBucket.tokens < request.bytes) {
@@ -862,8 +870,13 @@ export class BandwidthLimiter extends TypedEventEmitter<BandwidthLimiterEvents> 
    * @param rate - New rate in bytes/second
    * @param burst - Optional new burst size
    */
-  private updateBucket(bucket: TokenBucket, rate: number, burst?: number): void {
-    const newMaxTokens = burst ?? Math.max(rate * DEFAULT_BURST_MULTIPLIER, MIN_GRANT_SIZE);
+  private updateBucket(
+    bucket: TokenBucket,
+    rate: number,
+    burst?: number
+  ): void {
+    const newMaxTokens =
+      burst ?? Math.max(rate * DEFAULT_BURST_MULTIPLIER, MIN_GRANT_SIZE);
 
     // Preserve the ratio of current tokens to max tokens
     const ratio = bucket.maxTokens > 0 ? bucket.tokens / bucket.maxTokens : 1;

@@ -29,7 +29,11 @@ export {
 export { DaemonServer, type DaemonServerOptions } from './server.js';
 
 // Client
-export { DaemonClient, type DaemonClientOptions, type DaemonStatus } from './client.js';
+export {
+  DaemonClient,
+  type DaemonClientOptions,
+  type DaemonStatus,
+} from './client.js';
 
 // Manager
 export {

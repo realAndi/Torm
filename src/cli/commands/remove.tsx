@@ -47,7 +47,10 @@ interface RemoveResultProps {
 /**
  * Find a torrent by ID (full hash or prefix)
  */
-function findTorrent(engine: TormEngine, torrentId: string): { torrent: Torrent | undefined; hash: string } {
+function findTorrent(
+  engine: TormEngine,
+  torrentId: string
+): { torrent: Torrent | undefined; hash: string } {
   const { type, value } = parseTorrentId(torrentId);
 
   if (type === 'hash') {
@@ -65,7 +68,7 @@ function findTorrent(engine: TormEngine, torrentId: string): { torrent: Torrent 
   if (matches.length > 1) {
     throw new Error(
       `Ambiguous torrent ID "${torrentId}" matches ${matches.length} torrents. ` +
-      'Please provide a longer prefix.'
+        'Please provide a longer prefix.'
     );
   }
 
@@ -120,7 +123,9 @@ const RemoveResult: React.FC<RemoveResultProps> = ({
         </Box>
         {deletedFiles && (
           <Box marginTop={1}>
-            <Text color="yellow">[WARN] Downloaded files were also deleted</Text>
+            <Text color="yellow">
+              [WARN] Downloaded files were also deleted
+            </Text>
           </Box>
         )}
       </Box>
@@ -139,7 +144,9 @@ const RemoveResult: React.FC<RemoveResultProps> = ({
  *
  * @param options - Command options
  */
-export async function executeRemove(options: RemoveCommandOptions): Promise<void> {
+export async function executeRemove(
+  options: RemoveCommandOptions
+): Promise<void> {
   const { torrentId, deleteFiles = false, force = false } = options;
 
   const engine = new TormEngine();

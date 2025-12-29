@@ -34,8 +34,8 @@ function getAutocompleteSuggestions(partialPath: string): string[] {
       if (existsSync(expanded) && statSync(expanded).isDirectory()) {
         const items = readdirSync(expanded, { withFileTypes: true });
         return items
-          .filter(item => item.isDirectory() && !item.name.startsWith('.'))
-          .map(item => join(expanded, item.name))
+          .filter((item) => item.isDirectory() && !item.name.startsWith('.'))
+          .map((item) => join(expanded, item.name))
           .slice(0, 6);
       }
     } catch {
@@ -53,12 +53,12 @@ function getAutocompleteSuggestions(partialPath: string): string[] {
 
     const items = readdirSync(dir, { withFileTypes: true });
     return items
-      .filter(item => {
+      .filter((item) => {
         if (!item.isDirectory()) return false;
         if (item.name.startsWith('.')) return false;
         return item.name.toLowerCase().startsWith(partial);
       })
-      .map(item => join(dir, item.name))
+      .map((item) => join(dir, item.name))
       .slice(0, 6);
   } catch {
     return [];
@@ -109,11 +109,14 @@ export const DirectoryBrowser: React.FC<DirectoryBrowserProps> = ({
     setSelectedSuggestion(0);
   }, [inputValue]);
 
-  const applyPath = useCallback((path: string) => {
-    setInputValue(path);
-    inputValueRef.current = path;
-    onChange(path);
-  }, [onChange]);
+  const applyPath = useCallback(
+    (path: string) => {
+      setInputValue(path);
+      inputValueRef.current = path;
+      onChange(path);
+    },
+    [onChange]
+  );
 
   const autocomplete = useCallback(() => {
     if (suggestions.length > 0) {
@@ -144,7 +147,7 @@ export const DirectoryBrowser: React.FC<DirectoryBrowserProps> = ({
 
       // Up/Down to cycle through suggestions
       if (key.downArrow && suggestions.length > 0) {
-        setSelectedSuggestion(prev =>
+        setSelectedSuggestion((prev) =>
           prev < suggestions.length - 1 ? prev + 1 : 0
         );
         return;
@@ -152,7 +155,7 @@ export const DirectoryBrowser: React.FC<DirectoryBrowserProps> = ({
 
       if (key.upArrow) {
         if (suggestions.length > 0 && selectedSuggestion > 0) {
-          setSelectedSuggestion(prev => prev - 1);
+          setSelectedSuggestion((prev) => prev - 1);
         } else if (onNavigateUp) {
           // At top of suggestions or no suggestions, navigate up to previous field
           onNavigateUp();
@@ -207,9 +210,10 @@ export const DirectoryBrowser: React.FC<DirectoryBrowserProps> = ({
 
   // Display input with cursor
   const displayValue = inputValue || '';
-  const visibleValue = displayValue.length > maxTextLength
-    ? '...' + displayValue.slice(-(maxTextLength - 3))
-    : displayValue;
+  const visibleValue =
+    displayValue.length > maxTextLength
+      ? '...' + displayValue.slice(-(maxTextLength - 3))
+      : displayValue;
   const paddingLength = Math.max(0, maxTextLength - visibleValue.length);
 
   const isValid = isValidDirectory(inputValue);
@@ -233,7 +237,9 @@ export const DirectoryBrowser: React.FC<DirectoryBrowserProps> = ({
         </Text>
         <Text wrap="truncate">
           <Text color={borderColor}>{borders.vertical}</Text>
-          <Text color={isValid ? colors.success : colors.text}>{middleContent}</Text>
+          <Text color={isValid ? colors.success : colors.text}>
+            {middleContent}
+          </Text>
           <Text color={borderColor}>{borders.vertical}</Text>
         </Text>
         <Text wrap="truncate">
@@ -247,9 +253,10 @@ export const DirectoryBrowser: React.FC<DirectoryBrowserProps> = ({
           {suggestions.map((sugg, idx) => {
             const isSelected = idx === selectedSuggestion;
             const name = basename(sugg);
-            const truncatedName = name.length > textAreaWidth - 4
-              ? name.slice(0, textAreaWidth - 7) + '...'
-              : name;
+            const truncatedName =
+              name.length > textAreaWidth - 4
+                ? name.slice(0, textAreaWidth - 7) + '...'
+                : name;
             return (
               <Text key={sugg}>
                 <Text color={isSelected ? colors.primary : colors.muted}>
@@ -265,7 +272,7 @@ export const DirectoryBrowser: React.FC<DirectoryBrowserProps> = ({
             );
           })}
           <Text color={colors.muted} dimColor>
-            {'  '}↑↓: select  Tab/→: complete  Enter: confirm
+            {'  '}↑↓: select Tab/→: complete Enter: confirm
           </Text>
         </Box>
       )}

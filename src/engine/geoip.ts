@@ -63,8 +63,10 @@ class GeoIPService {
     try {
       // Try to dynamically import geoip-lite
       // This package includes a bundled MaxMind GeoLite database
-       
-      const geoip = await import(/* webpackIgnore: true */ 'geoip-lite' as string);
+
+      const geoip = await import(
+        /* webpackIgnore: true */ 'geoip-lite' as string
+      );
       const module = geoip.default || geoip;
       if (module && typeof module.lookup === 'function') {
         this.lookupFn = module.lookup;

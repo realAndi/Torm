@@ -119,7 +119,10 @@ export const BatchAddModal: React.FC<BatchAddModalProps> = ({
           setScrollOffset((prev) =>
             Math.min(totalFiles - maxVisibleFiles, prev + 1)
           );
-        } else if (!canScrollDown || scrollOffset + maxVisibleFiles >= totalFiles) {
+        } else if (
+          !canScrollDown ||
+          scrollOffset + maxVisibleFiles >= totalFiles
+        ) {
           // Move to path field when at bottom of list
           setActiveField('path');
         }
@@ -162,8 +165,14 @@ export const BatchAddModal: React.FC<BatchAddModalProps> = ({
       <Box flexDirection="column" gap={1}>
         {/* Dropped indicator header */}
         <Box>
-          <Text backgroundColor={colors.primary} color="#000"> DROPPED </Text>
-          <Text color={colors.muted}> {totalFiles} file{totalFiles !== 1 ? 's' : ''} detected</Text>
+          <Text backgroundColor={colors.primary} color="#000">
+            {' '}
+            DROPPED{' '}
+          </Text>
+          <Text color={colors.muted}>
+            {' '}
+            {totalFiles} file{totalFiles !== 1 ? 's' : ''} detected
+          </Text>
         </Box>
 
         {/* Scroll up indicator */}
@@ -231,14 +240,21 @@ export const BatchAddModal: React.FC<BatchAddModalProps> = ({
                 <Text color={canSubmit ? colors.primary : colors.muted} bold>
                   [Enter]
                 </Text>
-                <Text color={canSubmit ? undefined : colors.muted}> Add all</Text>
+                <Text color={canSubmit ? undefined : colors.muted}>
+                  {' '}
+                  Add all
+                </Text>
               </Text>
               <Text>
-                <Text color={colors.muted} bold>[Down]</Text>
+                <Text color={colors.muted} bold>
+                  [Down]
+                </Text>
                 <Text color={colors.muted}> Edit path</Text>
               </Text>
               <Text>
-                <Text color={colors.muted} bold>[Esc]</Text>
+                <Text color={colors.muted} bold>
+                  [Esc]
+                </Text>
                 <Text color={colors.muted}> Cancel</Text>
               </Text>
             </Box>

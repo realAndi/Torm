@@ -109,7 +109,11 @@ export interface TableColumn {
 /**
  * Pad text to a fixed width with alignment
  */
-export function padText(text: string, width: number, align: 'left' | 'right' | 'center' = 'left'): string {
+export function padText(
+  text: string,
+  width: number,
+  align: 'left' | 'right' | 'center' = 'left'
+): string {
   const truncated = text.length > width ? truncateText(text, width) : text;
   const padding = width - truncated.length;
 
@@ -132,7 +136,9 @@ export function padText(text: string, width: number, align: 'left' | 'right' | '
  * Format a table header row
  */
 export function formatTableHeader(columns: TableColumn[]): string {
-  const headerParts = columns.map((col) => padText(col.header, col.width, col.align));
+  const headerParts = columns.map((col) =>
+    padText(col.header, col.width, col.align)
+  );
   const header = headerParts.join(' | ');
   const separator = columns.map((col) => '-'.repeat(col.width)).join('-+-');
   return `${header}\n${separator}`;
@@ -141,7 +147,10 @@ export function formatTableHeader(columns: TableColumn[]): string {
 /**
  * Format a table row
  */
-export function formatTableRow(values: string[], columns: TableColumn[]): string {
+export function formatTableRow(
+  values: string[],
+  columns: TableColumn[]
+): string {
   const cells = values.map((val, i) => {
     const col = columns[i];
     return padText(val, col.width, col.align);
@@ -177,7 +186,10 @@ export function isValidInfoHash(input: string): boolean {
 /**
  * Parse a torrent identifier (accepts full hash or short prefix)
  */
-export function parseTorrentId(input: string): { type: 'hash' | 'prefix'; value: string } {
+export function parseTorrentId(input: string): {
+  type: 'hash' | 'prefix';
+  value: string;
+} {
   const cleaned = input.toLowerCase().trim();
   if (isValidInfoHash(cleaned)) {
     return { type: 'hash', value: cleaned };
@@ -228,7 +240,10 @@ export function warnMessage(message: string): string {
 /**
  * Create a text-based progress bar
  */
-export function createProgressBar(progress: number, width: number = 20): string {
+export function createProgressBar(
+  progress: number,
+  width: number = 20
+): string {
   const filled = Math.round(progress * width);
   const empty = width - filled;
   const bar = '\u2588'.repeat(filled) + '\u2591'.repeat(empty);
@@ -243,13 +258,22 @@ export function createProgressBar(progress: number, width: number = 20): string 
 /**
  * Format a key-value pair for display
  */
-export function formatKeyValue(key: string, value: string, keyWidth: number = 15): string {
+export function formatKeyValue(
+  key: string,
+  value: string,
+  keyWidth: number = 15
+): string {
   return `${colorize(padText(key + ':', keyWidth), ansiColors.dim)} ${value}`;
 }
 
 /**
  * Format multiple key-value pairs as a block
  */
-export function formatInfoBlock(pairs: Array<[string, string]>, keyWidth: number = 15): string {
-  return pairs.map(([key, value]) => formatKeyValue(key, value, keyWidth)).join('\n');
+export function formatInfoBlock(
+  pairs: Array<[string, string]>,
+  keyWidth: number = 15
+): string {
+  return pairs
+    .map(([key, value]) => formatKeyValue(key, value, keyWidth))
+    .join('\n');
 }

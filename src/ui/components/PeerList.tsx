@@ -2,7 +2,12 @@ import React from 'react';
 import { Box, Text } from 'ink';
 import type { Peer } from '../../engine/types.js';
 import { colors, borders } from '../theme/index.js';
-import { formatSpeedCompact, formatProgress, formatAddress, countryCodeToFlag } from '../utils/format.js';
+import {
+  formatSpeedCompact,
+  formatProgress,
+  formatAddress,
+  countryCodeToFlag,
+} from '../utils/format.js';
 
 export interface PeerListProps {
   /** Array of connected peers to display */
@@ -65,37 +70,51 @@ const PeerListHeader: React.FC = () => {
     <Box flexDirection="column">
       <Box flexDirection="row" paddingX={1}>
         <Box width={COLUMN_WIDTHS.flag}>
-          <Text color={colors.primary} bold> </Text>
+          <Text color={colors.primary} bold>
+            {' '}
+          </Text>
         </Box>
         <Box width={COLUMN_WIDTHS.address}>
-          <Text color={colors.primary} bold>Address</Text>
+          <Text color={colors.primary} bold>
+            Address
+          </Text>
         </Box>
         <Box width={COLUMN_WIDTHS.client}>
-          <Text color={colors.primary} bold>Client</Text>
+          <Text color={colors.primary} bold>
+            Client
+          </Text>
         </Box>
         <Box width={COLUMN_WIDTHS.progress} justifyContent="flex-end">
-          <Text color={colors.primary} bold>Prog</Text>
+          <Text color={colors.primary} bold>
+            Prog
+          </Text>
         </Box>
         <Box width={COLUMN_WIDTHS.download} justifyContent="flex-end">
-          <Text color={colors.primary} bold>{'\u2193'} Down</Text>
+          <Text color={colors.primary} bold>
+            {'\u2193'} Down
+          </Text>
         </Box>
         <Box width={COLUMN_WIDTHS.upload} justifyContent="flex-end">
-          <Text color={colors.primary} bold>{'\u2191'} Up</Text>
+          <Text color={colors.primary} bold>
+            {'\u2191'} Up
+          </Text>
         </Box>
         <Box width={COLUMN_WIDTHS.flags} justifyContent="center">
-          <Text color={colors.primary} bold>Flags</Text>
+          <Text color={colors.primary} bold>
+            Flags
+          </Text>
         </Box>
       </Box>
       <Box paddingX={1}>
         <Text color={colors.muted}>
           {borders.horizontal.repeat(
             COLUMN_WIDTHS.flag +
-            COLUMN_WIDTHS.address +
-            COLUMN_WIDTHS.client +
-            COLUMN_WIDTHS.progress +
-            COLUMN_WIDTHS.download +
-            COLUMN_WIDTHS.upload +
-            COLUMN_WIDTHS.flags
+              COLUMN_WIDTHS.address +
+              COLUMN_WIDTHS.client +
+              COLUMN_WIDTHS.progress +
+              COLUMN_WIDTHS.download +
+              COLUMN_WIDTHS.upload +
+              COLUMN_WIDTHS.flags
           )}
         </Text>
       </Box>
@@ -134,10 +153,14 @@ const PeerRow: React.FC<{ peer: Peer }> = ({ peer }) => {
         <Text>{progress.padStart(COLUMN_WIDTHS.progress)}</Text>
       </Box>
       <Box width={COLUMN_WIDTHS.download} justifyContent="flex-end">
-        <Text color={downloadColor}>{downloadSpeed.padStart(COLUMN_WIDTHS.download)}</Text>
+        <Text color={downloadColor}>
+          {downloadSpeed.padStart(COLUMN_WIDTHS.download)}
+        </Text>
       </Box>
       <Box width={COLUMN_WIDTHS.upload} justifyContent="flex-end">
-        <Text color={uploadColor}>{uploadSpeed.padStart(COLUMN_WIDTHS.upload)}</Text>
+        <Text color={uploadColor}>
+          {uploadSpeed.padStart(COLUMN_WIDTHS.upload)}
+        </Text>
       </Box>
       <Box width={COLUMN_WIDTHS.flags} justifyContent="center">
         <Text color={colors.muted}>{flags}</Text>

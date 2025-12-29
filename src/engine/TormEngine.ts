@@ -65,7 +65,11 @@ import {
   type TorrentSession,
   type SessionManagerOptions,
 } from './session/manager.js';
-import { parseTorrent, parseMagnetUri, type TorrentMetadata } from './torrent/parser.js';
+import {
+  parseTorrent,
+  parseMagnetUri,
+  type TorrentMetadata,
+} from './torrent/parser.js';
 
 // =============================================================================
 // Helper Functions
@@ -92,7 +96,10 @@ function calculateEta(session: TorrentSession): number | null {
 /**
  * Convert a TorrentSession to the public Torrent interface
  */
-function sessionToTorrent(session: TorrentSession, labels: string[] = []): Torrent {
+function sessionToTorrent(
+  session: TorrentSession,
+  labels: string[] = []
+): Torrent {
   return {
     infoHash: session.infoHash,
     name: session.name,
@@ -278,7 +285,7 @@ export class TormEngine {
         ...savedConfig,
         // Ensure portRange is a proper tuple
         portRange: Array.isArray(savedConfig.portRange)
-          ? [...savedConfig.portRange] as [number, number]
+          ? ([...savedConfig.portRange] as [number, number])
           : this.config.portRange,
       };
     }
@@ -309,9 +316,8 @@ export class TormEngine {
     await this.loadPersistedTorrents();
 
     // Initialize auto-save manager
-    this.autoSaveManager = new AutoSaveManager(
-      this.config.dataDir,
-      () => this.getPersistenceState()
+    this.autoSaveManager = new AutoSaveManager(this.config.dataDir, () =>
+      this.getPersistenceState()
     );
     this.autoSaveManager.start();
 
@@ -443,7 +449,7 @@ export class TormEngine {
           } catch (fetchError) {
             throw new Error(
               `Failed to fetch .torrent from ${magnetData.exactSource}: ${(fetchError as Error).message}. ` +
-              `Full magnet URI support (metadata from peers) is not yet implemented.`
+                `Full magnet URI support (metadata from peers) is not yet implemented.`
             );
           }
         } else {
@@ -451,8 +457,8 @@ export class TormEngine {
           // This requires implementing BEP 9 (metadata extension)
           throw new Error(
             `This magnet URI has no exact source (xs=) for fetching the .torrent file. ` +
-            `Full magnet URI support (fetching metadata from peers via BEP 9) is not yet implemented. ` +
-            `Try using a magnet link that includes an xs= parameter pointing to a .torrent file.`
+              `Full magnet URI support (fetching metadata from peers via BEP 9) is not yet implemented. ` +
+              `Try using a magnet link that includes an xs= parameter pointing to a .torrent file.`
           );
         }
       } else {
@@ -493,7 +499,9 @@ export class TormEngine {
     this.torrents.set(torrent.infoHash, torrent);
 
     // Emit event
-    this.events.emit('torrent:added', { torrent: torrentToEventTorrent(torrent) });
+    this.events.emit('torrent:added', {
+      torrent: torrentToEventTorrent(torrent),
+    });
 
     return torrent;
   }
@@ -549,7 +557,10 @@ export class TormEngine {
     } catch (err) {
       const error = err as NodeJS.ErrnoException;
       if (error.code !== 'ENOENT') {
-        console.error(`Failed to delete persisted state for ${infoHash}:`, error.message);
+        console.error(
+          `Failed to delete persisted state for ${infoHash}:`,
+          error.message
+        );
       }
     }
 
@@ -559,7 +570,10 @@ export class TormEngine {
         await this.sessionManager.removeTorrent(infoHash, deleteFiles);
       } catch (err) {
         // Log but don't fail - state file is already deleted
-        console.error(`Session manager cleanup failed for ${infoHash}:`, (err as Error).message);
+        console.error(
+          `Session manager cleanup failed for ${infoHash}:`,
+          (err as Error).message
+        );
       }
     }
   }
@@ -592,7 +606,10 @@ export class TormEngine {
       throw new Error(`Torrent not found: ${infoHash}`);
     }
 
-    if (torrent.state === TorrentState.DOWNLOADING || torrent.state === TorrentState.SEEDING) {
+    if (
+      torrent.state === TorrentState.DOWNLOADING ||
+      torrent.state === TorrentState.SEEDING
+    ) {
       throw new Error('Torrent is already active');
     }
 
@@ -851,9 +868,7 @@ export class TormEngine {
     // Normalize and deduplicate labels
     const normalizedLabels = [
       ...new Set(
-        labels
-          .map((l) => l.trim().toLowerCase())
-          .filter((l) => l.length > 0)
+        labels.map((l) => l.trim().toLowerCase()).filter((l) => l.length > 0)
       ),
     ];
 
@@ -1008,7 +1023,7 @@ export class TormEngine {
       ...config,
       // Handle portRange specially to ensure it's a proper tuple
       portRange: config.portRange
-        ? [...config.portRange] as [number, number]
+        ? ([...config.portRange] as [number, number])
         : this.config.portRange,
     };
 
@@ -1073,7 +1088,9 @@ export class TormEngine {
    */
   on<K extends keyof TormEvents>(
     event: K,
-    listener: TormEvents[K] extends void ? () => void : (payload: TormEvents[K]) => void
+    listener: TormEvents[K] extends void
+      ? () => void
+      : (payload: TormEvents[K]) => void
   ): this {
     this.events.on(event, listener);
     return this;
@@ -1097,7 +1114,9 @@ export class TormEngine {
    */
   once<K extends keyof TormEvents>(
     event: K,
-    listener: TormEvents[K] extends void ? () => void : (payload: TormEvents[K]) => void
+    listener: TormEvents[K] extends void
+      ? () => void
+      : (payload: TormEvents[K]) => void
   ): this {
     this.events.once(event, listener);
     return this;
@@ -1121,7 +1140,9 @@ export class TormEngine {
    */
   off<K extends keyof TormEvents>(
     event: K,
-    listener: TormEvents[K] extends void ? () => void : (payload: TormEvents[K]) => void
+    listener: TormEvents[K] extends void
+      ? () => void
+      : (payload: TormEvents[K]) => void
   ): this {
     this.events.off(event, listener);
     return this;
@@ -1174,7 +1195,10 @@ export class TormEngine {
     try {
       await saveTorrentState(info, completedPieces, this.config.dataDir);
     } catch (err) {
-      console.error(`Failed to save torrent state for ${infoHash}:`, (err as Error).message);
+      console.error(
+        `Failed to save torrent state for ${infoHash}:`,
+        (err as Error).message
+      );
     }
   }
 
@@ -1237,7 +1261,9 @@ export class TormEngine {
       if (torrent) {
         // Emit completion event when transitioning to seeding with full progress
         if (state === TorrentState.SEEDING && torrent.progress >= 1) {
-          this.events.emit('torrent:completed', { torrent: torrentToEventTorrent(torrent) });
+          this.events.emit('torrent:completed', {
+            torrent: torrentToEventTorrent(torrent),
+          });
         }
       }
     });
@@ -1313,7 +1339,9 @@ export class TormEngine {
         try {
           // Skip if torrent data is not available (can't re-add without metadata)
           if (!state.torrentData) {
-            console.warn(`Skipping persisted torrent ${state.infoHash}: no torrent data available`);
+            console.warn(
+              `Skipping persisted torrent ${state.infoHash}: no torrent data available`
+            );
             continue;
           }
 
@@ -1327,8 +1355,9 @@ export class TormEngine {
           }
 
           // Determine if torrent should auto-start based on saved state
-          const wasActive = state.state === TorrentState.DOWNLOADING ||
-                           state.state === TorrentState.SEEDING;
+          const wasActive =
+            state.state === TorrentState.DOWNLOADING ||
+            state.state === TorrentState.SEEDING;
 
           // Add to session manager
           const session = await this.sessionManager.addTorrent(metadata, {
@@ -1337,7 +1366,10 @@ export class TormEngine {
           });
 
           // Extract completed pieces from persisted bitfield
-          const completedPieces = extractCompletedPieces(state.bitfield, state.pieceCount);
+          const completedPieces = extractCompletedPieces(
+            state.bitfield,
+            state.pieceCount
+          );
           this.completedPiecesMap.set(session.infoHash, completedPieces);
 
           // Store raw torrent data for future persistence
@@ -1366,7 +1398,10 @@ export class TormEngine {
         console.log(`Loaded ${savedStates.length} persisted torrent(s)`);
       }
     } catch (err) {
-      console.error('Failed to load persisted torrents:', (err as Error).message);
+      console.error(
+        'Failed to load persisted torrents:',
+        (err as Error).message
+      );
     }
   }
 

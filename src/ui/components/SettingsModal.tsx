@@ -34,15 +34,55 @@ interface UISettingField {
 
 // Settings fields (excluding downloadPath which uses DirectoryBrowser)
 const SETTINGS_FIELDS: SettingField[] = [
-  { key: 'maxDownloadSpeed', label: 'Max Download', type: 'number', section: 'limits' },
-  { key: 'maxUploadSpeed', label: 'Max Upload', type: 'number', section: 'limits' },
-  { key: 'maxConnections', label: 'Max Connections', type: 'number', section: 'limits' },
-  { key: 'maxConnectionsPerTorrent', label: 'Per Torrent', type: 'number', section: 'limits' },
+  {
+    key: 'maxDownloadSpeed',
+    label: 'Max Download',
+    type: 'number',
+    section: 'limits',
+  },
+  {
+    key: 'maxUploadSpeed',
+    label: 'Max Upload',
+    type: 'number',
+    section: 'limits',
+  },
+  {
+    key: 'maxConnections',
+    label: 'Max Connections',
+    type: 'number',
+    section: 'limits',
+  },
+  {
+    key: 'maxConnectionsPerTorrent',
+    label: 'Per Torrent',
+    type: 'number',
+    section: 'limits',
+  },
   { key: 'port', label: 'Listen Port', type: 'number', section: 'network' },
-  { key: 'dhtEnabled', label: 'Enable DHT', type: 'checkbox', section: 'network' },
-  { key: 'pexEnabled', label: 'Enable PEX', type: 'checkbox', section: 'network' },
-  { key: 'startOnAdd', label: 'Auto-start torrents', type: 'checkbox', section: 'behavior' },
-  { key: 'verifyOnAdd', label: 'Verify on add', type: 'checkbox', section: 'behavior' },
+  {
+    key: 'dhtEnabled',
+    label: 'Enable DHT',
+    type: 'checkbox',
+    section: 'network',
+  },
+  {
+    key: 'pexEnabled',
+    label: 'Enable PEX',
+    type: 'checkbox',
+    section: 'network',
+  },
+  {
+    key: 'startOnAdd',
+    label: 'Auto-start torrents',
+    type: 'checkbox',
+    section: 'behavior',
+  },
+  {
+    key: 'verifyOnAdd',
+    label: 'Verify on add',
+    type: 'checkbox',
+    section: 'behavior',
+  },
 ];
 
 // UI/Display settings fields
@@ -109,9 +149,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     wasVisible.current = visible;
   }, [visible, config]);
 
-  const updateValue = useCallback((key: keyof EngineConfig, value: string | number | boolean) => {
-    setLocalConfig((prev) => ({ ...prev, [key]: value }));
-  }, []);
+  const updateValue = useCallback(
+    (key: keyof EngineConfig, value: string | number | boolean) => {
+      setLocalConfig((prev) => ({ ...prev, [key]: value }));
+    },
+    []
+  );
 
   const updateUIValue = useCallback((key: keyof UIConfig, value: number) => {
     setLocalConfig((prev) => ({
@@ -152,13 +195,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         if (focusArea === 'fields') {
           if (key.shift) {
             if (fieldIndex > 0) {
-              setFieldIndex(prev => prev - 1);
+              setFieldIndex((prev) => prev - 1);
             } else {
               setFocusArea('browser');
             }
           } else {
             if (fieldIndex < totalFields - 1) {
-              setFieldIndex(prev => prev + 1);
+              setFieldIndex((prev) => prev + 1);
             } else {
               setFocusArea('buttons');
             }
@@ -177,11 +220,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       // Arrow keys for fields
       if (focusArea === 'fields') {
         if (key.upArrow && fieldIndex > 0) {
-          setFieldIndex(prev => prev - 1);
+          setFieldIndex((prev) => prev - 1);
           return;
         }
         if (key.downArrow && fieldIndex < totalFields - 1) {
-          setFieldIndex(prev => prev + 1);
+          setFieldIndex((prev) => prev + 1);
           return;
         }
         if (key.downArrow && fieldIndex === totalFields - 1) {
@@ -247,19 +290,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
 
     const stringValue = value?.toString() ?? '';
-    const isSpeed = field.key === 'maxDownloadSpeed' || field.key === 'maxUploadSpeed';
+    const isSpeed =
+      field.key === 'maxDownloadSpeed' || field.key === 'maxUploadSpeed';
     const speedHint = isSpeed ? ` (${formatSpeed(Number(value) || 0)})` : '';
 
     return (
       <Box key={field.key} flexDirection="column" marginBottom={0}>
-        <Text color={isFocused ? colors.primary : colors.muted} bold={isFocused}>
-          {field.label}{speedHint}
+        <Text
+          color={isFocused ? colors.primary : colors.muted}
+          bold={isFocused}
+        >
+          {field.label}
+          {speedHint}
         </Text>
         <TextInput
           value={stringValue}
           onChange={(newValue) => {
             const numericValue = newValue.replace(/[^0-9]/g, '');
-            updateValue(field.key, numericValue ? parseInt(numericValue, 10) : 0);
+            updateValue(
+              field.key,
+              numericValue ? parseInt(numericValue, 10) : 0
+            );
           }}
           placeholder="0"
           width={columnWidth - 4}
@@ -269,18 +320,23 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     );
   };
 
-  const limitFields = SETTINGS_FIELDS.filter(f => f.section === 'limits');
-  const networkFields = SETTINGS_FIELDS.filter(f => f.section === 'network');
-  const behaviorFields = SETTINGS_FIELDS.filter(f => f.section === 'behavior');
+  const limitFields = SETTINGS_FIELDS.filter((f) => f.section === 'limits');
+  const networkFields = SETTINGS_FIELDS.filter((f) => f.section === 'network');
+  const behaviorFields = SETTINGS_FIELDS.filter(
+    (f) => f.section === 'behavior'
+  );
 
   // Calculate field indices for each section
   const getFieldGlobalIndex = (field: SettingField) => {
-    return SETTINGS_FIELDS.findIndex(f => f.key === field.key);
+    return SETTINGS_FIELDS.findIndex((f) => f.key === field.key);
   };
 
   // Calculate UI field indices (offset by SETTINGS_FIELDS.length)
   const getUIFieldGlobalIndex = (field: UISettingField) => {
-    return SETTINGS_FIELDS.length + UI_SETTINGS_FIELDS.findIndex(f => f.key === field.key);
+    return (
+      SETTINGS_FIELDS.length +
+      UI_SETTINGS_FIELDS.findIndex((f) => f.key === field.key)
+    );
   };
 
   const renderUIField = (field: UISettingField, index: number) => {
@@ -290,14 +346,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
     return (
       <Box key={field.key} flexDirection="column" marginBottom={0}>
-        <Text color={isFocused ? colors.primary : colors.muted} bold={isFocused}>
+        <Text
+          color={isFocused ? colors.primary : colors.muted}
+          bold={isFocused}
+        >
           {field.label}
         </Text>
         <TextInput
           value={stringValue}
           onChange={(newValue) => {
             const numericValue = newValue.replace(/[^0-9]/g, '');
-            updateUIValue(field.key, numericValue ? parseInt(numericValue, 10) : 5);
+            updateUIValue(
+              field.key,
+              numericValue ? parseInt(numericValue, 10) : 5
+            );
           }}
           placeholder="5"
           width={columnWidth - 4}
@@ -312,7 +374,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       {/* Header */}
       <Box marginBottom={1}>
         <Text color={colors.primary} bold>
-          {borders.double.horizontal.repeat(3)} Settings {borders.double.horizontal.repeat(contentWidth - 14)}
+          {borders.double.horizontal.repeat(3)} Settings{' '}
+          {borders.double.horizontal.repeat(contentWidth - 14)}
         </Text>
       </Box>
 
@@ -337,7 +400,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
       {/* Download Path Section with Directory Browser */}
       <Box flexDirection="column" marginBottom={1}>
-        <Text color={colors.primary} bold> Download Location</Text>
+        <Text color={colors.primary} bold>
+          {' '}
+          Download Location
+        </Text>
         <DirectoryBrowser
           value={localConfig.downloadPath?.toString() ?? ''}
           onChange={(path) => updateValue('downloadPath', path)}
@@ -351,31 +417,51 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       <Box flexDirection="row" gap={2}>
         {/* Speed & Connections */}
         <Box flexDirection="column" width={columnWidth}>
-          <Text color={colors.primary} bold> Speed & Limits</Text>
+          <Text color={colors.primary} bold>
+            {' '}
+            Speed & Limits
+          </Text>
           <Box flexDirection="column" paddingLeft={1}>
-            {limitFields.map(field => renderField(field, getFieldGlobalIndex(field)))}
+            {limitFields.map((field) =>
+              renderField(field, getFieldGlobalIndex(field))
+            )}
           </Box>
         </Box>
 
         {/* Network */}
         <Box flexDirection="column" width={columnWidth}>
-          <Text color={colors.primary} bold> Network</Text>
+          <Text color={colors.primary} bold>
+            {' '}
+            Network
+          </Text>
           <Box flexDirection="column" paddingLeft={1}>
-            {networkFields.map(field => renderField(field, getFieldGlobalIndex(field)))}
+            {networkFields.map((field) =>
+              renderField(field, getFieldGlobalIndex(field))
+            )}
           </Box>
 
           <Box marginTop={1}>
-            <Text color={colors.primary} bold> Behavior</Text>
+            <Text color={colors.primary} bold>
+              {' '}
+              Behavior
+            </Text>
           </Box>
           <Box flexDirection="column" paddingLeft={1}>
-            {behaviorFields.map(field => renderField(field, getFieldGlobalIndex(field)))}
+            {behaviorFields.map((field) =>
+              renderField(field, getFieldGlobalIndex(field))
+            )}
           </Box>
 
           <Box marginTop={1}>
-            <Text color={colors.primary} bold> Display</Text>
+            <Text color={colors.primary} bold>
+              {' '}
+              Display
+            </Text>
           </Box>
           <Box flexDirection="column" paddingLeft={1}>
-            {UI_SETTINGS_FIELDS.map(field => renderUIField(field, getUIFieldGlobalIndex(field)))}
+            {UI_SETTINGS_FIELDS.map((field) =>
+              renderUIField(field, getUIFieldGlobalIndex(field))
+            )}
           </Box>
         </Box>
       </Box>
@@ -388,7 +474,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         <Box marginTop={1} gap={3}>
           <Box>
             <Text
-              color={focusArea === 'buttons' && buttonFocus === 'save' ? colors.success : colors.muted}
+              color={
+                focusArea === 'buttons' && buttonFocus === 'save'
+                  ? colors.success
+                  : colors.muted
+              }
               bold={focusArea === 'buttons' && buttonFocus === 'save'}
               inverse={focusArea === 'buttons' && buttonFocus === 'save'}
             >
@@ -397,7 +487,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </Box>
           <Box>
             <Text
-              color={focusArea === 'buttons' && buttonFocus === 'cancel' ? colors.error : colors.muted}
+              color={
+                focusArea === 'buttons' && buttonFocus === 'cancel'
+                  ? colors.error
+                  : colors.muted
+              }
               bold={focusArea === 'buttons' && buttonFocus === 'cancel'}
               inverse={focusArea === 'buttons' && buttonFocus === 'cancel'}
             >
@@ -406,7 +500,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </Box>
           <Box flexGrow={1} />
           <Text color={colors.muted} dimColor>
-            Tab: Next section  ↑↓←→: Navigate  Enter: Confirm  Esc: Cancel
+            Tab: Next section ↑↓←→: Navigate Enter: Confirm Esc: Cancel
           </Text>
         </Box>
       </Box>

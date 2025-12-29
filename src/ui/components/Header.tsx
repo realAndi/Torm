@@ -42,7 +42,9 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Logo */}
       <Box flexDirection="column">
         {LOGO_LINES.map((line, index) => (
-          <Text key={index} color={colors.primary}>{line}</Text>
+          <Text key={index} color={colors.primary}>
+            {line}
+          </Text>
         ))}
       </Box>
 

@@ -87,7 +87,9 @@ export const MainView: React.FC<MainViewProps> = ({
   );
 
   const selectedTorrent =
-    filteredTorrents.length > 0 ? filteredTorrents[selectedIndex] ?? null : null;
+    filteredTorrents.length > 0
+      ? (filteredTorrents[selectedIndex] ?? null)
+      : null;
 
   const isFiltered =
     (searchQuery && searchQuery.trim().length > 0) ||

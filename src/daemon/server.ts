@@ -319,7 +319,10 @@ export class DaemonServer {
         }
 
         case 'removeTorrent':
-          await this.engine.removeTorrent(request.infoHash, request.deleteFiles);
+          await this.engine.removeTorrent(
+            request.infoHash,
+            request.deleteFiles
+          );
           return {
             ...baseResponse,
             type: 'removeTorrent',
@@ -437,17 +440,20 @@ export class DaemonServer {
       });
     });
 
-    this.engine.on('torrent:progress', ({ infoHash, progress, downloadSpeed, uploadSpeed, peers }) => {
-      this.broadcastEvent({
-        type: 'torrent:progress',
-        timestamp: Date.now(),
-        infoHash,
-        progress,
-        downloadSpeed,
-        uploadSpeed,
-        peers,
-      });
-    });
+    this.engine.on(
+      'torrent:progress',
+      ({ infoHash, progress, downloadSpeed, uploadSpeed, peers }) => {
+        this.broadcastEvent({
+          type: 'torrent:progress',
+          timestamp: Date.now(),
+          infoHash,
+          progress,
+          downloadSpeed,
+          uploadSpeed,
+          peers,
+        });
+      }
+    );
 
     this.engine.on('torrent:completed', ({ torrent }) => {
       this.broadcastEvent({

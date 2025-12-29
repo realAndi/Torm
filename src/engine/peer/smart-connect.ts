@@ -11,12 +11,8 @@
  */
 
 import { PeerConnection } from './connection.js';
-import {
-  attemptEncryptedConnection,
-} from './encrypted-connection.js';
-import {
-  attemptPlaintextConnection,
-} from './plaintext-connection.js';
+import { attemptEncryptedConnection } from './encrypted-connection.js';
+import { attemptPlaintextConnection } from './plaintext-connection.js';
 import { RC4Stream } from './encryption.js';
 
 // =============================================================================
@@ -154,8 +150,16 @@ export async function smartConnect(
       });
 
       // Enable encryption on the connection
-      if (result.method === 'rc4' && result.encryptStream && result.decryptStream) {
-        connection.enableEncryption('rc4', result.encryptStream, result.decryptStream);
+      if (
+        result.method === 'rc4' &&
+        result.encryptStream &&
+        result.decryptStream
+      ) {
+        connection.enableEncryption(
+          'rc4',
+          result.encryptStream,
+          result.decryptStream
+        );
       }
 
       return {
@@ -197,8 +201,16 @@ export async function smartConnect(
     });
 
     // Enable encryption if RC4 was negotiated
-    if (encryptedResult.method === 'rc4' && encryptedResult.encryptStream && encryptedResult.decryptStream) {
-      connection.enableEncryption('rc4', encryptedResult.encryptStream, encryptedResult.decryptStream);
+    if (
+      encryptedResult.method === 'rc4' &&
+      encryptedResult.encryptStream &&
+      encryptedResult.decryptStream
+    ) {
+      connection.enableEncryption(
+        'rc4',
+        encryptedResult.encryptStream,
+        encryptedResult.decryptStream
+      );
     }
 
     return {

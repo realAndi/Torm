@@ -94,7 +94,11 @@ export function mergeWithDefaults(
   partialConfig?: Partial<EngineConfig>
 ): EngineConfig {
   if (!partialConfig) {
-    return { ...DEFAULT_CONFIG, daemon: { ...DEFAULT_CONFIG.daemon }, ui: { ...DEFAULT_CONFIG.ui } };
+    return {
+      ...DEFAULT_CONFIG,
+      daemon: { ...DEFAULT_CONFIG.daemon },
+      ui: { ...DEFAULT_CONFIG.ui },
+    };
   }
 
   return {

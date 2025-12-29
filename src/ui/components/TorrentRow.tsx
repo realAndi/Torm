@@ -33,7 +33,10 @@ export function calculateColumnWidths(terminalWidth: number) {
     const seeds = 10;
     const peers = 10;
     const status = 10;
-    const name = Math.max(10, availableWidth - progress - size - speed - seeds - peers - status);
+    const name = Math.max(
+      10,
+      availableWidth - progress - size - speed - seeds - peers - status
+    );
     return { name, progress, size, speed, seeds, peers, status };
   }
 
@@ -45,7 +48,8 @@ export function calculateColumnWidths(terminalWidth: number) {
     const seeds = 10;
     const peers = 10;
     const status = 12;
-    const name = availableWidth - progress - size - speed - seeds - peers - status;
+    const name =
+      availableWidth - progress - size - speed - seeds - peers - status;
     return { name, progress, size, speed, seeds, peers, status };
   }
 
@@ -56,7 +60,8 @@ export function calculateColumnWidths(terminalWidth: number) {
   const seeds = 12;
   const peers = 12;
   const status = 14;
-  const name = availableWidth - progress - size - speed - seeds - peers - status;
+  const name =
+    availableWidth - progress - size - speed - seeds - peers - status;
 
   return { name, progress, size, speed, seeds, peers, status };
 }
@@ -165,7 +170,10 @@ function getTotalLeeches(torrent: Torrent): number {
  * Format connected (available) display for seeds/peers
  * Handles undefined values by defaulting to 0
  */
-function formatPeerCount(connected: number | undefined, available: number): string {
+function formatPeerCount(
+  connected: number | undefined,
+  available: number
+): string {
   return `${connected ?? 0} (${available})`;
 }
 
@@ -194,88 +202,147 @@ export const TorrentRow: React.FC<TorrentRowProps> = ({
   return (
     <Box flexDirection="row">
       {/* Left border */}
-      <Text color={isSelected ? selectedColor : colors.border}>{borders.vertical}</Text>
+      <Text color={isSelected ? selectedColor : colors.border}>
+        {borders.vertical}
+      </Text>
 
       {/* Name column */}
       <Box width={cols.name}>
-        <Text color={isSelected ? selectedColor : colors.text} bold={isSelected}>
+        <Text
+          color={isSelected ? selectedColor : colors.text}
+          bold={isSelected}
+        >
           {' '}
           {torrent.state === TorrentState.PAUSED && (
-            <Text color={isSelected ? selectedColor : statusColors.paused}>⏸ </Text>
+            <Text color={isSelected ? selectedColor : statusColors.paused}>
+              ⏸{' '}
+            </Text>
           )}
-          {truncateName(torrent.name, torrent.state === TorrentState.PAUSED ? cols.name - 5 : cols.name - 2)}{' '}
+          {truncateName(
+            torrent.name,
+            torrent.state === TorrentState.PAUSED
+              ? cols.name - 5
+              : cols.name - 2
+          )}{' '}
         </Text>
       </Box>
 
-      <Text color={isSelected ? selectedColor : colors.borderDim}>{borders.vertical}</Text>
+      <Text color={isSelected ? selectedColor : colors.borderDim}>
+        {borders.vertical}
+      </Text>
 
       {/* Progress column */}
       <Box width={cols.progress}>
-        <Text color={isSelected ? selectedColor : undefined}>{' '}</Text>
+        <Text color={isSelected ? selectedColor : undefined}> </Text>
         {isSelected ? (
           <Text color={selectedColor} bold>
             {'\u2588'.repeat(Math.round(torrent.progress * progressBarWidth))}
-            {'\u2591'.repeat(progressBarWidth - Math.round(torrent.progress * progressBarWidth))}
-            {' '}{(torrent.progress >= 1 ? 100 : Math.floor(torrent.progress * 100)).toString().padStart(3)}%
+            {'\u2591'.repeat(
+              progressBarWidth - Math.round(torrent.progress * progressBarWidth)
+            )}{' '}
+            {(torrent.progress >= 1 ? 100 : Math.floor(torrent.progress * 100))
+              .toString()
+              .padStart(3)}
+            %
           </Text>
         ) : (
-          <ProgressBar progress={torrent.progress} width={progressBarWidth} showPercentage={true} />
+          <ProgressBar
+            progress={torrent.progress}
+            width={progressBarWidth}
+            showPercentage={true}
+          />
         )}
-        <Text>{' '}</Text>
+        <Text> </Text>
       </Box>
 
-      <Text color={isSelected ? selectedColor : colors.borderDim}>{borders.vertical}</Text>
+      <Text color={isSelected ? selectedColor : colors.borderDim}>
+        {borders.vertical}
+      </Text>
 
       {/* Size column */}
       <Box width={cols.size} justifyContent="flex-end">
-        <Text color={isSelected ? selectedColor : colors.muted} bold={isSelected}>
+        <Text
+          color={isSelected ? selectedColor : colors.muted}
+          bold={isSelected}
+        >
           {formatSize(torrent.size).padStart(cols.size - 2)}{' '}
         </Text>
       </Box>
 
-      <Text color={isSelected ? selectedColor : colors.borderDim}>{borders.vertical}</Text>
+      <Text color={isSelected ? selectedColor : colors.borderDim}>
+        {borders.vertical}
+      </Text>
 
       {/* Speed column */}
       <Box width={cols.speed} justifyContent="flex-end">
-        <Text color={isSelected ? selectedColor : colors.muted} bold={isSelected}>
+        <Text
+          color={isSelected ? selectedColor : colors.muted}
+          bold={isSelected}
+        >
           {formatSpeed(speed).padStart(cols.speed - 2)}{' '}
         </Text>
       </Box>
 
-      <Text color={isSelected ? selectedColor : colors.borderDim}>{borders.vertical}</Text>
+      <Text color={isSelected ? selectedColor : colors.borderDim}>
+        {borders.vertical}
+      </Text>
 
       {/* Seeds column */}
       <Box width={cols.seeds} justifyContent="flex-end">
-        <Text color={isSelected ? selectedColor : colors.muted} bold={isSelected}>
-          {formatPeerCount(torrent.seeds, getTotalSeeds(torrent)).padStart(cols.seeds - 2)}{' '}
+        <Text
+          color={isSelected ? selectedColor : colors.muted}
+          bold={isSelected}
+        >
+          {formatPeerCount(torrent.seeds, getTotalSeeds(torrent)).padStart(
+            cols.seeds - 2
+          )}{' '}
         </Text>
       </Box>
 
-      <Text color={isSelected ? selectedColor : colors.borderDim}>{borders.vertical}</Text>
+      <Text color={isSelected ? selectedColor : colors.borderDim}>
+        {borders.vertical}
+      </Text>
 
       {/* Peers column */}
       <Box width={cols.peers} justifyContent="flex-end">
-        <Text color={isSelected ? selectedColor : colors.muted} bold={isSelected}>
-          {formatPeerCount(torrent.peers, getTotalLeeches(torrent)).padStart(cols.peers - 2)}{' '}
+        <Text
+          color={isSelected ? selectedColor : colors.muted}
+          bold={isSelected}
+        >
+          {formatPeerCount(torrent.peers, getTotalLeeches(torrent)).padStart(
+            cols.peers - 2
+          )}{' '}
         </Text>
       </Box>
 
-      <Text color={isSelected ? selectedColor : colors.borderDim}>{borders.vertical}</Text>
+      <Text color={isSelected ? selectedColor : colors.borderDim}>
+        {borders.vertical}
+      </Text>
 
       {/* Status column */}
       <Box width={cols.status}>
-        <Text color={isSelected ? selectedColor : statusColor} bold={isSelected}>
-          {' '}{statusText.slice(0, cols.status - 2).padEnd(cols.status - 2)}
+        <Text
+          color={isSelected ? selectedColor : statusColor}
+          bold={isSelected}
+        >
+          {' '}
+          {statusText.slice(0, cols.status - 2).padEnd(cols.status - 2)}
         </Text>
       </Box>
 
       {/* Right border */}
-      <Text color={isSelected ? selectedColor : colors.border}>{borders.vertical}</Text>
+      <Text color={isSelected ? selectedColor : colors.border}>
+        {borders.vertical}
+      </Text>
 
       {/* Labels (outside table) */}
       {torrent.labels && torrent.labels.length > 0 && (
         <Box marginLeft={1}>
-          <LabelList labels={torrent.labels} isSelected={isSelected} maxLabels={2} />
+          <LabelList
+            labels={torrent.labels}
+            isSelected={isSelected}
+            maxLabels={2}
+          />
         </Box>
       )}
     </Box>

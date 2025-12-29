@@ -27,9 +27,9 @@ import { createHash, randomBytes } from 'crypto';
  */
 const DH_PRIME = Buffer.from(
   'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1' +
-  '29024E088A67CC74020BBEA63B139B22514A08798E3404DD' +
-  'EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245' +
-  'E485B576625E7EC6F44C42E9A63A36210000000000090563',
+    '29024E088A67CC74020BBEA63B139B22514A08798E3404DD' +
+    'EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245' +
+    'E485B576625E7EC6F44C42E9A63A36210000000000090563',
   'hex'
 );
 
@@ -229,7 +229,10 @@ export function generateDHKeyPair(): { privateKey: Buffer; publicKey: Buffer } {
  * @param remotePublicKey - Remote party's public key (Yb)
  * @returns Shared secret S
  */
-export function computeDHSecret(privateKey: Buffer, remotePublicKey: Buffer): Buffer {
+export function computeDHSecret(
+  privateKey: Buffer,
+  remotePublicKey: Buffer
+): Buffer {
   const Xa = bufferToBigInt(privateKey);
   const Yb = bufferToBigInt(remotePublicKey);
   const P = bufferToBigInt(DH_PRIME);
@@ -275,30 +278,21 @@ export function deriveRC4Keys(
  * Hash for synchronization: SHA1("req1" + S)
  */
 export function hashSync1(S: Buffer): Buffer {
-  return createHash('sha1')
-    .update('req1')
-    .update(S)
-    .digest();
+  return createHash('sha1').update('req1').update(S).digest();
 }
 
 /**
  * Hash for SKEY verification: SHA1("req2" + SKEY)
  */
 export function hashSync2(SKEY: Buffer): Buffer {
-  return createHash('sha1')
-    .update('req2')
-    .update(SKEY)
-    .digest();
+  return createHash('sha1').update('req2').update(SKEY).digest();
 }
 
 /**
  * XOR hash for SKEY obfuscation: SHA1("req3" + S) XOR SKEY
  */
 export function hashSync3(S: Buffer, SKEY: Buffer): Buffer {
-  const hash = createHash('sha1')
-    .update('req3')
-    .update(S)
-    .digest();
+  const hash = createHash('sha1').update('req3').update(S).digest();
 
   // XOR with SKEY (padded/truncated to 20 bytes)
   const result = Buffer.alloc(20);
@@ -354,7 +348,11 @@ export class EncryptedConnection {
    * @param decryptKey - Key for incoming decryption
    * @param method - Crypto method to use
    */
-  initialize(encryptKey: Buffer, decryptKey: Buffer, method: CryptoMethod): void {
+  initialize(
+    encryptKey: Buffer,
+    decryptKey: Buffer,
+    method: CryptoMethod
+  ): void {
     this.method = method;
 
     if (method === 'rc4') {
@@ -459,7 +457,7 @@ export function selectCryptoMethod(
   options: EncryptionOptions
 ): CryptoMethod | null {
   // Prefer RC4 if both support it and we prefer encryption
-  if ((cryptoProvide & CryptoProvide.RC4) && options.preferEncryption) {
+  if (cryptoProvide & CryptoProvide.RC4 && options.preferEncryption) {
     return 'rc4';
   }
 
@@ -469,7 +467,7 @@ export function selectCryptoMethod(
   }
 
   // Use plaintext if allowed
-  if ((cryptoProvide & CryptoProvide.PLAINTEXT) && !options.requireEncryption) {
+  if (cryptoProvide & CryptoProvide.PLAINTEXT && !options.requireEncryption) {
     return 'plaintext';
   }
 
@@ -480,9 +478,6 @@ export function selectCryptoMethod(
 // Exports
 // =============================================================================
 
-export {
-  DH_KEY_LENGTH,
-  VC,
-};
+export { DH_KEY_LENGTH, VC };
 
 export default EncryptedConnection;

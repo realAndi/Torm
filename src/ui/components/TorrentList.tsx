@@ -57,7 +57,16 @@ export function filterTorrents(
 function getTotalWidth(width: number) {
   const cols = calculateColumnWidths(width);
   // 6 internal separators between 7 columns
-  return cols.name + cols.progress + cols.size + cols.speed + cols.seeds + cols.peers + cols.status + 6;
+  return (
+    cols.name +
+    cols.progress +
+    cols.size +
+    cols.speed +
+    cols.seeds +
+    cols.peers +
+    cols.status +
+    6
+  );
 }
 
 /**
@@ -107,7 +116,14 @@ export const TorrentList: React.FC<TorrentListProps> = ({
         return;
       }
 
-      if (key.ctrl || key.meta || key.upArrow || key.downArrow || key.return || key.tab) {
+      if (
+        key.ctrl ||
+        key.meta ||
+        key.upArrow ||
+        key.downArrow ||
+        key.return ||
+        key.tab
+      ) {
         return;
       }
 
@@ -144,9 +160,10 @@ export const TorrentList: React.FC<TorrentListProps> = ({
 
   // Calculate search display width
   const searchDisplayWidth = cols.name - 8; // " Name: " = 7 chars + 1 for cursor
-  const displayQuery = searchQuery.length > searchDisplayWidth - 1
-    ? searchQuery.slice(-(searchDisplayWidth - 1))
-    : searchQuery;
+  const displayQuery =
+    searchQuery.length > searchDisplayWidth - 1
+      ? searchQuery.slice(-(searchDisplayWidth - 1))
+      : searchQuery;
 
   // Render header
   const renderHeader = () => (
@@ -177,44 +194,61 @@ export const TorrentList: React.FC<TorrentListProps> = ({
               <Text color={colors.muted}> (Esc to clear)</Text>
             </Text>
           ) : (
-            <Text bold color={colors.muted}> Name</Text>
+            <Text bold color={colors.muted}>
+              {' '}
+              Name
+            </Text>
           )}
         </Box>
 
         <Text color={colors.borderDim}>{borders.vertical}</Text>
 
         <Box width={cols.progress}>
-          <Text bold color={colors.muted}> Progress</Text>
+          <Text bold color={colors.muted}>
+            {' '}
+            Progress
+          </Text>
         </Box>
 
         <Text color={colors.borderDim}>{borders.vertical}</Text>
 
         <Box width={cols.size} justifyContent="flex-end">
-          <Text bold color={colors.muted}>Size </Text>
+          <Text bold color={colors.muted}>
+            Size{' '}
+          </Text>
         </Box>
 
         <Text color={colors.borderDim}>{borders.vertical}</Text>
 
         <Box width={cols.speed} justifyContent="flex-end">
-          <Text bold color={colors.muted}>Speed </Text>
+          <Text bold color={colors.muted}>
+            Speed{' '}
+          </Text>
         </Box>
 
         <Text color={colors.borderDim}>{borders.vertical}</Text>
 
         <Box width={cols.seeds} justifyContent="flex-end">
-          <Text bold color={colors.muted}>Seeds </Text>
+          <Text bold color={colors.muted}>
+            Seeds{' '}
+          </Text>
         </Box>
 
         <Text color={colors.borderDim}>{borders.vertical}</Text>
 
         <Box width={cols.peers} justifyContent="flex-end">
-          <Text bold color={colors.muted}>Peers </Text>
+          <Text bold color={colors.muted}>
+            Peers{' '}
+          </Text>
         </Box>
 
         <Text color={colors.borderDim}>{borders.vertical}</Text>
 
         <Box width={cols.status}>
-          <Text bold color={colors.muted}> Status</Text>
+          <Text bold color={colors.muted}>
+            {' '}
+            Status
+          </Text>
         </Box>
 
         <Text color={colors.border}>{borders.vertical}</Text>
@@ -254,31 +288,51 @@ export const TorrentList: React.FC<TorrentListProps> = ({
   const renderEmptyRow = (key: string) => (
     <Box key={key} flexDirection="row">
       <Text color={colors.border}>{borders.vertical}</Text>
-      <Box width={cols.name}><Text>{' '.repeat(cols.name)}</Text></Box>
+      <Box width={cols.name}>
+        <Text>{' '.repeat(cols.name)}</Text>
+      </Box>
       <Text color={colors.borderDim}>{borders.vertical}</Text>
-      <Box width={cols.progress}><Text>{' '.repeat(cols.progress)}</Text></Box>
+      <Box width={cols.progress}>
+        <Text>{' '.repeat(cols.progress)}</Text>
+      </Box>
       <Text color={colors.borderDim}>{borders.vertical}</Text>
-      <Box width={cols.size}><Text>{' '.repeat(cols.size)}</Text></Box>
+      <Box width={cols.size}>
+        <Text>{' '.repeat(cols.size)}</Text>
+      </Box>
       <Text color={colors.borderDim}>{borders.vertical}</Text>
-      <Box width={cols.speed}><Text>{' '.repeat(cols.speed)}</Text></Box>
+      <Box width={cols.speed}>
+        <Text>{' '.repeat(cols.speed)}</Text>
+      </Box>
       <Text color={colors.borderDim}>{borders.vertical}</Text>
-      <Box width={cols.seeds}><Text>{' '.repeat(cols.seeds)}</Text></Box>
+      <Box width={cols.seeds}>
+        <Text>{' '.repeat(cols.seeds)}</Text>
+      </Box>
       <Text color={colors.borderDim}>{borders.vertical}</Text>
-      <Box width={cols.peers}><Text>{' '.repeat(cols.peers)}</Text></Box>
+      <Box width={cols.peers}>
+        <Text>{' '.repeat(cols.peers)}</Text>
+      </Box>
       <Text color={colors.borderDim}>{borders.vertical}</Text>
-      <Box width={cols.status}><Text>{' '.repeat(cols.status)}</Text></Box>
+      <Box width={cols.status}>
+        <Text>{' '.repeat(cols.status)}</Text>
+      </Box>
       <Text color={colors.border}>{borders.vertical}</Text>
     </Box>
   );
 
   // Render empty state - each line needs proper borders
   const renderEmptyState = (isFiltered: boolean) => {
-    const line1 = isFiltered ? 'No matching torrents found' : 'No torrents added yet';
-    const line2 = isFiltered ? 'Press Escape to clear filter' : "Press 'a' to add a torrent";
+    const line1 = isFiltered
+      ? 'No matching torrents found'
+      : 'No torrents added yet';
+    const line2 = isFiltered
+      ? 'Press Escape to clear filter'
+      : "Press 'a' to add a torrent";
     // All rows should have exactly totalWidth characters between the borders
     const emptyRow = ' '.repeat(totalWidth);
-    const line1Padded = ' ' + line1 + ' '.repeat(Math.max(0, totalWidth - line1.length - 1));
-    const line2Padded = ' ' + line2 + ' '.repeat(Math.max(0, totalWidth - line2.length - 1));
+    const line1Padded =
+      ' ' + line1 + ' '.repeat(Math.max(0, totalWidth - line1.length - 1));
+    const line2Padded =
+      ' ' + line2 + ' '.repeat(Math.max(0, totalWidth - line2.length - 1));
 
     return (
       <Box flexDirection="column">
@@ -332,8 +386,13 @@ export const TorrentList: React.FC<TorrentListProps> = ({
   }
 
   // Calculate how many empty rows we need to fill the gap
-  const emptyRowsCount = Math.max(0, minVisibleTorrents - filteredTorrents.length);
-  const emptyRows = Array.from({ length: emptyRowsCount }, (_, i) => renderEmptyRow(`empty-${i}`));
+  const emptyRowsCount = Math.max(
+    0,
+    minVisibleTorrents - filteredTorrents.length
+  );
+  const emptyRows = Array.from({ length: emptyRowsCount }, (_, i) =>
+    renderEmptyRow(`empty-${i}`)
+  );
 
   // Only use ScrollList when we have more torrents than minVisibleTorrents
   const needsScrolling = filteredTorrents.length > minVisibleTorrents;

@@ -45,7 +45,12 @@ export interface PeerManagerEvents {
   peerDisconnected: { infoHash: string; peerId: string; reason: string };
 
   /** Emitted when a protocol message is received from a peer */
-  peerMessage: { infoHash: string; peerId: string; type: string; payload: unknown };
+  peerMessage: {
+    infoHash: string;
+    peerId: string;
+    type: string;
+    payload: unknown;
+  };
 
   /** Emitted when a peer encounters an error */
   peerError: { infoHash: string; peerId: string; error: Error };
@@ -590,7 +595,10 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
       const pendingKey = `${peerInfo.ip}:${peerInfo.port}`;
 
       // Skip if already connected or connecting (O(1) lookups)
-      if (this.pendingConnections.has(pendingKey) || connectedAddresses.has(pendingKey)) {
+      if (
+        this.pendingConnections.has(pendingKey) ||
+        connectedAddresses.has(pendingKey)
+      ) {
         continue;
       }
 
@@ -603,7 +611,10 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
       if (totalPeerCount + pendingCount >= this.maxConnections) {
         break;
       }
-      if (torrentPeers.size + torrentPendingCount >= this.maxConnectionsPerTorrent) {
+      if (
+        torrentPeers.size + torrentPendingCount >=
+        this.maxConnectionsPerTorrent
+      ) {
         break;
       }
 
@@ -664,12 +675,17 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
 
     try {
       // Use smart connection with dual-attempt strategy
-      const connectResult = await smartConnect(peerInfo.ip, peerInfo.port, infoHashBuffer, {
-        encryptionMode: this.encryptionMode,
-        connectTimeout: this.connectTimeout,
-        encryptionTimeout: 5000,
-        idleTimeout: 30000,
-      });
+      const connectResult = await smartConnect(
+        peerInfo.ip,
+        peerInfo.port,
+        infoHashBuffer,
+        {
+          encryptionMode: this.encryptionMode,
+          connectTimeout: this.connectTimeout,
+          encryptionTimeout: 5000,
+          idleTimeout: 30000,
+        }
+      );
 
       if (!connectResult.success || !connectResult.connection) {
         throw new Error(connectResult.error ?? 'Connection failed');
@@ -678,8 +694,16 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
       const connection = connectResult.connection;
 
       // Enable encryption on the connection if negotiated
-      if (connectResult.encrypted && connectResult.encryptStream && connectResult.decryptStream) {
-        connection.enableEncryption('rc4', connectResult.encryptStream, connectResult.decryptStream);
+      if (
+        connectResult.encrypted &&
+        connectResult.encryptStream &&
+        connectResult.decryptStream
+      ) {
+        connection.enableEncryption(
+          'rc4',
+          connectResult.encryptStream,
+          connectResult.decryptStream
+        );
       }
 
       // Create wire protocol handler
@@ -768,7 +792,12 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
       // Record connection failure in health stats
       const error = err instanceof Error ? err : new Error(String(err));
       const disconnectReason = this.classifyError(error);
-      this.recordConnectionFailure(peerInfo.ip, peerInfo.port, disconnectReason, infoHash);
+      this.recordConnectionFailure(
+        peerInfo.ip,
+        peerInfo.port,
+        disconnectReason,
+        infoHash
+      );
 
       // Emit error event
       this.emit('peerError', {
@@ -856,7 +885,9 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
       return [];
     }
 
-    return Array.from(torrentPeers.values()).map((state) => ({ ...state.peer }));
+    return Array.from(torrentPeers.values()).map((state) => ({
+      ...state.peer,
+    }));
   }
 
   /**
@@ -1004,7 +1035,11 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
    * @param peerId - Peer ID hex string
    * @param pieceIndex - Index of the piece we now have
    */
-  async sendHave(infoHash: string, peerId: string, pieceIndex: number): Promise<void> {
+  async sendHave(
+    infoHash: string,
+    peerId: string,
+    pieceIndex: number
+  ): Promise<void> {
     const state = this.getPeerState(infoHash, peerId);
     if (!state) {
       throw new PeerError(`Peer not found: ${peerId}`, peerId);
@@ -1021,7 +1056,11 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
    * @param peerId - Peer ID hex string
    * @param bitfield - Bitfield indicating which pieces we have
    */
-  async sendBitfield(infoHash: string, peerId: string, bitfield: Buffer): Promise<void> {
+  async sendBitfield(
+    infoHash: string,
+    peerId: string,
+    bitfield: Buffer
+  ): Promise<void> {
     const state = this.getPeerState(infoHash, peerId);
     if (!state) {
       throw new PeerError(`Peer not found: ${peerId}`, peerId);
@@ -1118,7 +1157,10 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
    * @param peerId - Peer ID hex string
    * @returns Peer state or undefined
    */
-  private getPeerState(infoHash: string, peerId: string): PeerState | undefined {
+  private getPeerState(
+    infoHash: string,
+    peerId: string
+  ): PeerState | undefined {
     const torrentPeers = this.peers.get(infoHash);
     return torrentPeers?.get(peerId);
   }
@@ -1157,8 +1199,11 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
     await protocol.sendHandshake(infoHash, this.peerId);
 
     // Receive and verify their handshake
-    const { infoHash: remoteInfoHash, peerId: remotePeerId, reserved } =
-      await protocol.receiveHandshake();
+    const {
+      infoHash: remoteInfoHash,
+      peerId: remotePeerId,
+      reserved,
+    } = await protocol.receiveHandshake();
 
     // Verify info hash matches
     if (!infoHash.equals(remoteInfoHash)) {
@@ -1182,7 +1227,12 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
       state.peer.flags.peerChoking = true;
       state.lastActivity = Date.now();
       this.emit('peerChoked', { infoHash, peerId });
-      this.emit('peerMessage', { infoHash, peerId, type: 'choke', payload: null });
+      this.emit('peerMessage', {
+        infoHash,
+        peerId,
+        type: 'choke',
+        payload: null,
+      });
     });
 
     // Handle unchoke
@@ -1190,7 +1240,12 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
       state.peer.flags.peerChoking = false;
       state.lastActivity = Date.now();
       this.emit('peerUnchoked', { infoHash, peerId });
-      this.emit('peerMessage', { infoHash, peerId, type: 'unchoke', payload: null });
+      this.emit('peerMessage', {
+        infoHash,
+        peerId,
+        type: 'unchoke',
+        payload: null,
+      });
     });
 
     // Handle interested
@@ -1198,7 +1253,12 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
       state.peer.flags.peerInterested = true;
       state.lastActivity = Date.now();
       this.emit('peerInterested', { infoHash, peerId });
-      this.emit('peerMessage', { infoHash, peerId, type: 'interested', payload: null });
+      this.emit('peerMessage', {
+        infoHash,
+        peerId,
+        type: 'interested',
+        payload: null,
+      });
     });
 
     // Handle not interested
@@ -1206,7 +1266,12 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
       state.peer.flags.peerInterested = false;
       state.lastActivity = Date.now();
       this.emit('peerNotInterested', { infoHash, peerId });
-      this.emit('peerMessage', { infoHash, peerId, type: 'notInterested', payload: null });
+      this.emit('peerMessage', {
+        infoHash,
+        peerId,
+        type: 'notInterested',
+        payload: null,
+      });
     });
 
     // Handle have
@@ -1214,7 +1279,12 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
       state.lastActivity = Date.now();
       this.updatePeerProgress(state, pieceIndex);
       this.emit('peerHave', { infoHash, peerId, pieceIndex });
-      this.emit('peerMessage', { infoHash, peerId, type: 'have', payload: { pieceIndex } });
+      this.emit('peerMessage', {
+        infoHash,
+        peerId,
+        type: 'have',
+        payload: { pieceIndex },
+      });
     });
 
     // Handle bitfield
@@ -1222,14 +1292,25 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
       state.lastActivity = Date.now();
       this.updatePeerProgressFromBitfield(state, bitfield);
       this.emit('peerBitfield', { infoHash, peerId, bitfield });
-      this.emit('peerMessage', { infoHash, peerId, type: 'bitfield', payload: { bitfield } });
+      this.emit('peerMessage', {
+        infoHash,
+        peerId,
+        type: 'bitfield',
+        payload: { bitfield },
+      });
     });
 
     // Handle piece
     protocol.on('piece', ({ pieceIndex, begin, block }) => {
       state.downloadedBytes += block.length;
       state.lastActivity = Date.now();
-      this.emit('pieceReceived', { infoHash, peerId, pieceIndex, begin, block });
+      this.emit('pieceReceived', {
+        infoHash,
+        peerId,
+        pieceIndex,
+        begin,
+        block,
+      });
       this.emit('peerMessage', {
         infoHash,
         peerId,
@@ -1241,7 +1322,13 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
     // Handle request
     protocol.on('request', ({ pieceIndex, begin, length }) => {
       state.lastActivity = Date.now();
-      this.emit('requestReceived', { infoHash, peerId, pieceIndex, begin, length });
+      this.emit('requestReceived', {
+        infoHash,
+        peerId,
+        pieceIndex,
+        begin,
+        length,
+      });
       this.emit('peerMessage', {
         infoHash,
         peerId,
@@ -1355,7 +1442,12 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
     const { ip, port } = peer;
 
     // Update health stats with transfer data before removing
-    this.updatePeerHealthWithTransfer(ip, port, state.downloadedBytes, state.uploadedBytes);
+    this.updatePeerHealthWithTransfer(
+      ip,
+      port,
+      state.downloadedBytes,
+      state.uploadedBytes
+    );
 
     // Remove from peers map
     const torrentPeers = this.peers.get(infoHash);
@@ -1373,7 +1465,14 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
 
     // Schedule reconnection if appropriate
     if (this.enableReconnection && !this.stopped) {
-      this.scheduleReconnection(ip, port, infoHash, infoHashBuffer, peerId, disconnectReason);
+      this.scheduleReconnection(
+        ip,
+        port,
+        infoHash,
+        infoHashBuffer,
+        peerId,
+        disconnectReason
+      );
     }
   }
 
@@ -1398,7 +1497,10 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
    * @param state - Peer state
    * @param bitfield - Peer's bitfield
    */
-  private updatePeerProgressFromBitfield(state: PeerState, bitfield: Buffer): void {
+  private updatePeerProgressFromBitfield(
+    state: PeerState,
+    bitfield: Buffer
+  ): void {
     // Count bits set in bitfield
     let bitsSet = 0;
     const totalBits = bitfield.length * 8;
@@ -1424,7 +1526,10 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
    * rolling average speeds.
    */
   private startSpeedSampling(): void {
-    const lastSample = new Map<string, { downloaded: number; uploaded: number }>();
+    const lastSample = new Map<
+      string,
+      { downloaded: number; uploaded: number }
+    >();
 
     this.speedSampleTimer = setInterval(() => {
       for (const [infoHash, torrentPeers] of this.peers) {
@@ -1438,8 +1543,12 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
             const uploadDelta = state.uploadedBytes - last.uploaded;
 
             // Add to samples (bytes per second)
-            state.downloadSamples.push(downloadDelta * (1000 / SPEED_SAMPLE_INTERVAL));
-            state.uploadSamples.push(uploadDelta * (1000 / SPEED_SAMPLE_INTERVAL));
+            state.downloadSamples.push(
+              downloadDelta * (1000 / SPEED_SAMPLE_INTERVAL)
+            );
+            state.uploadSamples.push(
+              uploadDelta * (1000 / SPEED_SAMPLE_INTERVAL)
+            );
 
             // Limit sample count
             if (state.downloadSamples.length > SPEED_SAMPLE_COUNT) {
@@ -1450,7 +1559,9 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
             }
 
             // Update peer speeds
-            state.peer.downloadSpeed = calculateAverageSpeed(state.downloadSamples);
+            state.peer.downloadSpeed = calculateAverageSpeed(
+              state.downloadSamples
+            );
             state.peer.uploadSpeed = calculateAverageSpeed(state.uploadSamples);
           }
 
@@ -1702,7 +1813,12 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
 
     // Check if peer should be banned
     if (health.consecutiveFailures >= this.failuresBeforeBan) {
-      this.banPeer(ip, port, infoHash, `Too many consecutive failures (${health.consecutiveFailures})`);
+      this.banPeer(
+        ip,
+        port,
+        infoHash,
+        `Too many consecutive failures (${health.consecutiveFailures})`
+      );
     }
   }
 
@@ -1870,7 +1986,8 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
       return 0.5; // Unknown peers get neutral score
     }
 
-    const totalAttempts = health.successfulConnections + health.failedConnections;
+    const totalAttempts =
+      health.successfulConnections + health.failedConnections;
     if (totalAttempts === 0) {
       return 0.5;
     }

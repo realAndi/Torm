@@ -122,18 +122,22 @@ export const ReservedBits = {
 /**
  * Create reserved bytes with specified capabilities
  */
-export function createReservedBytes(options: {
-  extensionProtocol?: boolean;
-  fastExtension?: boolean;
-  dht?: boolean;
-} = {}): Buffer {
+export function createReservedBytes(
+  options: {
+    extensionProtocol?: boolean;
+    fastExtension?: boolean;
+    dht?: boolean;
+  } = {}
+): Buffer {
   const reserved = Buffer.alloc(8, 0);
 
   if (options.extensionProtocol) {
-    reserved[ReservedBits.EXTENSION_PROTOCOL.byte] |= ReservedBits.EXTENSION_PROTOCOL.mask;
+    reserved[ReservedBits.EXTENSION_PROTOCOL.byte] |=
+      ReservedBits.EXTENSION_PROTOCOL.mask;
   }
   if (options.fastExtension) {
-    reserved[ReservedBits.FAST_EXTENSION.byte] |= ReservedBits.FAST_EXTENSION.mask;
+    reserved[ReservedBits.FAST_EXTENSION.byte] |=
+      ReservedBits.FAST_EXTENSION.mask;
   }
   if (options.dht) {
     reserved[ReservedBits.DHT.byte] |= ReservedBits.DHT.mask;
@@ -483,7 +487,9 @@ export function decodeHandshake(data: Buffer): HandshakeMessage {
   }
 
   // 19 bytes: pstr
-  const protocolString = data.subarray(offset, offset + pstrlen).toString('ascii');
+  const protocolString = data
+    .subarray(offset, offset + pstrlen)
+    .toString('ascii');
   offset += pstrlen;
 
   if (protocolString !== PROTOCOL_STRING) {
@@ -497,7 +503,9 @@ export function decodeHandshake(data: Buffer): HandshakeMessage {
   offset += RESERVED_LENGTH;
 
   // 20 bytes: info_hash
-  const infoHash = Buffer.from(data.subarray(offset, offset + INFO_HASH_LENGTH));
+  const infoHash = Buffer.from(
+    data.subarray(offset, offset + INFO_HASH_LENGTH)
+  );
   offset += INFO_HASH_LENGTH;
 
   // 20 bytes: peer_id
@@ -637,7 +645,11 @@ export function encodeBitfield(bitfield: Buffer): Buffer {
  * socket.write(request);
  * ```
  */
-export function encodeRequest(pieceIndex: number, begin: number, length: number): Buffer {
+export function encodeRequest(
+  pieceIndex: number,
+  begin: number,
+  length: number
+): Buffer {
   const buffer = Buffer.allocUnsafe(17);
   buffer.writeUInt32BE(13, 0); // length = 1 (id) + 4 + 4 + 4
   buffer.writeUInt8(MessageType.Request, 4);
@@ -662,7 +674,11 @@ export function encodeRequest(pieceIndex: number, begin: number, length: number)
  * socket.write(piece);
  * ```
  */
-export function encodePiece(pieceIndex: number, begin: number, block: Buffer): Buffer {
+export function encodePiece(
+  pieceIndex: number,
+  begin: number,
+  block: Buffer
+): Buffer {
   const length = 1 + 4 + 4 + block.length; // id + piece index + begin + block
   const buffer = Buffer.allocUnsafe(4 + length);
   buffer.writeUInt32BE(length, 0);
@@ -687,7 +703,11 @@ export function encodePiece(pieceIndex: number, begin: number, block: Buffer): B
  * socket.write(cancel);
  * ```
  */
-export function encodeCancel(pieceIndex: number, begin: number, length: number): Buffer {
+export function encodeCancel(
+  pieceIndex: number,
+  begin: number,
+  length: number
+): Buffer {
   const buffer = Buffer.allocUnsafe(17);
   buffer.writeUInt32BE(13, 0); // length = 1 (id) + 4 + 4 + 4
   buffer.writeUInt8(MessageType.Cancel, 4);
@@ -781,7 +801,9 @@ export function decodeMessage(data: Buffer): DecodedMessage {
  */
 export function decodeHave(payload: Buffer): HaveMessage {
   if (payload.length !== 4) {
-    throw new Error(`Invalid have payload length: expected 4, got ${payload.length}`);
+    throw new Error(
+      `Invalid have payload length: expected 4, got ${payload.length}`
+    );
   }
 
   return {
@@ -813,7 +835,9 @@ export function decodeBitfield(payload: Buffer): BitfieldMessage {
  */
 export function decodeRequest(payload: Buffer): RequestMessage {
   if (payload.length !== 12) {
-    throw new Error(`Invalid request payload length: expected 12, got ${payload.length}`);
+    throw new Error(
+      `Invalid request payload length: expected 12, got ${payload.length}`
+    );
   }
 
   return {
@@ -834,7 +858,9 @@ export function decodeRequest(payload: Buffer): RequestMessage {
  */
 export function decodePiece(payload: Buffer): PieceMessage {
   if (payload.length < 8) {
-    throw new Error(`Invalid piece payload length: expected at least 8, got ${payload.length}`);
+    throw new Error(
+      `Invalid piece payload length: expected at least 8, got ${payload.length}`
+    );
   }
 
   return {
@@ -855,7 +881,9 @@ export function decodePiece(payload: Buffer): PieceMessage {
  */
 export function decodeCancel(payload: Buffer): CancelMessage {
   if (payload.length !== 12) {
-    throw new Error(`Invalid cancel payload length: expected 12, got ${payload.length}`);
+    throw new Error(
+      `Invalid cancel payload length: expected 12, got ${payload.length}`
+    );
   }
 
   return {
@@ -1062,7 +1090,10 @@ export function isComplete(bitfield: Buffer, pieceCount: number): boolean {
  * @param payloadLength - Length of the payload in bytes
  * @returns Total message length in bytes
  */
-export function calculateMessageLength(type: MessageType, payloadLength: number): number {
+export function calculateMessageLength(
+  type: MessageType,
+  payloadLength: number
+): number {
   return MESSAGE_LENGTH_PREFIX + 1 + payloadLength; // 4 (length) + 1 (id) + payload
 }
 

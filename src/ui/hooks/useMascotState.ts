@@ -229,7 +229,9 @@ export function useMascotState({
     prevTorrentsRef.current = newSnapshot;
 
     // Record activity if torrent states changed (downloads happening)
-    const hasActivity = torrents.some((t) => t.downloadSpeed > 0 || t.uploadSpeed > 0);
+    const hasActivity = torrents.some(
+      (t) => t.downloadSpeed > 0 || t.uploadSpeed > 0
+    );
     if (hasActivity) {
       recordActivity();
     }

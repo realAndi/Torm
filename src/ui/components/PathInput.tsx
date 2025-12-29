@@ -36,8 +36,8 @@ function getDirectories(basePath: string): string[] {
 
     const entries = readdirSync(expanded, { withFileTypes: true });
     return entries
-      .filter(entry => entry.isDirectory() && !entry.name.startsWith('.'))
-      .map(entry => entry.name)
+      .filter((entry) => entry.isDirectory() && !entry.name.startsWith('.'))
+      .map((entry) => entry.name)
       .sort();
   } catch {
     return [];
@@ -57,12 +57,12 @@ function getSuggestions(partialPath: string): string[] {
 
     const entries = readdirSync(dir, { withFileTypes: true });
     return entries
-      .filter(entry => {
+      .filter((entry) => {
         if (!entry.isDirectory()) return false;
         if (entry.name.startsWith('.')) return false;
         return entry.name.toLowerCase().startsWith(partial.toLowerCase());
       })
-      .map(entry => join(dir, entry.name))
+      .map((entry) => join(dir, entry.name))
       .sort();
   } catch {
     return [];
@@ -99,9 +99,15 @@ export const PathInput: React.FC<PathInputProps> = ({
   const onChangeRef = useRef(onChange);
   const onSubmitRef = useRef(onSubmit);
 
-  useEffect(() => { valueRef.current = value; }, [value]);
-  useEffect(() => { onChangeRef.current = onChange; }, [onChange]);
-  useEffect(() => { onSubmitRef.current = onSubmit; }, [onSubmit]);
+  useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
+  useEffect(() => {
+    onSubmitRef.current = onSubmit;
+  }, [onSubmit]);
 
   // Update suggestions when value changes
   useEffect(() => {
@@ -160,9 +166,13 @@ export const PathInput: React.FC<PathInputProps> = ({
         const list = suggestions.length > 0 ? suggestions : directories;
         if (list.length > 0) {
           if (key.upArrow) {
-            setSelectedSuggestion(prev => prev > 0 ? prev - 1 : list.length - 1);
+            setSelectedSuggestion((prev) =>
+              prev > 0 ? prev - 1 : list.length - 1
+            );
           } else {
-            setSelectedSuggestion(prev => prev < list.length - 1 ? prev + 1 : 0);
+            setSelectedSuggestion((prev) =>
+              prev < list.length - 1 ? prev + 1 : 0
+            );
           }
         }
         return;
@@ -170,13 +180,17 @@ export const PathInput: React.FC<PathInputProps> = ({
 
       // Enter to submit or select suggestion
       if (key.return) {
-        if (showSuggestions && (suggestions.length > 0 || directories.length > 0)) {
+        if (
+          showSuggestions &&
+          (suggestions.length > 0 || directories.length > 0)
+        ) {
           const list = suggestions.length > 0 ? suggestions : directories;
           const selected = list[selectedSuggestion];
           if (selected) {
-            const newValue = suggestions.length > 0
-              ? selected + '/'
-              : join(expandPath(value), selected) + '/';
+            const newValue =
+              suggestions.length > 0
+                ? selected + '/'
+                : join(expandPath(value), selected) + '/';
             valueRef.current = newValue;
             onChangeRef.current(newValue);
             return;
@@ -199,7 +213,13 @@ export const PathInput: React.FC<PathInputProps> = ({
       }
 
       // Ignore other control keys
-      if (key.ctrl || key.meta || key.escape || key.leftArrow || key.rightArrow) {
+      if (
+        key.ctrl ||
+        key.meta ||
+        key.escape ||
+        key.leftArrow ||
+        key.rightArrow
+      ) {
         return;
       }
 
@@ -221,9 +241,10 @@ export const PathInput: React.FC<PathInputProps> = ({
   // Visible text with scrolling
   const cursorSpace = focused ? 1 : 0;
   const maxVisibleLength = innerWidth - cursorSpace;
-  const visibleText = displayText.length > maxVisibleLength
-    ? displayText.slice(displayText.length - maxVisibleLength)
-    : displayText;
+  const visibleText =
+    displayText.length > maxVisibleLength
+      ? displayText.slice(displayText.length - maxVisibleLength)
+      : displayText;
 
   const textLength = visibleText.length + cursorSpace;
   const paddingLength = Math.max(0, innerWidth - textLength);
@@ -253,7 +274,9 @@ export const PathInput: React.FC<PathInputProps> = ({
       <Text>
         <Text color={borderColor}>{borders.vertical}</Text>
         <Text> </Text>
-        <Text color={isEmpty ? colors.muted : isValid ? colors.success : undefined}>
+        <Text
+          color={isEmpty ? colors.muted : isValid ? colors.success : undefined}
+        >
           {visibleText}
         </Text>
         {focused && <Text color={colors.primary}>{CURSOR_CHAR}</Text>}
@@ -277,19 +300,21 @@ export const PathInput: React.FC<PathInputProps> = ({
           </Text>
           {visibleList.map((item, index) => {
             const isSelected = index === selectedSuggestion;
-            const displayName = suggestions.length > 0
-              ? basename(item)
-              : item;
-            const truncated = displayName.length > innerWidth - 4
-              ? displayName.slice(0, innerWidth - 7) + '...'
-              : displayName;
+            const displayName = suggestions.length > 0 ? basename(item) : item;
+            const truncated =
+              displayName.length > innerWidth - 4
+                ? displayName.slice(0, innerWidth - 7) + '...'
+                : displayName;
 
             return (
               <Text key={item}>
                 <Text color={isSelected ? colors.primary : colors.muted}>
                   {isSelected ? ' > ' : '   '}
                 </Text>
-                <Text color={isSelected ? colors.primary : colors.text} bold={isSelected}>
+                <Text
+                  color={isSelected ? colors.primary : colors.text}
+                  bold={isSelected}
+                >
                   {truncated}
                 </Text>
               </Text>

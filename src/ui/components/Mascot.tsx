@@ -6,12 +6,12 @@ import { colors } from '../theme/index.js';
  * Mascot expression types
  */
 export type MascotExpression =
-  | 'default'   // Normal happy face
-  | 'blink'     // Eyes closed briefly
-  | 'dead'      // X eyes, connection lost or dead torrent
+  | 'default' // Normal happy face
+  | 'blink' // Eyes closed briefly
+  | 'dead' // X eyes, connection lost or dead torrent
   | 'celebrate' // Excited face, download complete
-  | 'drool'     // Tearful, deleted while seeding < 1 min
-  | 'sleep';    // Sleeping with Z's
+  | 'drool' // Tearful, deleted while seeding < 1 min
+  | 'sleep'; // Sleeping with Z's
 
 export interface MascotProps {
   /** Current expression to display */
@@ -79,9 +79,9 @@ const EXPRESSIONS = {
  * Each Z appears progressively higher and to the right
  */
 const Z_POSITIONS = [
-  { row: 2, col: 2 },  // First Z: close to face
-  { row: 1, col: 4 },  // Second Z: higher and right
-  { row: 0, col: 6 },  // Third Z: highest and furthest right
+  { row: 2, col: 2 }, // First Z: close to face
+  { row: 1, col: 4 }, // Second Z: higher and right
+  { row: 0, col: 6 }, // Third Z: highest and furthest right
 ];
 
 /**
@@ -113,10 +113,13 @@ export const Mascot: React.FC<MascotProps> = ({
       blinkTimeoutRef.current = setTimeout(() => {
         setIsBlinking(true);
         // Blink duration: 100-200ms
-        setTimeout(() => {
-          setIsBlinking(false);
-          scheduleBlink();
-        }, 100 + Math.random() * 100);
+        setTimeout(
+          () => {
+            setIsBlinking(false);
+            scheduleBlink();
+          },
+          100 + Math.random() * 100
+        );
       }, nextBlink);
     };
 
