@@ -7,8 +7,8 @@
  * @module daemon/manager
  */
 
-import { readFile, writeFile, unlink, mkdir, appendFile } from 'fs/promises';
-import { existsSync, openSync } from 'fs';
+import { readFile, writeFile, unlink, mkdir } from 'fs/promises';
+import { existsSync } from 'fs';
 import { dirname, resolve } from 'path';
 import { homedir } from 'os';
 import { DaemonClient } from './client.js';

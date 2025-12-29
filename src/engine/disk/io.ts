@@ -11,9 +11,7 @@
  */
 
 import * as fs from 'fs/promises';
-import * as fsSync from 'fs';
 import * as path from 'path';
-import { $ } from 'bun';
 import { DiskError, DiskFullError } from '../types.js';
 import { TorrentFileInfo, getFilesForPiece, getActualPieceLength, TorrentMetadata } from '../torrent/parser.js';
 
@@ -378,16 +376,16 @@ export class DiskIO {
 
     const torrentPath = this.getTorrentPath();
     try {
-      // Bun Shell's rm is natively implemented and cross-platform (macOS, Linux, Windows)
-      // Much faster than Node's fs.rm for large directory trees
-      await $`rm -rf ${torrentPath}`.quiet();
+      // Use Node.js fs.rm with recursive and force options
+      // Works in both Node.js and Bun runtimes
+      await fs.rm(torrentPath, { recursive: true, force: true });
     } catch (err) {
-      // Bun shell throws on non-zero exit, but rm -f shouldn't fail on missing files
+      // fs.rm with force: true shouldn't fail on missing files
       // Only throw if it's not an ENOENT-like situation
-      const message = (err as Error).message || '';
-      if (!message.includes('No such file') && !message.includes('ENOENT')) {
+      const code = (err as NodeJS.ErrnoException).code;
+      if (code !== 'ENOENT') {
         throw new DiskError(
-          `Failed to delete torrent files: ${message}`,
+          `Failed to delete torrent files: ${(err as Error).message}`,
           torrentPath
         );
       }
@@ -461,7 +459,7 @@ export class DiskIO {
     try {
       // Node.js 18.15+ has fs.statfs
       if ('statfs' in fs) {
-        const stats = await (fs as any).statfs(this.downloadPath);
+        const stats = await (fs as unknown as { statfs(path: string): Promise<{ bavail: number; bfree: number; bsize: number }> }).statfs(this.downloadPath);
         // bavail is blocks available to unprivileged users (more accurate)
         // bfree is total free blocks (includes reserved for root)
         const availableBlocks = stats.bavail ?? stats.bfree;
@@ -628,7 +626,7 @@ export class DiskIO {
   /**
    * Allocate a sparse file (creates file but doesn't write data)
    */
-  private async allocateSparseFile(filePath: string, length: number): Promise<void> {
+  private async allocateSparseFile(filePath: string, _length: number): Promise<void> {
     try {
       // Create file if it doesn't exist
       const handle = await fs.open(filePath, 'a');
@@ -697,7 +695,7 @@ export class DiskIO {
       } finally {
         await handle.close();
       }
-    } catch (err) {
+    } catch {
       // Fallback to sparse allocation
       await this.allocateSparseFile(filePath, length);
     }
@@ -787,7 +785,7 @@ export async function hasEnoughSpace(dirPath: string, requiredBytes: number): Pr
   try {
     // Use statfs if available (Node.js 18+)
     if ('statfs' in fs) {
-      const stats = await (fs as any).statfs(dirPath);
+      const stats = await (fs as unknown as { statfs(path: string): Promise<{ bfree: number; bsize: number }> }).statfs(dirPath);
       const availableBytes = stats.bfree * stats.bsize;
       return availableBytes >= requiredBytes;
     }

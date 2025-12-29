@@ -522,7 +522,6 @@ export class PeerConnection extends TypedEventEmitter<PeerConnectionEvents> {
     }
 
     // Remove the data listener
-    const boundHandler = this.handleData.bind(this);
     this.socket.removeAllListeners('data');
 
     // Return a function to restore it
@@ -572,7 +571,6 @@ export class PeerConnection extends TypedEventEmitter<PeerConnectionEvents> {
    * Handle socket close.
    */
   private handleClose(): void {
-    const wasClosing = this.state === ConnectionState.Closing;
     this.state = ConnectionState.Closed;
     this.cleanup();
 

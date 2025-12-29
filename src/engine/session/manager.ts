@@ -15,7 +15,7 @@ import {
   AddTorrentOptions,
   TormError,
 } from '../types.js';
-import { DEFAULT_CONFIG, mergeWithDefaults } from '../config/defaults.js';
+import { mergeWithDefaults } from '../config/defaults.js';
 import { BandwidthLimiter } from './bandwidth.js';
 import { TorrentSession as TorrentSessionFull, TorrentSessionOptions } from './session.js';
 import { TorrentMetadata, parseTorrent } from '../torrent/parser.js';
@@ -23,7 +23,7 @@ import { PeerManager, PeerManagerOptions } from '../peer/manager.js';
 import { TrackerClient, TrackerClientOptions, TrackerInfo } from '../tracker/client.js';
 import { readFile, rm } from 'fs/promises';
 import { randomBytes } from 'crypto';
-import { join, dirname } from 'path';
+import { join } from 'path';
 
 // =============================================================================
 // Constants
@@ -1086,7 +1086,7 @@ export class SessionManager extends TypedEventEmitter<SessionManagerEvents> {
    *
    * @param infoHash - Info hash of the completed torrent
    */
-  private handleTorrentCompleted(infoHash: string): void {
+  private handleTorrentCompleted(_infoHash: string): void {
     // The torrent is now seeding, which is still "active"
     // So we don't need to process the queue
     // But we might want to emit an event or update stats

@@ -3,7 +3,6 @@ import { Box, Text } from 'ink';
 import { colors, borders } from '../theme/index.js';
 import type { Torrent } from '../../engine/types.js';
 import type { StatusFilter } from './SearchBar.js';
-import { STATUS_FILTER_OPTIONS } from './SearchBar.js';
 
 export interface StatusBarProps {
   /** Currently selected torrent, or null if none selected */
@@ -125,7 +124,7 @@ export const StatusBar: React.FC<StatusBarProps> = ({
   totalCount = 0,
   filteredCount = 0,
   isFiltered = false,
-  statusFilter = 'all',
+  statusFilter: _statusFilter = 'all',
   width = 80,
   totalDownloadSpeed = 0,
   totalUploadSpeed = 0,

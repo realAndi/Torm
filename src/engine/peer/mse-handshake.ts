@@ -98,6 +98,7 @@ async function readExact(
   return new Promise((resolve, reject) => {
     let currentBuffer = buffer;
     let totalRead = 0;
+    // eslint-disable-next-line prefer-const -- timeoutId is reassigned below
     let timeoutId: NodeJS.Timeout | undefined;
 
     const cleanup = () => {
@@ -148,7 +149,7 @@ async function readExact(
 /**
  * Read until a pattern is found in the buffer
  */
-async function readUntilPattern(
+async function _readUntilPattern(
   socket: Socket,
   buffer: Buffer,
   offset: number,
@@ -159,6 +160,7 @@ async function readUntilPattern(
   return new Promise((resolve, reject) => {
     let currentBuffer = buffer;
     let totalRead = 0;
+    // eslint-disable-next-line prefer-const -- timeoutId is reassigned below
     let timeoutId: NodeJS.Timeout | undefined;
 
     const cleanup = () => {
@@ -365,7 +367,7 @@ export async function performMSEHandshake(
     // As initiator: we encrypt with keyA, decrypt with keyB
     const { encryptKey, decryptKey } = deriveRC4Keys(sharedSecret, infoHash);
     const encryptStream = new RC4Stream(encryptKey);
-    const decryptStream = new RC4Stream(decryptKey);
+    const _decryptStream = new RC4Stream(decryptKey);
 
     // Encrypt the part after req1Hash + skeyXor (from VC onwards)
     const toEncrypt = step3Plain.subarray(40); // Skip the hashes

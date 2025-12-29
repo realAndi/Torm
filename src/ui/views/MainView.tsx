@@ -66,7 +66,7 @@ export const MainView: React.FC<MainViewProps> = ({
   searchQuery,
   onSearchChange,
   statusFilter,
-  onStatusFilterChange,
+  onStatusFilterChange: _onStatusFilterChange,
   isSearchFocused,
   onSearchFocusChange,
   daemonConnected = false,

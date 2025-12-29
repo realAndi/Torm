@@ -62,6 +62,7 @@ function getDefaultHandshakeResponse(key: string) {
   return {
     infoHash: expectedInfoHashes.get(key) ?? Buffer.alloc(20, 0xab),
     peerId: generatedPeerIds.get(key)!,
+    reserved: Buffer.alloc(8, 0), // 8-byte reserved field for BEP 10 extension support
   };
 }
 
@@ -119,7 +120,7 @@ function createMockProtocol(key: string): MockProtocol {
 vi.mock('../../../src/engine/peer/connection.js', () => {
   return {
     PeerConnection: class MockPeerConnection {
-      private key: string;
+      public key: string; // Public so WireProtocol mock can access it
 
       constructor(options: { ip: string; port: number }) {
         this.key = `${options.ip}:${options.port}`;
@@ -145,6 +146,16 @@ vi.mock('../../../src/engine/peer/connection.js', () => {
       removeAllListeners() {
         mockConnections.get(this.key)?.removeAllListeners();
       }
+
+      // Mock feedData method used after MSE handshake
+      feedData(_data: Buffer) {
+        // No-op for tests
+      }
+
+      // Mock enableEncryption method
+      enableEncryption(_method: string, _encryptStream: any, _decryptStream: any) {
+        // No-op for tests
+      }
     },
   };
 });
@@ -154,10 +165,9 @@ vi.mock('../../../src/engine/peer/protocol.js', () => {
     WireProtocol: class MockWireProtocol {
       private key: string;
 
-      constructor(_connection: any) {
-        // Find the key for this connection by checking the last created connection
-        const keys = Array.from(mockConnections.keys());
-        this.key = keys[keys.length - 1] || 'unknown';
+      constructor(connection: any) {
+        // Use the connection's key property for reliable association
+        this.key = connection.key || 'unknown';
         createMockProtocol(this.key);
       }
 
@@ -212,7 +222,45 @@ vi.mock('../../../src/engine/peer/protocol.js', () => {
       off(event: string) {
         mockProtocols.get(this.key)?.off(event);
       }
+
+      sendExtended(extendedId: number, payload: Buffer) {
+        return Promise.resolve();
+      }
     },
+  };
+});
+
+// Mock smart-connect to bypass the encryption layer and use mocked PeerConnection
+// We create a minimal mock connection object that mirrors the MockPeerConnection interface
+vi.mock('../../../src/engine/peer/smart-connect.js', () => {
+  return {
+    smartConnect: vi.fn().mockImplementation((ip: string, port: number, _infoHash: Buffer, _options: any) => {
+      const key = `${ip}:${port}`;
+
+      // Create mock connection with same interface as MockPeerConnection
+      createMockConnection(key);
+      const connection = {
+        key,
+        connect: () => mockConnections.get(key)?.connect() ?? Promise.resolve(),
+        write: (data: Buffer) => mockConnections.get(key)?.write(data) ?? Promise.resolve(),
+        destroy: () => mockConnections.get(key)?.destroy(),
+        on: (event: string, handler: Function) => mockConnections.get(key)?.on(event, handler),
+        removeAllListeners: () => mockConnections.get(key)?.removeAllListeners(),
+        feedData: (_data: Buffer) => {},
+        enableEncryption: (_method: string, _encryptStream: any, _decryptStream: any) => {},
+      };
+
+      // Call connect() to simulate what real smartConnect does internally
+      connection.connect();
+
+      // Return resolved promise immediately (no async/await needed)
+      return Promise.resolve({
+        success: true,
+        connection,
+        encrypted: false,
+        attempts: 1,
+      });
+    }),
   };
 });
 
@@ -273,6 +321,7 @@ function setMockHandshakeResponse(key: string, peerId: Buffer, infoHash?: Buffer
   mockHandshakeResponses.set(key, {
     infoHash: infoHash ?? Buffer.alloc(20, 0xab),
     peerId,
+    reserved: Buffer.alloc(8, 0), // 8-byte reserved field for BEP 10 extension support
   });
 }
 

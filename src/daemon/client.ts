@@ -15,7 +15,6 @@ import {
   type Request,
   type Response,
   type DaemonEvent,
-  type EventType,
   type GetStatusResponse,
   type GetTorrentsResponse,
   type GetTorrentResponse,
@@ -174,7 +173,7 @@ export class DaemonClient extends EventEmitter {
     }
 
     // Reject all pending requests
-    for (const [id, pending] of this.pendingRequests) {
+    for (const [_id, pending] of this.pendingRequests) {
       clearTimeout(pending.timer);
       pending.reject(new Error('Disconnected'));
     }
@@ -198,7 +197,7 @@ export class DaemonClient extends EventEmitter {
     this.messageBuffer = '';
 
     // Reject all pending requests
-    for (const [id, pending] of this.pendingRequests) {
+    for (const [_id, pending] of this.pendingRequests) {
       clearTimeout(pending.timer);
       pending.reject(new Error('Connection lost'));
     }

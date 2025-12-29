@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Text } from 'ink';
-import type { TorrentFile, FilePriority } from '../../engine/types.js';
+import type { TorrentFile } from '../../engine/types.js';
 import { colors, borders, progressChars } from '../theme/index.js';
 import { formatBytes, formatProgress, truncateText } from '../utils/format.js';
 
@@ -260,7 +260,7 @@ export const FileList: React.FC<FileListProps> = ({ files }) => {
   return (
     <Box flexDirection="column">
       <FileListHeader />
-      {tree.map((node, index) => {
+      {tree.map((node) => {
         if (node.type === 'directory') {
           return (
             <DirectoryRow

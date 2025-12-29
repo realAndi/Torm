@@ -175,7 +175,7 @@ export const BatchAddModal: React.FC<BatchAddModalProps> = ({
 
         {/* File list */}
         <Box flexDirection="column">
-          {visibleFiles.map((file, index) => (
+          {visibleFiles.map((file) => (
             <Box key={file.path}>
               <Text color={file.exists ? colors.success : colors.error}>
                 {file.exists ? ' + ' : ' x '}

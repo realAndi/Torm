@@ -14,7 +14,7 @@ import { createHash } from 'crypto';
 import { TypedEventEmitter } from '../events.js';
 import { DiskError, DiskFullError } from '../types.js';
 import { TorrentMetadata, getPieceHash, getActualPieceLength } from '../torrent/parser.js';
-import { DiskIO, DiskIOOptions, AllocationStrategy } from './io.js';
+import { DiskIO, DiskIOOptions } from './io.js';
 
 // =============================================================================
 // Types

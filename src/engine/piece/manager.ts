@@ -433,8 +433,8 @@ export class PieceManager extends TypedEventEmitter<PieceManagerEvents> {
 
     // In endgame mode, be more aggressive - don't limit based on existing requests
     if (this.inEndgame) {
-      // Get our bitfield to check completion
-      const ownBitfield = this.pieceMap.getBitfield();
+      // Get our bitfield to check completion (used for endgame logic)
+      const _ownBitfield = this.pieceMap.getBitfield();
 
       // Request aggressively - use full pipeline even if we have pending requests
       // This allows same blocks to be requested from multiple peers
@@ -563,7 +563,7 @@ export class PieceManager extends TypedEventEmitter<PieceManagerEvents> {
     // Write the block
     try {
       pieceState.writeBlock(blockIndex, data);
-    } catch (err) {
+    } catch {
       // Invalid block data - ignore
       return;
     }
@@ -968,9 +968,7 @@ export class PieceManager extends TypedEventEmitter<PieceManagerEvents> {
 
     const expectedHash = this.verifier.getExpectedHash(pieceIndex);
     const actualHash = pieceState.data
-      ? Buffer.from(
-          require('crypto').createHash('sha1').update(pieceState.data).digest()
-        )
+      ? this.verifier.computeHash(pieceState.data)
       : Buffer.alloc(20);
 
     // Emit failure event

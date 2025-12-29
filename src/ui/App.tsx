@@ -12,7 +12,7 @@
  */
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { Box, Text, useApp, useInput } from 'ink';
+import { Box, useApp, useInput } from 'ink';
 import { useDaemonClient } from './hooks/useDaemonClient.js';
 import { useTorrents } from './hooks/useTorrents.js';
 import { useKeyboard } from './hooks/useKeyboard.js';
@@ -224,7 +224,7 @@ export const App: React.FC = () => {
   /**
    * Delete the selected torrent (legacy direct delete - kept for reference)
    */
-  const handleDelete = useCallback(() => {
+  const _handleDelete = useCallback(() => {
     if (selectedTorrent) {
       removeTorrent(selectedTorrent.infoHash).catch(() => {
         // Silently ignore removal errors

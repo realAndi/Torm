@@ -10,7 +10,7 @@
 import React from 'react';
 import { render, Text, Box } from 'ink';
 import meow from 'meow';
-import { VERSION, APP_NAME } from '../shared/constants.js';
+import { VERSION } from '../shared/constants.js';
 
 // Import the main TUI App
 import { App } from '../ui/App.js';

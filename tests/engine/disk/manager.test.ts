@@ -163,16 +163,16 @@ function createManagerOptions(downloadPath: string): DiskManagerOptions {
 // =============================================================================
 
 describe('Constants', () => {
-  it('DEFAULT_READ_CACHE_SIZE should be 8', () => {
-    expect(DEFAULT_READ_CACHE_SIZE).toBe(8);
+  it('DEFAULT_READ_CACHE_SIZE should be 16', () => {
+    expect(DEFAULT_READ_CACHE_SIZE).toBe(16);
   });
 
-  it('DEFAULT_MAX_WRITE_QUEUE_SIZE should be 32', () => {
-    expect(DEFAULT_MAX_WRITE_QUEUE_SIZE).toBe(32);
+  it('DEFAULT_MAX_WRITE_QUEUE_SIZE should be 64', () => {
+    expect(DEFAULT_MAX_WRITE_QUEUE_SIZE).toBe(64);
   });
 
-  it('DEFAULT_VERIFICATION_CONCURRENCY should be 4', () => {
-    expect(DEFAULT_VERIFICATION_CONCURRENCY).toBe(4);
+  it('DEFAULT_VERIFICATION_CONCURRENCY should be 8', () => {
+    expect(DEFAULT_VERIFICATION_CONCURRENCY).toBe(8);
   });
 });
 

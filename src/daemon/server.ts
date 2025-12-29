@@ -13,7 +13,7 @@ import { existsSync } from 'fs';
 import { dirname, resolve } from 'path';
 import { homedir } from 'os';
 import { TormEngine } from '../engine/TormEngine.js';
-import type { EngineConfig, Torrent, Peer, EngineStats } from '../engine/types.js';
+import type { EngineConfig, Torrent } from '../engine/types.js';
 import {
   type Message,
   type Request,
@@ -410,7 +410,7 @@ export class DaemonServer {
     for (const client of this.clients) {
       try {
         client.write(serialized);
-      } catch (err) {
+      } catch {
         // Client disconnected, will be cleaned up
       }
     }

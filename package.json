@@ -14,6 +14,8 @@
   ],
   "scripts": {
     "build": "bun build src/cli/index.tsx --outdir dist --target bun",
+    "build:release": "bun run scripts/build.ts",
+    "build:current": "bun build src/cli/index.tsx --compile --minify --outfile torm",
     "dev": "bun --watch src/cli/index.tsx",
     "start": "bun run dist/index.js",
     "test": "vitest run",

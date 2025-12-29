@@ -54,13 +54,11 @@ import {
   AutoSaveManager,
   saveTorrentState,
   loadAllTorrentStates,
-  deleteTorrentState,
   extractCompletedPieces,
   saveConfig,
   loadConfig,
   getStateFilePath,
   type TorrentPersistenceInfo,
-  type LoadedTorrentState,
 } from './session/persistence.js';
 import {
   SessionManager,

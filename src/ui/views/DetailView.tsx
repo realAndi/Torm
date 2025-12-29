@@ -10,7 +10,7 @@
  * @module ui/views/DetailView
  */
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Box, Text } from 'ink';
 import type { Torrent, Peer } from '../../engine/types.js';
 import { colors, borders } from '../theme/index.js';

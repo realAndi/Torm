@@ -177,7 +177,7 @@ function formatPeerCount(connected: number | undefined, available: number): stri
 export const TorrentRow: React.FC<TorrentRowProps> = ({
   torrent,
   isSelected,
-  index,
+  index: _index,
   width = 80,
 }) => {
   const statusText = STATUS_TEXT[torrent.state];

@@ -34,7 +34,7 @@ const DEFAULT_ENCRYPTION_TIMEOUT = 5000;
 const MAX_PAD_LENGTH = 512;
 
 /** Maximum buffer size to prevent memory exhaustion */
-const MAX_BUFFER_SIZE = 65536;
+const _MAX_BUFFER_SIZE = 65536;
 
 // =============================================================================
 // Types
@@ -87,6 +87,7 @@ function readMinBytes(
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
     let totalLength = 0;
+    // eslint-disable-next-line prefer-const -- timeoutId is reassigned below
     let timeoutId: NodeJS.Timeout | undefined;
 
     const cleanup = () => {

@@ -8,7 +8,7 @@
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { DaemonClient, getDaemonClient, ensureDaemonRunning } from '../../daemon/index.js';
+import { DaemonClient, ensureDaemonRunning } from '../../daemon/index.js';
 import { TorrentState, type Torrent, type Peer, type EngineConfig } from '../../engine/types.js';
 import type { DaemonEvent } from '../../daemon/protocol.js';
 
@@ -227,7 +227,7 @@ export function useDaemonClient(): UseDaemonClientResult {
           // Schedule retry
           scheduleRetry();
         }
-      } catch (err) {
+      } catch {
         if (!mounted) return;
         scheduleRetry();
       }

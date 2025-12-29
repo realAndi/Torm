@@ -442,7 +442,7 @@ describe('TrackerClient', () => {
       expect(mockPerformAnnounce).toHaveBeenCalledTimes(2);
     });
 
-    it('should stop after first tier succeeds', async () => {
+    it('should announce to all trackers in parallel', async () => {
       const state = createTorrentState({
         trackers: [['http://tier1.com/announce'], ['http://tier2.com/announce']],
       });
@@ -451,8 +451,17 @@ describe('TrackerClient', () => {
       client.addTorrent(state);
       await client.announce(infoHashHex, 'started');
 
-      // Only tier 1 should be tried
-      expect(mockPerformAnnounce).toHaveBeenCalledTimes(1);
+      // Implementation announces to ALL trackers in parallel for faster peer discovery
+      // Both tier1 and tier2 should be tried
+      expect(mockPerformAnnounce.mock.calls.length).toBe(2);
+      const tier1Calls = mockPerformAnnounce.mock.calls.filter((call: unknown[]) =>
+        (call[0] as string).includes('tier1')
+      );
+      const tier2Calls = mockPerformAnnounce.mock.calls.filter((call: unknown[]) =>
+        (call[0] as string).includes('tier2')
+      );
+      expect(tier1Calls.length).toBe(1);
+      expect(tier2Calls.length).toBe(1);
     });
 
     it('should handle different announce events', async () => {
@@ -1237,7 +1246,7 @@ describe('TrackerClient Integration', () => {
     expect(client.getTrackerInfo(infoHashHex)).toHaveLength(0);
   });
 
-  it('should handle multi-tier failover correctly', async () => {
+  it('should handle parallel announce with mixed success/failure', async () => {
     const state = createTorrentState({
       trackers: [
         ['http://tier1.com/announce'],
@@ -1248,24 +1257,25 @@ describe('TrackerClient Integration', () => {
     const infoHashHex = state.infoHash.toString('hex');
     const announceHandler = vi.fn();
 
-    // Tier 1 fails, tier 2 succeeds
+    // All trackers are tried in parallel - tier1 fails, tier2 succeeds, tier3 fails
     mockAnnounce
       .mockRejectedValueOnce(new Error('Tier 1 failed'))
-      .mockResolvedValueOnce(createMockAnnounceResponse());
+      .mockResolvedValueOnce(createMockAnnounceResponse())
+      .mockRejectedValueOnce(new Error('Tier 3 failed'));
 
     client.on('announce', announceHandler);
     client.addTorrent(state);
     await client.announce(infoHashHex, 'started');
 
-    // Should have tried tier 1, then tier 2
-    expect(mockAnnounce).toHaveBeenCalledTimes(2);
+    // All 3 trackers should be tried in parallel
+    expect(mockAnnounce.mock.calls.length).toBe(3);
     // Should have announced successfully from tier 2
-    expect(announceHandler).toHaveBeenCalledTimes(1);
+    expect(announceHandler).toHaveBeenCalled();
 
-    // Tier 3 should not have been tried
+    // Trackers should have their status updated based on results
     const trackers = client.getTrackerInfo(infoHashHex);
-    const tier3 = trackers.find((t) => t.url === 'http://tier3.com/announce');
-    expect(tier3?.status).toBe(TrackerStatus.Idle);
+    const tier2 = trackers.find((t) => t.url === 'http://tier2.com/announce');
+    expect(tier2?.status).toBe(TrackerStatus.Working);
   });
 
   it('should aggregate peers from multiple trackers', async () => {

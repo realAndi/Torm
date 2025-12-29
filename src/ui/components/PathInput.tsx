@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Text, useInput } from 'ink';
 import { readdirSync, statSync, existsSync } from 'fs';
-import { dirname, join, basename, resolve } from 'path';
+import { dirname, join, basename } from 'path';
 import { homedir } from 'os';
 import { colors, borders } from '../theme/index.js';
 

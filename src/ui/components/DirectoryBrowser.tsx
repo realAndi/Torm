@@ -38,7 +38,9 @@ function getAutocompleteSuggestions(partialPath: string): string[] {
           .map(item => join(expanded, item.name))
           .slice(0, 6);
       }
-    } catch {}
+    } catch {
+      // Directory not accessible, ignore
+    }
     return [];
   }
 

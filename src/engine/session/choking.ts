@@ -510,7 +510,6 @@ export class ChokingAlgorithm extends TypedEventEmitter<ChokingEvents> {
 
     // If changing optimistic peer, handle the transition
     if (this.optimisticUnchokedPeer !== newOptimistic) {
-      const oldOptimistic = this.optimisticUnchokedPeer;
       this.optimisticUnchokedPeer = newOptimistic;
 
       // The next recalculate() call will handle the actual choke/unchoke

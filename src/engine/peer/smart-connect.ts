@@ -10,14 +10,12 @@
  * @module engine/peer/smart-connect
  */
 
-import { PeerConnection, type FromSocketOptions } from './connection.js';
+import { PeerConnection } from './connection.js';
 import {
   attemptEncryptedConnection,
-  type EncryptedConnectionResult,
 } from './encrypted-connection.js';
 import {
   attemptPlaintextConnection,
-  type PlaintextConnectionResult,
 } from './plaintext-connection.js';
 import { RC4Stream } from './encryption.js';
 

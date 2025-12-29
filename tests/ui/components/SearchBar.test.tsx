@@ -60,8 +60,8 @@ describe('SearchBar', () => {
         />
       );
 
-      // Cursor character is \u2595
-      expect(lastFrame()).toContain('\u2595');
+      // Cursor character is \u258C (left half block)
+      expect(lastFrame()).toContain('\u258C');
     });
 
     it('does not show cursor when not focused', () => {
@@ -73,10 +73,10 @@ describe('SearchBar', () => {
         />
       );
 
-      expect(lastFrame()).not.toContain('\u2595');
+      expect(lastFrame()).not.toContain('\u258C');
     });
 
-    it('shows Tab/Arrows hint when focused', () => {
+    it('shows Tab/Arrow hint when focused', () => {
       const { lastFrame } = render(
         <SearchBar
           {...defaultProps}
@@ -84,7 +84,8 @@ describe('SearchBar', () => {
         />
       );
 
-      expect(lastFrame()).toContain('Tab/Arrows');
+      // Component shows "Tab/←→: Filter" hint
+      expect(lastFrame()).toMatch(/Tab\/.*Filter/);
     });
   });
 
@@ -129,7 +130,7 @@ describe('SearchBar', () => {
   });
 
   describe('status filter options', () => {
-    it('shows status filter label', () => {
+    it('shows filter label', () => {
       const { lastFrame } = render(
         <SearchBar
           {...defaultProps}
@@ -137,7 +138,8 @@ describe('SearchBar', () => {
         />
       );
 
-      expect(lastFrame()).toContain('Status:');
+      // Component uses "Filter:" label
+      expect(lastFrame()).toContain('Filter:');
     });
 
     it('shows "All" when status filter is all', () => {
@@ -304,7 +306,7 @@ describe('SearchBar', () => {
       const frame = lastFrame();
       expect(frame).toContain('Search:');
       expect(frame).toContain('test');
-      expect(frame).toContain('Status:');
+      expect(frame).toContain('Filter:');
       expect(frame).toContain('Downloading');
     });
   });

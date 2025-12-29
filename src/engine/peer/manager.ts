@@ -8,12 +8,12 @@
  */
 
 import { TypedEventEmitter } from '../events.js';
-import { Peer, PeerFlags, PeerError } from '../types.js';
+import { Peer, PeerError } from '../types.js';
 import { PeerConnection } from './connection.js';
 import { WireProtocol } from './protocol.js';
-import { ExtensionManager, KnownExtensions, type PexPeer } from './extension.js';
+import { ExtensionManager, type PexPeer } from './extension.js';
 import { hasCapability } from './messages.js';
-import { smartConnect, type EncryptionMode } from './smart-connect.js';
+import { smartConnect } from './smart-connect.js';
 import type { PeerInfo } from '../tracker/client.js';
 import { lookupCountry } from '../geoip.js';
 
@@ -22,7 +22,7 @@ import { lookupCountry } from '../geoip.js';
 // =============================================================================
 
 /** BitTorrent protocol identifier (19 bytes + "BitTorrent protocol") */
-const PROTOCOL_STRING = 'BitTorrent protocol';
+const _PROTOCOL_STRING = 'BitTorrent protocol';
 
 /** Number of samples to keep for speed calculation */
 const SPEED_SAMPLE_COUNT = 10;
@@ -45,7 +45,7 @@ export interface PeerManagerEvents {
   peerDisconnected: { infoHash: string; peerId: string; reason: string };
 
   /** Emitted when a protocol message is received from a peer */
-  peerMessage: { infoHash: string; peerId: string; type: string; payload: any };
+  peerMessage: { infoHash: string; peerId: string; type: string; payload: unknown };
 
   /** Emitted when a peer encounters an error */
   peerError: { infoHash: string; peerId: string; error: Error };
@@ -1387,7 +1387,7 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
    * @param state - Peer state
    * @param pieceIndex - Index of the piece the peer has
    */
-  private updatePeerProgress(state: PeerState, pieceIndex: number): void {
+  private updatePeerProgress(_state: PeerState, _pieceIndex: number): void {
     // Progress updates would be calculated by the piece manager
     // based on total piece count and the peer's bitfield
   }

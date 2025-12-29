@@ -190,7 +190,7 @@ export const TrackerList: React.FC<TrackerListProps> = ({ trackers }) => {
   return (
     <Box flexDirection="column">
       <TrackerListHeader />
-      {trackers.map((tracker, index) => (
+      {trackers.map((tracker) => (
         <React.Fragment key={tracker.url}>
           <TrackerRow tracker={tracker} />
           {tracker.errorMessage && (

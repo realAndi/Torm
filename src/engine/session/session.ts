@@ -690,7 +690,6 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
       return;
     }
 
-    const previousState = this._state;
     this.setState(TorrentState.PAUSED);
 
     // Stop progress reporting
@@ -698,6 +697,16 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
 
     // Stop choking algorithm
     this.chokingAlgorithm.stop();
+  }
+
+  /**
+   * Set torrent to queued state (used by SessionManager for queue management)
+   */
+  queue(): void {
+    if (this._state === TorrentState.QUEUED) {
+      return;
+    }
+    this.setState(TorrentState.QUEUED);
   }
 
   /**

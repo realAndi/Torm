@@ -16,7 +16,6 @@ import { TypedEventEmitter } from '../events.js';
 import {
   MessageType,
   PROTOCOL_STRING,
-  HANDSHAKE_LENGTH,
   encodeHandshake,
   encodeKeepAlive,
   encodeChoke,
@@ -30,9 +29,7 @@ import {
   encodeCancel,
   encodeExtended,
   decodeHandshake,
-  decodeExtended,
   createReservedBytes,
-  hasCapability,
 } from './messages.js';
 import type { PeerConnection } from './connection.js';
 

@@ -15,8 +15,6 @@ import { TypedEventEmitter } from '../events.js';
 import { encode as bencode, decode as bdecode } from '../bencode.js';
 import {
   encodeExtended,
-  decodeExtended,
-  MessageType,
   type ExtendedMessage,
 } from './messages.js';
 
@@ -416,7 +414,7 @@ export class ExtensionManager extends TypedEventEmitter<ExtensionEvents> {
         clientName: this.remoteClientName,
         metadata_size: this.remoteMetadataSize,
       });
-    } catch (err) {
+    } catch {
       // Invalid handshake, ignore
     }
   }
@@ -459,7 +457,7 @@ export class ExtensionManager extends TypedEventEmitter<ExtensionEvents> {
       if (added.length > 0 || dropped.length > 0) {
         this.emit('pex', { peerId, added, dropped });
       }
-    } catch (err) {
+    } catch {
       // Invalid PEX message, ignore
     }
   }
@@ -467,7 +465,7 @@ export class ExtensionManager extends TypedEventEmitter<ExtensionEvents> {
   /**
    * Handle metadata message (BEP 9) - placeholder
    */
-  private handleMetadataMessage(peerId: string, payload: Buffer): void {
+  private handleMetadataMessage(_peerId: string, _payload: Buffer): void {
     // TODO: Implement ut_metadata
   }
 
