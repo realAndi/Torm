@@ -1,5 +1,5 @@
 {
-  "name": "torm",
+  "name": "torm-cli",
   "version": "0.1.0",
   "description": "A terminal-based BitTorrent client with an interactive TUI",
   "type": "module",
