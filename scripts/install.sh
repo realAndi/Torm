@@ -91,7 +91,7 @@ install() {
     version=$(get_latest_version)
     success "Version: $version"
 
-    download_url="https://github.com/${REPO}/releases/download/v${version}/torm-${platform}"
+    download_url="https://github.com/${REPO}/releases/download/v${version}/torm-${version}-${platform}"
     info "Downloading from: $download_url"
 
     # Create temp file
