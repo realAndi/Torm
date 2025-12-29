@@ -63,7 +63,7 @@ class GeoIPService {
     try {
       // Try to dynamically import geoip-lite
       // This package includes a bundled MaxMind GeoLite database
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
+       
       const geoip = await import(/* webpackIgnore: true */ 'geoip-lite' as string);
       const module = geoip.default || geoip;
       if (module && typeof module.lookup === 'function') {

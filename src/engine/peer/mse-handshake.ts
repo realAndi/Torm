@@ -381,7 +381,7 @@ export async function performMSEHandshake(
     // The peer's VC will appear after their random padding from step 2
 
     // We may have extra data from step 2 (padding after Yb)
-    let searchStart = DH_KEY_LENGTH;
+    const searchStart = DH_KEY_LENGTH;
     let searchBuffer: Buffer = recvBuffer;
     let totalReceived = dhBytesRead;
 

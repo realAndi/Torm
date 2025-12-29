@@ -582,7 +582,7 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
     }
 
     // Cache counts to avoid recalculating in loop (optimization)
-    let totalPeerCount = this.getTotalPeerCount();
+    const totalPeerCount = this.getTotalPeerCount();
     let pendingCount = this.pendingConnections.size;
     let torrentPendingCount = this.countPendingForTorrent(infoHash);
 
@@ -1401,7 +1401,7 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
   private updatePeerProgressFromBitfield(state: PeerState, bitfield: Buffer): void {
     // Count bits set in bitfield
     let bitsSet = 0;
-    let totalBits = bitfield.length * 8;
+    const totalBits = bitfield.length * 8;
 
     for (let i = 0; i < bitfield.length; i++) {
       let byte = bitfield[i];
@@ -1424,7 +1424,7 @@ export class PeerManager extends TypedEventEmitter<PeerManagerEvents> {
    * rolling average speeds.
    */
   private startSpeedSampling(): void {
-    let lastSample = new Map<string, { downloaded: number; uploaded: number }>();
+    const lastSample = new Map<string, { downloaded: number; uploaded: number }>();
 
     this.speedSampleTimer = setInterval(() => {
       for (const [infoHash, torrentPeers] of this.peers) {
