@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Text } from 'ink';
-import { colors, borders } from '../theme/index.js';
+import { colors } from '../theme/index.js';
 
 export interface Tab {
   /** Unique identifier for the tab */

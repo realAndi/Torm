@@ -235,7 +235,10 @@ export class TypedEventEmitter<T extends { [K in keyof T]: unknown }> {
     event: K,
     listener: T[K] extends void ? () => void : (payload: T[K]) => void
   ): this {
-    this.emitter.once(event as string, listener as (...args: unknown[]) => void);
+    this.emitter.once(
+      event as string,
+      listener as (...args: unknown[]) => void
+    );
     return this;
   }
 
@@ -333,7 +336,10 @@ export class TypedEventEmitter<T extends { [K in keyof T]: unknown }> {
     event: K,
     listener: T[K] extends void ? () => void : (payload: T[K]) => void
   ): this {
-    this.emitter.prependListener(event as string, listener as (...args: unknown[]) => void);
+    this.emitter.prependListener(
+      event as string,
+      listener as (...args: unknown[]) => void
+    );
     return this;
   }
 
@@ -348,7 +354,10 @@ export class TypedEventEmitter<T extends { [K in keyof T]: unknown }> {
     event: K,
     listener: T[K] extends void ? () => void : (payload: T[K]) => void
   ): this {
-    this.emitter.prependOnceListener(event as string, listener as (...args: unknown[]) => void);
+    this.emitter.prependOnceListener(
+      event as string,
+      listener as (...args: unknown[]) => void
+    );
     return this;
   }
 

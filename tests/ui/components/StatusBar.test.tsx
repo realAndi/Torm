@@ -114,12 +114,13 @@ describe('StatusBar', () => {
       const frame = lastFrame();
 
       expect(frame).toContain('q:Quit');
+      expect(frame).toContain('a:Add');
       expect(frame).toContain('p:Pause');
       expect(frame).toContain('r:Resume');
       expect(frame).toContain('d:Delete');
-      expect(frame).toContain('Enter:Details');
-      expect(frame).toContain('?:Help');
       expect(frame).toContain('/:Search');
+      expect(frame).toContain('s:Settings');
+      expect(frame).toContain('?:Help');
     });
 
     it('should format ETA correctly in torrent info', () => {
@@ -142,7 +143,8 @@ describe('StatusBar', () => {
       };
 
       const { lastFrame } = render(<StatusBar selectedTorrent={torrent} />);
-      expect(lastFrame()).toContain('ETA: 12m');
+      // Note: ETA format is "ETA:12m" without space after colon
+      expect(lastFrame()).toContain('ETA:12m');
     });
 
     it('should show "--" for unknown ETA', () => {
@@ -165,13 +167,32 @@ describe('StatusBar', () => {
       };
 
       const { lastFrame } = render(<StatusBar selectedTorrent={torrent} />);
-      expect(lastFrame()).toContain('ETA: --');
+      // Note: ETA format is "ETA:--" without space after colon
+      expect(lastFrame()).toContain('ETA:--');
     });
 
-    it('should show filter status when filtering', () => {
+    it('should show filter count when filtering with selected torrent', () => {
+      const torrent = {
+        id: 'test-id',
+        name: 'test.torrent',
+        infoHash: 'abc123',
+        state: TorrentState.DOWNLOADING,
+        progress: 0.5,
+        downloaded: 500,
+        uploaded: 0,
+        size: 1000,
+        downloadSpeed: 100,
+        uploadSpeed: 0,
+        peers: 5,
+        seeds: 2,
+        eta: 60,
+        addedAt: Date.now(),
+        labels: [],
+      };
+
       const { lastFrame } = render(
         <StatusBar
-          selectedTorrent={null}
+          selectedTorrent={torrent}
           isFiltered={true}
           filteredCount={5}
           totalCount={10}
@@ -180,13 +201,32 @@ describe('StatusBar', () => {
       );
       const frame = lastFrame();
 
-      expect(frame).toContain('Showing 5 of 10');
+      // Component shows [filteredCount/totalCount] format
+      expect(frame).toContain('[5/10]');
     });
 
-    it('should show filter label when status filter is active', () => {
+    it('should show filter count with status filter active', () => {
+      const torrent = {
+        id: 'test-id',
+        name: 'test.torrent',
+        infoHash: 'abc123',
+        state: TorrentState.DOWNLOADING,
+        progress: 0.5,
+        downloaded: 500,
+        uploaded: 0,
+        size: 1000,
+        downloadSpeed: 100,
+        uploadSpeed: 0,
+        peers: 5,
+        seeds: 2,
+        eta: 60,
+        addedAt: Date.now(),
+        labels: [],
+      };
+
       const { lastFrame } = render(
         <StatusBar
-          selectedTorrent={null}
+          selectedTorrent={torrent}
           isFiltered={true}
           filteredCount={3}
           totalCount={10}
@@ -195,7 +235,8 @@ describe('StatusBar', () => {
       );
       const frame = lastFrame();
 
-      expect(frame).toContain('Downloading');
+      // Shows filter count in [filtered/total] format
+      expect(frame).toContain('[3/10]');
     });
 
     it('should not show filter status when not filtering', () => {

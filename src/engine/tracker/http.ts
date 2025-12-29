@@ -173,10 +173,16 @@ export class HTTPTracker {
   async announce(params: AnnounceParams): Promise<AnnounceResponse> {
     // Validate parameters
     if (params.infoHash.length !== 20) {
-      throw new TrackerError('info_hash must be exactly 20 bytes', this.announceUrl);
+      throw new TrackerError(
+        'info_hash must be exactly 20 bytes',
+        this.announceUrl
+      );
     }
     if (params.peerId.length !== 20) {
-      throw new TrackerError('peer_id must be exactly 20 bytes', this.announceUrl);
+      throw new TrackerError(
+        'peer_id must be exactly 20 bytes',
+        this.announceUrl
+      );
     }
 
     // Build the URL with query parameters
@@ -202,14 +208,17 @@ export class HTTPTracker {
     if (scrapeUrl === null) {
       throw new TrackerError(
         'Tracker does not support scrape (announce URL does not contain "announce")',
-        this.announceUrl,
+        this.announceUrl
       );
     }
 
     // Validate info hashes
     for (const hash of infoHashes) {
       if (hash.length !== 20) {
-        throw new TrackerError('info_hash must be exactly 20 bytes', this.announceUrl);
+        throw new TrackerError(
+          'info_hash must be exactly 20 bytes',
+          this.announceUrl
+        );
       }
     }
 
@@ -326,7 +335,7 @@ export class HTTPTracker {
    */
   private buildScrapeUrl(scrapeUrl: string, infoHashes: Buffer[]): string {
     const queryParts = infoHashes.map(
-      (hash) => `info_hash=${urlEncodeBinary(hash)}`,
+      (hash) => `info_hash=${urlEncodeBinary(hash)}`
     );
 
     const queryString = queryParts.join('&');
@@ -352,7 +361,7 @@ export class HTTPTracker {
       if (!response.ok) {
         throw new TrackerError(
           `HTTP error ${response.status}: ${response.statusText}`,
-          this.announceUrl,
+          this.announceUrl
         );
       }
 
@@ -365,9 +374,15 @@ export class HTTPTracker {
 
       if (error instanceof Error) {
         if (error.name === 'AbortError') {
-          throw new TrackerError(`Request timed out after ${this.timeout}ms`, this.announceUrl);
+          throw new TrackerError(
+            `Request timed out after ${this.timeout}ms`,
+            this.announceUrl
+          );
         }
-        throw new TrackerError(`Network error: ${error.message}`, this.announceUrl);
+        throw new TrackerError(
+          `Network error: ${error.message}`,
+          this.announceUrl
+        );
       }
 
       throw new TrackerError('Unknown error occurred', this.announceUrl);
@@ -387,12 +402,19 @@ export class HTTPTracker {
     } catch (error) {
       throw new TrackerError(
         `Invalid bencode response: ${error instanceof Error ? error.message : 'unknown error'}`,
-        this.announceUrl,
+        this.announceUrl
       );
     }
 
-    if (typeof decoded !== 'object' || decoded === null || Array.isArray(decoded)) {
-      throw new TrackerError('Invalid response: expected dictionary', this.announceUrl);
+    if (
+      typeof decoded !== 'object' ||
+      decoded === null ||
+      Array.isArray(decoded)
+    ) {
+      throw new TrackerError(
+        'Invalid response: expected dictionary',
+        this.announceUrl
+      );
     }
 
     const response = decoded as { [key: string]: BencodeValue };
@@ -400,14 +422,19 @@ export class HTTPTracker {
     // Check for failure reason
     if ('failure reason' in response) {
       const reason = response['failure reason'];
-      const message = Buffer.isBuffer(reason) ? reason.toString('utf8') : String(reason);
+      const message = Buffer.isBuffer(reason)
+        ? reason.toString('utf8')
+        : String(reason);
       throw new TrackerError(`Tracker error: ${message}`, this.announceUrl);
     }
 
     // Parse interval
     const interval = response['interval'];
     if (typeof interval !== 'number') {
-      throw new TrackerError('Invalid response: missing or invalid interval', this.announceUrl);
+      throw new TrackerError(
+        'Invalid response: missing or invalid interval',
+        this.announceUrl
+      );
     }
 
     // Parse optional min interval
@@ -465,7 +492,10 @@ export class HTTPTracker {
       return this.parseDictPeers(peersValue);
     }
 
-    throw new TrackerError('Invalid peers format in response', this.announceUrl);
+    throw new TrackerError(
+      'Invalid peers format in response',
+      this.announceUrl
+    );
   }
 
   /**
@@ -475,7 +505,7 @@ export class HTTPTracker {
     if (data.length % 6 !== 0) {
       throw new TrackerError(
         `Invalid compact peers length: ${data.length} (must be multiple of 6)`,
-        this.announceUrl,
+        this.announceUrl
       );
     }
 
@@ -509,7 +539,11 @@ export class HTTPTracker {
     const peers: PeerInfo[] = [];
 
     for (const peerValue of peersArray) {
-      if (typeof peerValue !== 'object' || peerValue === null || Array.isArray(peerValue)) {
+      if (
+        typeof peerValue !== 'object' ||
+        peerValue === null ||
+        Array.isArray(peerValue)
+      ) {
         continue;
       }
 
@@ -520,7 +554,9 @@ export class HTTPTracker {
       if (ipValue === undefined) {
         continue;
       }
-      const ip = Buffer.isBuffer(ipValue) ? ipValue.toString('utf8') : String(ipValue);
+      const ip = Buffer.isBuffer(ipValue)
+        ? ipValue.toString('utf8')
+        : String(ipValue);
 
       // Parse port
       const portValue = peerDict['port'];
@@ -555,12 +591,19 @@ export class HTTPTracker {
     } catch (error) {
       throw new TrackerError(
         `Invalid bencode response: ${error instanceof Error ? error.message : 'unknown error'}`,
-        this.announceUrl,
+        this.announceUrl
       );
     }
 
-    if (typeof decoded !== 'object' || decoded === null || Array.isArray(decoded)) {
-      throw new TrackerError('Invalid scrape response: expected dictionary', this.announceUrl);
+    if (
+      typeof decoded !== 'object' ||
+      decoded === null ||
+      Array.isArray(decoded)
+    ) {
+      throw new TrackerError(
+        'Invalid scrape response: expected dictionary',
+        this.announceUrl
+      );
     }
 
     const response = decoded as { [key: string]: BencodeValue };
@@ -568,7 +611,9 @@ export class HTTPTracker {
     // Check for failure reason
     if ('failure reason' in response) {
       const reason = response['failure reason'];
-      const message = Buffer.isBuffer(reason) ? reason.toString('utf8') : String(reason);
+      const message = Buffer.isBuffer(reason)
+        ? reason.toString('utf8')
+        : String(reason);
       throw new TrackerError(`Tracker error: ${message}`, this.announceUrl);
     }
 
@@ -582,7 +627,7 @@ export class HTTPTracker {
     ) {
       throw new TrackerError(
         'Invalid scrape response: missing or invalid files dictionary',
-        this.announceUrl,
+        this.announceUrl
       );
     }
 
@@ -603,9 +648,12 @@ export class HTTPTracker {
       // Convert the key (which may be binary) to hex
       const infoHashHex = Buffer.from(key, 'binary').toString('hex');
 
-      const complete = typeof stats['complete'] === 'number' ? stats['complete'] : 0;
-      const incomplete = typeof stats['incomplete'] === 'number' ? stats['incomplete'] : 0;
-      const downloaded = typeof stats['downloaded'] === 'number' ? stats['downloaded'] : 0;
+      const complete =
+        typeof stats['complete'] === 'number' ? stats['complete'] : 0;
+      const incomplete =
+        typeof stats['incomplete'] === 'number' ? stats['incomplete'] : 0;
+      const downloaded =
+        typeof stats['downloaded'] === 'number' ? stats['downloaded'] : 0;
 
       files.set(infoHashHex, { complete, incomplete, downloaded });
     }

@@ -112,7 +112,10 @@ function getTrackerStatusColor(status: TrackerStatus): string {
 /**
  * Find a torrent by ID (full hash or prefix)
  */
-function findTorrent(engine: TormEngine, torrentId: string): Torrent | undefined {
+function findTorrent(
+  engine: TormEngine,
+  torrentId: string
+): Torrent | undefined {
   const { type, value } = parseTorrentId(torrentId);
 
   if (type === 'hash') {
@@ -130,7 +133,7 @@ function findTorrent(engine: TormEngine, torrentId: string): Torrent | undefined
   if (matches.length > 1) {
     throw new Error(
       `Ambiguous torrent ID "${torrentId}" matches ${matches.length} torrents. ` +
-      'Please provide a longer prefix.'
+        'Please provide a longer prefix.'
     );
   }
 
@@ -146,25 +149,25 @@ function findTorrent(engine: TormEngine, torrentId: string): Torrent | undefined
  */
 const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
   <Box marginTop={1} marginBottom={0}>
-    <Text bold color="cyan">{title}</Text>
+    <Text bold color="cyan">
+      {title}
+    </Text>
   </Box>
 );
 
 /**
  * Key-value row component
  */
-const InfoRow: React.FC<{ label: string; value: React.ReactNode; width?: number }> = ({
-  label,
-  value,
-  width = 14,
-}) => (
+const InfoRow: React.FC<{
+  label: string;
+  value: React.ReactNode;
+  width?: number;
+}> = ({ label, value, width = 14 }) => (
   <Box>
     <Box width={width}>
       <Text dimColor>{label}:</Text>
     </Box>
-    <Box>
-      {typeof value === 'string' ? <Text>{value}</Text> : value}
-    </Box>
+    <Box>{typeof value === 'string' ? <Text>{value}</Text> : value}</Box>
   </Box>
 );
 
@@ -193,7 +196,9 @@ const FileList: React.FC<{ files: Torrent['files'] }> = ({ files }) => (
 /**
  * Tracker list component
  */
-const TrackerList: React.FC<{ trackers: Torrent['trackers'] }> = ({ trackers }) => (
+const TrackerList: React.FC<{ trackers: Torrent['trackers'] }> = ({
+  trackers,
+}) => (
   <Box flexDirection="column">
     <SectionHeader title="Trackers" />
     {trackers.map((tracker, index) => (
@@ -206,7 +211,8 @@ const TrackerList: React.FC<{ trackers: Torrent['trackers'] }> = ({ trackers }) 
         </Box>
         <Box width={12}>
           <Text color={getTrackerStatusColor(tracker.status)}>
-            {' '}{tracker.status}
+            {' '}
+            {tracker.status}
           </Text>
         </Box>
         <Box width={10} justifyContent="flex-end">
@@ -354,7 +360,9 @@ export async function executeInfo(options: InfoCommandOptions): Promise<void> {
     console.log(colorize('Transfer', ansiColors.cyan));
     console.log(formatKeyValue('Downloaded', formatBytes(torrent.downloaded)));
     console.log(formatKeyValue('Uploaded', formatBytes(torrent.uploaded)));
-    console.log(formatKeyValue('Down Speed', formatSpeed(torrent.downloadSpeed)));
+    console.log(
+      formatKeyValue('Down Speed', formatSpeed(torrent.downloadSpeed))
+    );
     console.log(formatKeyValue('Up Speed', formatSpeed(torrent.uploadSpeed)));
     console.log(formatKeyValue('ETA', formatEta(torrent.eta)));
     console.log();
@@ -375,7 +383,9 @@ export async function executeInfo(options: InfoCommandOptions): Promise<void> {
     if (showFiles && torrent.files.length > 0) {
       console.log(colorize('Files', ansiColors.cyan));
       torrent.files.forEach((file, index) => {
-        console.log(`  ${(index + 1).toString().padStart(3)}. ${file.path} (${formatBytes(file.size)})`);
+        console.log(
+          `  ${(index + 1).toString().padStart(3)}. ${file.path} (${formatBytes(file.size)})`
+        );
       });
       console.log();
     }
@@ -384,7 +394,9 @@ export async function executeInfo(options: InfoCommandOptions): Promise<void> {
     if (showTrackers && torrent.trackers.length > 0) {
       console.log(colorize('Trackers', ansiColors.cyan));
       torrent.trackers.forEach((tracker, index) => {
-        console.log(`  ${(index + 1).toString().padStart(3)}. ${tracker.url} [${tracker.status}]`);
+        console.log(
+          `  ${(index + 1).toString().padStart(3)}. ${tracker.url} [${tracker.status}]`
+        );
       });
       console.log();
     }

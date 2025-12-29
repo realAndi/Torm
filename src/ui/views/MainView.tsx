@@ -66,7 +66,7 @@ export const MainView: React.FC<MainViewProps> = ({
   searchQuery,
   onSearchChange,
   statusFilter,
-  onStatusFilterChange,
+  onStatusFilterChange: _onStatusFilterChange,
   isSearchFocused,
   onSearchFocusChange,
   daemonConnected = false,
@@ -87,7 +87,9 @@ export const MainView: React.FC<MainViewProps> = ({
   );
 
   const selectedTorrent =
-    filteredTorrents.length > 0 ? filteredTorrents[selectedIndex] ?? null : null;
+    filteredTorrents.length > 0
+      ? (filteredTorrents[selectedIndex] ?? null)
+      : null;
 
   const isFiltered =
     (searchQuery && searchQuery.trim().length > 0) ||

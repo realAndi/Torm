@@ -13,12 +13,7 @@
 
 import { TypedEventEmitter } from '../events.js';
 import { encode as bencode, decode as bdecode } from '../bencode.js';
-import {
-  encodeExtended,
-  decodeExtended,
-  MessageType,
-  type ExtendedMessage,
-} from './messages.js';
+import { encodeExtended, type ExtendedMessage } from './messages.js';
 
 // =============================================================================
 // Constants
@@ -204,10 +199,12 @@ export class ExtensionManager extends TypedEventEmitter<ExtensionEvents> {
   /**
    * Create the extension handshake message to send to peer
    */
-  createHandshake(options: {
-    listenPort?: number;
-    metadataSize?: number;
-  } = {}): Buffer {
+  createHandshake(
+    options: {
+      listenPort?: number;
+      metadataSize?: number;
+    } = {}
+  ): Buffer {
     const handshake: ExtensionHandshake = {
       m: Object.fromEntries(this.localExtensions),
       v: CLIENT_NAME,
@@ -284,13 +281,21 @@ export class ExtensionManager extends TypedEventEmitter<ExtensionEvents> {
     const limitedDropped = dropped.slice(0, MAX_PEX_PEERS);
 
     // Encode IPv4 peers (6 bytes each: 4 IP + 2 port)
-    const addedBuf = this.encodePeers(limitedAdded.filter(p => !p.ip.includes(':')));
-    const addedFlags = Buffer.alloc(limitedAdded.filter(p => !p.ip.includes(':')).length);
-    limitedAdded.filter(p => !p.ip.includes(':')).forEach((p, i) => {
-      addedFlags[i] = p.flags ?? 0;
-    });
+    const addedBuf = this.encodePeers(
+      limitedAdded.filter((p) => !p.ip.includes(':'))
+    );
+    const addedFlags = Buffer.alloc(
+      limitedAdded.filter((p) => !p.ip.includes(':')).length
+    );
+    limitedAdded
+      .filter((p) => !p.ip.includes(':'))
+      .forEach((p, i) => {
+        addedFlags[i] = p.flags ?? 0;
+      });
 
-    const droppedBuf = this.encodePeers(limitedDropped.filter(p => !p.ip.includes(':')));
+    const droppedBuf = this.encodePeers(
+      limitedDropped.filter((p) => !p.ip.includes(':'))
+    );
 
     const pexMessage: PexMessage = {
       added: addedBuf,
@@ -337,12 +342,12 @@ export class ExtensionManager extends TypedEventEmitter<ExtensionEvents> {
 
     this.lastPexTime = now;
 
-    const added = Array.from(this.recentlyAdded).map(key => {
+    const added = Array.from(this.recentlyAdded).map((key) => {
       const [ip, port] = key.split(':');
       return { ip, port: parseInt(port, 10) };
     });
 
-    const dropped = Array.from(this.recentlyDropped).map(key => {
+    const dropped = Array.from(this.recentlyDropped).map((key) => {
       const [ip, port] = key.split(':');
       return { ip, port: parseInt(port, 10) };
     });
@@ -397,9 +402,10 @@ export class ExtensionManager extends TypedEventEmitter<ExtensionEvents> {
 
       // Store client name
       if (handshake.v) {
-        this.remoteClientName = typeof handshake.v === 'string'
-          ? handshake.v
-          : handshake.v.toString();
+        this.remoteClientName =
+          typeof handshake.v === 'string'
+            ? handshake.v
+            : handshake.v.toString();
       }
 
       // Store metadata size
@@ -416,7 +422,7 @@ export class ExtensionManager extends TypedEventEmitter<ExtensionEvents> {
         clientName: this.remoteClientName,
         metadata_size: this.remoteMetadataSize,
       });
-    } catch (err) {
+    } catch {
       // Invalid handshake, ignore
     }
   }
@@ -459,7 +465,7 @@ export class ExtensionManager extends TypedEventEmitter<ExtensionEvents> {
       if (added.length > 0 || dropped.length > 0) {
         this.emit('pex', { peerId, added, dropped });
       }
-    } catch (err) {
+    } catch {
       // Invalid PEX message, ignore
     }
   }
@@ -467,7 +473,7 @@ export class ExtensionManager extends TypedEventEmitter<ExtensionEvents> {
   /**
    * Handle metadata message (BEP 9) - placeholder
    */
-  private handleMetadataMessage(peerId: string, payload: Buffer): void {
+  private handleMetadataMessage(_peerId: string, _payload: Buffer): void {
     // TODO: Implement ut_metadata
   }
 

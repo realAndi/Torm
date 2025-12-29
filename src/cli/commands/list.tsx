@@ -114,7 +114,10 @@ function getRelevantSpeed(torrent: Torrent): number {
 /**
  * Torrent row component
  */
-const TorrentRow: React.FC<{ torrent: Torrent; index: number }> = ({ torrent, index }) => {
+const TorrentRow: React.FC<{ torrent: Torrent; index: number }> = ({
+  torrent,
+  index,
+}) => {
   const stateColor = getStateColor(torrent.state);
   const stateName = getStateName(torrent.state);
   const speed = getRelevantSpeed(torrent);
@@ -150,22 +153,35 @@ const TorrentRow: React.FC<{ torrent: Torrent; index: number }> = ({ torrent, in
 const TableHeader: React.FC = () => (
   <Box>
     <Box width={4}>
-      <Text bold dimColor>{'  #'}</Text>
+      <Text bold dimColor>
+        {'  #'}
+      </Text>
     </Box>
     <Box width={32}>
-      <Text bold dimColor>Name</Text>
+      <Text bold dimColor>
+        Name
+      </Text>
     </Box>
     <Box width={12} justifyContent="flex-end">
-      <Text bold dimColor>Size</Text>
+      <Text bold dimColor>
+        Size
+      </Text>
     </Box>
     <Box width={10} justifyContent="flex-end">
-      <Text bold dimColor>Progress</Text>
+      <Text bold dimColor>
+        Progress
+      </Text>
     </Box>
     <Box width={12} justifyContent="flex-end">
-      <Text bold dimColor>Speed</Text>
+      <Text bold dimColor>
+        Speed
+      </Text>
     </Box>
     <Box width={14}>
-      <Text bold dimColor> Status</Text>
+      <Text bold dimColor>
+        {' '}
+        Status
+      </Text>
     </Box>
   </Box>
 );
@@ -173,14 +189,17 @@ const TableHeader: React.FC = () => (
 /**
  * Separator line
  */
-const Separator: React.FC = () => (
-  <Text dimColor>{'-'.repeat(84)}</Text>
-);
+const Separator: React.FC = () => <Text dimColor>{'-'.repeat(84)}</Text>;
 
 /**
  * Component to display the list of torrents
  */
-const ListResult: React.FC<ListResultProps> = ({ torrents, error, loading, verbose: _verbose }) => {
+const ListResult: React.FC<ListResultProps> = ({
+  torrents,
+  error,
+  loading,
+  verbose: _verbose,
+}) => {
   if (loading) {
     return (
       <Box>
@@ -231,7 +250,9 @@ const ListResult: React.FC<ListResultProps> = ({ torrents, error, loading, verbo
  *
  * @param options - Command options
  */
-export async function executeList(options: ListCommandOptions = {}): Promise<void> {
+export async function executeList(
+  options: ListCommandOptions = {}
+): Promise<void> {
   const { state, verbose: _verbose = false } = options;
 
   let client;
@@ -270,7 +291,9 @@ export async function executeList(options: ListCommandOptions = {}): Promise<voi
     }
 
     console.log();
-    console.log(`${torrents.length} torrent${torrents.length !== 1 ? 's' : ''} total`);
+    console.log(
+      `${torrents.length} torrent${torrents.length !== 1 ? 's' : ''} total`
+    );
 
     client.disconnect();
   } catch (err) {
@@ -288,7 +311,10 @@ export async function executeList(options: ListCommandOptions = {}): Promise<voi
 /**
  * List command component using Ink for rendering
  */
-export function ListCommand({ state, verbose = false }: ListCommandOptions): React.ReactElement {
+export function ListCommand({
+  state,
+  verbose = false,
+}: ListCommandOptions): React.ReactElement {
   const [torrents, setTorrents] = useState<Torrent[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -324,7 +350,14 @@ export function ListCommand({ state, verbose = false }: ListCommandOptions): Rea
     doList();
   }, [state]);
 
-  return <ListResult torrents={torrents} error={error} loading={loading} verbose={verbose} />;
+  return (
+    <ListResult
+      torrents={torrents}
+      error={error}
+      loading={loading}
+      verbose={verbose}
+    />
+  );
 }
 
 /**

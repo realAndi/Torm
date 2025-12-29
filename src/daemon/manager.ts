@@ -7,8 +7,8 @@
  * @module daemon/manager
  */
 
-import { readFile, writeFile, unlink, mkdir, appendFile } from 'fs/promises';
-import { existsSync, openSync } from 'fs';
+import { readFile, writeFile, unlink, mkdir } from 'fs/promises';
+import { existsSync } from 'fs';
 import { dirname, resolve } from 'path';
 import { homedir } from 'os';
 import { DaemonClient } from './client.js';
@@ -171,7 +171,10 @@ export class DaemonManager {
 
     while (waited < maxWait) {
       // Try to connect
-      const client = new DaemonClient({ socketPath: this.socketPath, connectTimeout: 1000 });
+      const client = new DaemonClient({
+        socketPath: this.socketPath,
+        connectTimeout: 1000,
+      });
       try {
         await client.connect();
         await client.ping();
@@ -206,7 +209,10 @@ export class DaemonManager {
 
     // Try graceful shutdown via client first
     if (socketExists) {
-      const client = new DaemonClient({ socketPath: this.socketPath, connectTimeout: 500 });
+      const client = new DaemonClient({
+        socketPath: this.socketPath,
+        connectTimeout: 500,
+      });
       try {
         await client.connect();
         await client.shutdown();
@@ -451,7 +457,9 @@ export function getDefaultManager(): DaemonManager {
 /**
  * Start the daemon
  */
-export async function startDaemon(options?: DaemonManagerOptions): Promise<number> {
+export async function startDaemon(
+  options?: DaemonManagerOptions
+): Promise<number> {
   const manager = options ? new DaemonManager(options) : getDefaultManager();
   return manager.start();
 }
@@ -459,7 +467,9 @@ export async function startDaemon(options?: DaemonManagerOptions): Promise<numbe
 /**
  * Stop the daemon
  */
-export async function stopDaemon(options?: DaemonManagerOptions): Promise<void> {
+export async function stopDaemon(
+  options?: DaemonManagerOptions
+): Promise<void> {
   const manager = options ? new DaemonManager(options) : getDefaultManager();
   return manager.stop();
 }
@@ -467,7 +477,9 @@ export async function stopDaemon(options?: DaemonManagerOptions): Promise<void> 
 /**
  * Get daemon status
  */
-export async function getDaemonStatus(options?: DaemonManagerOptions): Promise<DaemonInfo> {
+export async function getDaemonStatus(
+  options?: DaemonManagerOptions
+): Promise<DaemonInfo> {
   const manager = options ? new DaemonManager(options) : getDefaultManager();
   return manager.getStatus();
 }
@@ -475,7 +487,9 @@ export async function getDaemonStatus(options?: DaemonManagerOptions): Promise<D
 /**
  * Check if daemon is running
  */
-export async function isDaemonRunning(options?: DaemonManagerOptions): Promise<boolean> {
+export async function isDaemonRunning(
+  options?: DaemonManagerOptions
+): Promise<boolean> {
   const manager = options ? new DaemonManager(options) : getDefaultManager();
   return manager.isRunning();
 }
@@ -483,7 +497,9 @@ export async function isDaemonRunning(options?: DaemonManagerOptions): Promise<b
 /**
  * Ensure daemon is running
  */
-export async function ensureDaemonRunning(options?: DaemonManagerOptions): Promise<number> {
+export async function ensureDaemonRunning(
+  options?: DaemonManagerOptions
+): Promise<number> {
   const manager = options ? new DaemonManager(options) : getDefaultManager();
   return manager.ensureRunning();
 }

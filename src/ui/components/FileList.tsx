@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Text } from 'ink';
-import type { TorrentFile, FilePriority } from '../../engine/types.js';
+import type { TorrentFile } from '../../engine/types.js';
 import { colors, borders, progressChars } from '../theme/index.js';
 import { formatBytes, formatProgress, truncateText } from '../utils/format.js';
 
@@ -22,11 +22,14 @@ const COLUMN_WIDTHS = {
 /**
  * Priority display configuration
  */
-const PRIORITY_DISPLAY: Record<number, { icon: string; color: string; label: string }> = {
-  0: { icon: '\u2717', color: colors.muted, label: 'Skip' },      // ✗ Skip
-  1: { icon: '\u2193', color: colors.muted, label: 'Low' },       // ↓ Low
-  2: { icon: '\u2022', color: colors.primary, label: 'Normal' },  // • Normal
-  3: { icon: '\u2191', color: colors.success, label: 'High' },    // ↑ High
+const PRIORITY_DISPLAY: Record<
+  number,
+  { icon: string; color: string; label: string }
+> = {
+  0: { icon: '\u2717', color: colors.muted, label: 'Skip' }, // ✗ Skip
+  1: { icon: '\u2193', color: colors.muted, label: 'Low' }, // ↓ Low
+  2: { icon: '\u2022', color: colors.primary, label: 'Normal' }, // • Normal
+  3: { icon: '\u2191', color: colors.success, label: 'High' }, // ↑ High
 };
 
 /**
@@ -58,7 +61,9 @@ function buildTreePrefix(depth: number, isLast: boolean = false): string {
 function createMiniProgressBar(progress: number, width: number = 6): string {
   const filled = Math.round(progress * width);
   const empty = width - filled;
-  return progressChars.filled.repeat(filled) + progressChars.empty.repeat(empty);
+  return (
+    progressChars.filled.repeat(filled) + progressChars.empty.repeat(empty)
+  );
 }
 
 /**
@@ -69,25 +74,33 @@ const FileListHeader: React.FC = () => {
     <Box flexDirection="column">
       <Box flexDirection="row" paddingX={1}>
         <Box width={COLUMN_WIDTHS.priority}>
-          <Text color={colors.primary} bold>Pri</Text>
+          <Text color={colors.primary} bold>
+            Pri
+          </Text>
         </Box>
         <Box width={COLUMN_WIDTHS.name}>
-          <Text color={colors.primary} bold>File</Text>
+          <Text color={colors.primary} bold>
+            File
+          </Text>
         </Box>
         <Box width={COLUMN_WIDTHS.size} justifyContent="flex-end">
-          <Text color={colors.primary} bold>Size</Text>
+          <Text color={colors.primary} bold>
+            Size
+          </Text>
         </Box>
         <Box width={COLUMN_WIDTHS.progress} justifyContent="flex-end">
-          <Text color={colors.primary} bold>Progress</Text>
+          <Text color={colors.primary} bold>
+            Progress
+          </Text>
         </Box>
       </Box>
       <Box paddingX={1}>
         <Text color={colors.muted}>
           {borders.horizontal.repeat(
             COLUMN_WIDTHS.priority +
-            COLUMN_WIDTHS.name +
-            COLUMN_WIDTHS.size +
-            COLUMN_WIDTHS.progress
+              COLUMN_WIDTHS.name +
+              COLUMN_WIDTHS.size +
+              COLUMN_WIDTHS.progress
           )}
         </Text>
       </Box>
@@ -98,21 +111,25 @@ const FileListHeader: React.FC = () => {
 /**
  * Single file row component
  */
-const FileRow: React.FC<{ file: TorrentFile; treePrefix: string }> = ({ file, treePrefix }) => {
+const FileRow: React.FC<{ file: TorrentFile; treePrefix: string }> = ({
+  file,
+  treePrefix,
+}) => {
   const { filename } = parseFilePath(file.path);
   const progress = file.size > 0 ? file.downloaded / file.size : 0;
   const priorityInfo = PRIORITY_DISPLAY[file.priority] || PRIORITY_DISPLAY[2];
 
   // Build display name with tree structure
-  const displayName = treePrefix + truncateText(
-    filename,
-    COLUMN_WIDTHS.name - treePrefix.length
-  );
+  const displayName =
+    treePrefix + truncateText(filename, COLUMN_WIDTHS.name - treePrefix.length);
 
   // Determine progress color
-  const progressColor = progress >= 1 ? colors.success :
-                        progress > 0 ? colors.primary :
-                        colors.muted;
+  const progressColor =
+    progress >= 1
+      ? colors.success
+      : progress > 0
+        ? colors.primary
+        : colors.muted;
 
   return (
     <Box flexDirection="row" paddingX={1}>
@@ -123,11 +140,14 @@ const FileRow: React.FC<{ file: TorrentFile; treePrefix: string }> = ({ file, tr
         <Text>{displayName.padEnd(COLUMN_WIDTHS.name)}</Text>
       </Box>
       <Box width={COLUMN_WIDTHS.size} justifyContent="flex-end">
-        <Text color={colors.muted}>{formatBytes(file.size).padStart(COLUMN_WIDTHS.size)}</Text>
+        <Text color={colors.muted}>
+          {formatBytes(file.size).padStart(COLUMN_WIDTHS.size)}
+        </Text>
       </Box>
       <Box width={COLUMN_WIDTHS.progress} justifyContent="flex-end">
         <Text color={progressColor}>
-          {createMiniProgressBar(progress)} {formatProgress(progress).padStart(4)}
+          {createMiniProgressBar(progress)}{' '}
+          {formatProgress(progress).padStart(4)}
         </Text>
       </Box>
     </Box>
@@ -137,7 +157,10 @@ const FileRow: React.FC<{ file: TorrentFile; treePrefix: string }> = ({ file, tr
 /**
  * Directory row component for multi-file torrents
  */
-const DirectoryRow: React.FC<{ name: string; depth: number }> = ({ name, depth }) => {
+const DirectoryRow: React.FC<{ name: string; depth: number }> = ({
+  name,
+  depth,
+}) => {
   const prefix = depth > 0 ? '  '.repeat(depth - 1) + '\u251c\u2500 ' : '';
   const displayName = prefix + '\u{1F4C1} ' + name; // 📁
 
@@ -260,7 +283,7 @@ export const FileList: React.FC<FileListProps> = ({ files }) => {
   return (
     <Box flexDirection="column">
       <FileListHeader />
-      {tree.map((node, index) => {
+      {tree.map((node) => {
         if (node.type === 'directory') {
           return (
             <DirectoryRow

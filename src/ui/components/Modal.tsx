@@ -49,7 +49,9 @@ export const Modal: React.FC<ModalProps> = ({
       <Text>
         <Text color={colors.border}>{borders.rounded.topLeft}</Text>
         <Text color={colors.border}>{leftDash}</Text>
-        <Text color={colors.primary} bold>{titleText}</Text>
+        <Text color={colors.primary} bold>
+          {titleText}
+        </Text>
         <Text color={colors.border}>{rightDash}</Text>
         <Text color={colors.border}>{borders.rounded.topRight}</Text>
       </Text>

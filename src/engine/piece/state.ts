@@ -87,10 +87,14 @@ export class PieceState {
    */
   constructor(pieceIndex: number, pieceLength: number) {
     if (pieceIndex < 0) {
-      throw new Error(`Invalid piece index: ${pieceIndex} (must be non-negative)`);
+      throw new Error(
+        `Invalid piece index: ${pieceIndex} (must be non-negative)`
+      );
     }
     if (pieceLength <= 0) {
-      throw new Error(`Invalid piece length: ${pieceLength} (must be positive)`);
+      throw new Error(
+        `Invalid piece length: ${pieceLength} (must be positive)`
+      );
     }
 
     this.pieceIndex = pieceIndex;
@@ -338,10 +342,14 @@ export class TorrentPieceMap {
       throw new Error(`Invalid piece count: ${pieceCount} (must be positive)`);
     }
     if (pieceLength <= 0) {
-      throw new Error(`Invalid piece length: ${pieceLength} (must be positive)`);
+      throw new Error(
+        `Invalid piece length: ${pieceLength} (must be positive)`
+      );
     }
     if (totalLength <= 0) {
-      throw new Error(`Invalid total length: ${totalLength} (must be positive)`);
+      throw new Error(
+        `Invalid total length: ${totalLength} (must be positive)`
+      );
     }
 
     this.pieceCount = pieceCount;
@@ -528,7 +536,9 @@ export class TorrentPieceMap {
  */
 export function allocateBitfield(pieceCount: number): Buffer {
   if (pieceCount < 0) {
-    throw new Error(`Invalid piece count: ${pieceCount} (must be non-negative)`);
+    throw new Error(
+      `Invalid piece count: ${pieceCount} (must be non-negative)`
+    );
   }
   if (pieceCount === 0) {
     return Buffer.alloc(0);

@@ -40,7 +40,10 @@ interface ResumeResultProps {
 /**
  * Find a torrent by ID (full hash or prefix)
  */
-function findTorrent(engine: TormEngine, torrentId: string): { torrent: Torrent | undefined; hash: string } {
+function findTorrent(
+  engine: TormEngine,
+  torrentId: string
+): { torrent: Torrent | undefined; hash: string } {
   const { type, value } = parseTorrentId(torrentId);
 
   if (type === 'hash') {
@@ -58,7 +61,7 @@ function findTorrent(engine: TormEngine, torrentId: string): { torrent: Torrent 
   if (matches.length > 1) {
     throw new Error(
       `Ambiguous torrent ID "${torrentId}" matches ${matches.length} torrents. ` +
-      'Please provide a longer prefix.'
+        'Please provide a longer prefix.'
     );
   }
 
@@ -72,7 +75,12 @@ function findTorrent(engine: TormEngine, torrentId: string): { torrent: Torrent 
 /**
  * Component to display the result of resuming a torrent
  */
-const ResumeResult: React.FC<ResumeResultProps> = ({ torrent, error, loading, success }) => {
+const ResumeResult: React.FC<ResumeResultProps> = ({
+  torrent,
+  error,
+  loading,
+  success,
+}) => {
   if (loading) {
     return (
       <Box>
@@ -117,7 +125,9 @@ const ResumeResult: React.FC<ResumeResultProps> = ({ torrent, error, loading, su
  *
  * @param options - Command options
  */
-export async function executeResume(options: ResumeCommandOptions): Promise<void> {
+export async function executeResume(
+  options: ResumeCommandOptions
+): Promise<void> {
   const { torrentId } = options;
 
   const engine = new TormEngine();
@@ -156,7 +166,9 @@ export async function executeResume(options: ResumeCommandOptions): Promise<void
 /**
  * Resume command component using Ink for rendering
  */
-export function ResumeCommand({ torrentId }: ResumeCommandOptions): React.ReactElement {
+export function ResumeCommand({
+  torrentId,
+}: ResumeCommandOptions): React.ReactElement {
   const [torrent, setTorrent] = useState<Torrent | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -196,7 +208,14 @@ export function ResumeCommand({ torrentId }: ResumeCommandOptions): React.ReactE
     doResume();
   }, [torrentId]);
 
-  return <ResumeResult torrent={torrent} error={error} loading={loading} success={success} />;
+  return (
+    <ResumeResult
+      torrent={torrent}
+      error={error}
+      loading={loading}
+      success={success}
+    />
+  );
 }
 
 /**

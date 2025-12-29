@@ -12,7 +12,7 @@
  */
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { Box, Text, useApp, useInput } from 'ink';
+import { Box, useApp, useInput } from 'ink';
 import { useDaemonClient } from './hooks/useDaemonClient.js';
 import { useTorrents } from './hooks/useTorrents.js';
 import { useKeyboard } from './hooks/useKeyboard.js';
@@ -28,7 +28,11 @@ import { ConfirmDialog } from './components/ConfirmDialog.js';
 import { LabelEditorModal } from './components/LabelEditorModal.js';
 import { SettingsModal } from './components/SettingsModal.js';
 import type { StatusFilter } from './components/SearchBar.js';
-import type { PartialEngineConfig, EngineConfig, Peer } from '../engine/types.js';
+import type {
+  PartialEngineConfig,
+  EngineConfig,
+  Peer,
+} from '../engine/types.js';
 
 /**
  * View type for routing within the application.
@@ -224,7 +228,7 @@ export const App: React.FC = () => {
   /**
    * Delete the selected torrent (legacy direct delete - kept for reference)
    */
-  const handleDelete = useCallback(() => {
+  const _handleDelete = useCallback(() => {
     if (selectedTorrent) {
       removeTorrent(selectedTorrent.infoHash).catch(() => {
         // Silently ignore removal errors
@@ -269,15 +273,18 @@ export const App: React.FC = () => {
   /**
    * Handle adding a new torrent
    */
-  const handleAddTorrent = useCallback(async (source: string, downloadPath: string) => {
-    try {
-      await addTorrent(source, { downloadPath });
-      setShowAddModal(false);
-    } catch (error) {
-      // TODO: Show error to user
-      console.error('Failed to add torrent:', error);
-    }
-  }, [addTorrent]);
+  const handleAddTorrent = useCallback(
+    async (source: string, downloadPath: string) => {
+      try {
+        await addTorrent(source, { downloadPath });
+        setShowAddModal(false);
+      } catch (error) {
+        // TODO: Show error to user
+        console.error('Failed to add torrent:', error);
+      }
+    },
+    [addTorrent]
+  );
 
   /**
    * Handle drag-and-drop of .torrent files
@@ -303,22 +310,25 @@ export const App: React.FC = () => {
   /**
    * Handle batch adding multiple torrents
    */
-  const handleBatchAddTorrents = useCallback(async (files: string[], downloadPath: string) => {
-    // Add all files in parallel
-    const addPromises = files.map(async (file) => {
-      try {
-        await addTorrent(file, { downloadPath });
-        return { file, success: true };
-      } catch (error) {
-        console.error(`Failed to add torrent ${file}:`, error);
-        return { file, success: false };
-      }
-    });
+  const handleBatchAddTorrents = useCallback(
+    async (files: string[], downloadPath: string) => {
+      // Add all files in parallel
+      const addPromises = files.map(async (file) => {
+        try {
+          await addTorrent(file, { downloadPath });
+          return { file, success: true };
+        } catch (error) {
+          console.error(`Failed to add torrent ${file}:`, error);
+          return { file, success: false };
+        }
+      });
 
-    await Promise.all(addPromises);
-    setShowBatchAddModal(false);
-    setBatchAddFiles([]);
-  }, [addTorrent]);
+      await Promise.all(addPromises);
+      setShowBatchAddModal(false);
+      setBatchAddFiles([]);
+    },
+    [addTorrent]
+  );
 
   /**
    * Open the delete confirmation dialog
@@ -372,17 +382,20 @@ export const App: React.FC = () => {
   /**
    * Save labels for the selected torrent
    */
-  const handleSaveLabels = useCallback(async (labels: string[]) => {
-    if (selectedTorrent) {
-      // Store labels locally (daemon doesn't support labels yet)
-      setLabelsMap(prev => {
-        const newMap = new Map(prev);
-        newMap.set(selectedTorrent.infoHash, labels);
-        return newMap;
-      });
-      setShowLabelEditor(false);
-    }
-  }, [selectedTorrent]);
+  const handleSaveLabels = useCallback(
+    async (labels: string[]) => {
+      if (selectedTorrent) {
+        // Store labels locally (daemon doesn't support labels yet)
+        setLabelsMap((prev) => {
+          const newMap = new Map(prev);
+          newMap.set(selectedTorrent.infoHash, labels);
+          return newMap;
+        });
+        setShowLabelEditor(false);
+      }
+    },
+    [selectedTorrent]
+  );
 
   /**
    * Get all unique labels across all torrents
@@ -418,17 +431,20 @@ export const App: React.FC = () => {
   /**
    * Save settings and update engine config
    */
-  const handleSaveSettings = useCallback(async (newConfig: PartialEngineConfig) => {
-    try {
-      await updateConfig(newConfig);
-      // Refresh local config state to reflect changes
-      const updatedConfig = await getConfig();
-      setConfig(updatedConfig);
-      setShowSettings(false);
-    } catch (error) {
-      console.error('Failed to save settings:', error);
-    }
-  }, [updateConfig, getConfig]);
+  const handleSaveSettings = useCallback(
+    async (newConfig: PartialEngineConfig) => {
+      try {
+        await updateConfig(newConfig);
+        // Refresh local config state to reflect changes
+        const updatedConfig = await getConfig();
+        setConfig(updatedConfig);
+        setShowSettings(false);
+      } catch (error) {
+        console.error('Failed to save settings:', error);
+      }
+    },
+    [updateConfig, getConfig]
+  );
 
   // ==========================================================================
   // Search Handlers
@@ -486,14 +502,30 @@ export const App: React.FC = () => {
       enter: isMainView && !isSearchFocused ? handleOpenDetail : undefined,
       // Note: escape/backspace handled by DetailView when in detail view
     },
-    enabled: !showHelp && !showAddModal && !showBatchAddModal && !showDeleteConfirm && !showLabelEditor && !showSettings && !showQuitConfirm && !isSearchFocused,
+    enabled:
+      !showHelp &&
+      !showAddModal &&
+      !showBatchAddModal &&
+      !showDeleteConfirm &&
+      !showLabelEditor &&
+      !showSettings &&
+      !showQuitConfirm &&
+      !isSearchFocused,
   });
 
   // Detect drag-and-drop of .torrent files
   // Active when no modals are open (files can be dropped anywhere in the TUI)
   usePaste({
     onTorrentFiles: handleTorrentFilesDrop,
-    enabled: !showHelp && !showAddModal && !showBatchAddModal && !showDeleteConfirm && !showLabelEditor && !showSettings && !showQuitConfirm && !isSearchFocused,
+    enabled:
+      !showHelp &&
+      !showAddModal &&
+      !showBatchAddModal &&
+      !showDeleteConfirm &&
+      !showLabelEditor &&
+      !showSettings &&
+      !showQuitConfirm &&
+      !isSearchFocused,
   });
 
   // Handle Ctrl+C globally to show quit confirmation
@@ -516,9 +548,13 @@ export const App: React.FC = () => {
   // Fetch peers when viewing detail
   useEffect(() => {
     if (currentView === 'detail' && selectedTorrent) {
-      getPeers(selectedTorrent.infoHash).then(setCurrentPeers).catch(() => setCurrentPeers([]));
+      getPeers(selectedTorrent.infoHash)
+        .then(setCurrentPeers)
+        .catch(() => setCurrentPeers([]));
       const interval = setInterval(() => {
-        getPeers(selectedTorrent.infoHash).then(setCurrentPeers).catch(() => setCurrentPeers([]));
+        getPeers(selectedTorrent.infoHash)
+          .then(setCurrentPeers)
+          .catch(() => setCurrentPeers([]));
       }, 1000);
       return () => clearInterval(interval);
     }
@@ -527,7 +563,9 @@ export const App: React.FC = () => {
   // Fetch config on mount
   useEffect(() => {
     if (isReady) {
-      getConfig().then(setConfig).catch(() => setConfig(null));
+      getConfig()
+        .then(setConfig)
+        .catch(() => setConfig(null));
     }
   }, [isReady, getConfig]);
 
@@ -543,7 +581,15 @@ export const App: React.FC = () => {
           peers={currentPeers}
           logs={[]}
           onBack={handleBackToMain}
-          keyboardEnabled={!showHelp && !showAddModal && !showBatchAddModal && !showDeleteConfirm && !showLabelEditor && !showSettings && !showQuitConfirm}
+          keyboardEnabled={
+            !showHelp &&
+            !showAddModal &&
+            !showBatchAddModal &&
+            !showDeleteConfirm &&
+            !showLabelEditor &&
+            !showSettings &&
+            !showQuitConfirm
+          }
         />
       );
     }
@@ -563,7 +609,7 @@ export const App: React.FC = () => {
         onSearchFocusChange={setIsSearchFocused}
         daemonConnected={isReady}
         daemonUptime={daemonUptime}
-        connectionStatus={isConnecting ? daemonError ?? undefined : undefined}
+        connectionStatus={isConnecting ? (daemonError ?? undefined) : undefined}
         minVisibleTorrents={config?.ui?.minVisibleTorrents}
         mascotExpression={mascotState.expression}
         mascotSleeping={mascotState.isSleeping}
@@ -576,7 +622,11 @@ export const App: React.FC = () => {
   return (
     <Box flexDirection="column" height="100%">
       {/* Main content area - hidden when settings, add modal, batch add modal, or quit confirm is open */}
-      {!showSettings && !showAddModal && !showBatchAddModal && !showQuitConfirm && renderView()}
+      {!showSettings &&
+        !showAddModal &&
+        !showBatchAddModal &&
+        !showQuitConfirm &&
+        renderView()}
 
       {/* Add Torrent Modal */}
       <AddTorrentModal

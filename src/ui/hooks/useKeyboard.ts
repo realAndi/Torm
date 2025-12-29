@@ -122,7 +122,10 @@ export interface UseKeyboardOptions {
  * });
  * ```
  */
-export function useKeyboard({ handlers, enabled = true }: UseKeyboardOptions): void {
+export function useKeyboard({
+  handlers,
+  enabled = true,
+}: UseKeyboardOptions): void {
   useInput(
     (input: string, key: Key) => {
       // Handle special keys first

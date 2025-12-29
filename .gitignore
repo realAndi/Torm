@@ -4,6 +4,10 @@ node_modules/
 # Build output
 dist/
 
+# Compiled binaries
+/torm
+/torm.exe
+
 # Lock files (use bun.lock)
 package-lock.json
 pnpm-lock.yaml

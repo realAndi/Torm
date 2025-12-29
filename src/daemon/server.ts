@@ -13,7 +13,7 @@ import { existsSync } from 'fs';
 import { dirname, resolve } from 'path';
 import { homedir } from 'os';
 import { TormEngine } from '../engine/TormEngine.js';
-import type { EngineConfig, Torrent, Peer, EngineStats } from '../engine/types.js';
+import type { EngineConfig, Torrent } from '../engine/types.js';
 import {
   type Message,
   type Request,
@@ -319,7 +319,10 @@ export class DaemonServer {
         }
 
         case 'removeTorrent':
-          await this.engine.removeTorrent(request.infoHash, request.deleteFiles);
+          await this.engine.removeTorrent(
+            request.infoHash,
+            request.deleteFiles
+          );
           return {
             ...baseResponse,
             type: 'removeTorrent',
@@ -410,7 +413,7 @@ export class DaemonServer {
     for (const client of this.clients) {
       try {
         client.write(serialized);
-      } catch (err) {
+      } catch {
         // Client disconnected, will be cleaned up
       }
     }
@@ -437,17 +440,20 @@ export class DaemonServer {
       });
     });
 
-    this.engine.on('torrent:progress', ({ infoHash, progress, downloadSpeed, uploadSpeed, peers }) => {
-      this.broadcastEvent({
-        type: 'torrent:progress',
-        timestamp: Date.now(),
-        infoHash,
-        progress,
-        downloadSpeed,
-        uploadSpeed,
-        peers,
-      });
-    });
+    this.engine.on(
+      'torrent:progress',
+      ({ infoHash, progress, downloadSpeed, uploadSpeed, peers }) => {
+        this.broadcastEvent({
+          type: 'torrent:progress',
+          timestamp: Date.now(),
+          infoHash,
+          progress,
+          downloadSpeed,
+          uploadSpeed,
+          peers,
+        });
+      }
+    );
 
     this.engine.on('torrent:completed', ({ torrent }) => {
       this.broadcastEvent({

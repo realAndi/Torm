@@ -213,11 +213,7 @@ export function useTorrentLogs(engine: TormEngine): UseTorrentLogsResult {
    */
   const handleTorrentError = useCallback(
     (payload: { infoHash: string; error: Error }) => {
-      addLog(
-        payload.infoHash,
-        'error',
-        `Error: ${payload.error.message}`
-      );
+      addLog(payload.infoHash, 'error', `Error: ${payload.error.message}`);
     },
     [addLog]
   );

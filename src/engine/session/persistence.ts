@@ -166,7 +166,11 @@ function expandPath(filePath: string): string {
  */
 function getStateFilePath(dataDir: string, infoHash: string): string {
   const resolvedDataDir = expandPath(dataDir);
-  return path.join(resolvedDataDir, TORRENTS_DIR, `${infoHash}${STATE_FILE_EXT}`);
+  return path.join(
+    resolvedDataDir,
+    TORRENTS_DIR,
+    `${infoHash}${STATE_FILE_EXT}`
+  );
 }
 
 /**
@@ -176,7 +180,10 @@ function getStateFilePath(dataDir: string, infoHash: string): string {
  * @param pieceCount - Total number of pieces
  * @returns Bitfield buffer
  */
-export function createBitfield(completedPieces: number[], pieceCount: number): Buffer {
+export function createBitfield(
+  completedPieces: number[],
+  pieceCount: number
+): Buffer {
   const byteCount = Math.ceil(pieceCount / 8);
   const bitfield = Buffer.alloc(byteCount, 0);
 
@@ -198,14 +205,20 @@ export function createBitfield(completedPieces: number[], pieceCount: number): B
  * @param pieceCount - Total number of pieces
  * @returns Array of completed piece indices
  */
-export function extractCompletedPieces(bitfield: Buffer, pieceCount: number): number[] {
+export function extractCompletedPieces(
+  bitfield: Buffer,
+  pieceCount: number
+): number[] {
   const completedPieces: number[] = [];
 
   for (let pieceIndex = 0; pieceIndex < pieceCount; pieceIndex++) {
     const byteIndex = Math.floor(pieceIndex / 8);
     const bitIndex = 7 - (pieceIndex % 8);
 
-    if (byteIndex < bitfield.length && (bitfield[byteIndex] & (1 << bitIndex)) !== 0) {
+    if (
+      byteIndex < bitfield.length &&
+      (bitfield[byteIndex] & (1 << bitIndex)) !== 0
+    ) {
       completedPieces.push(pieceIndex);
     }
   }
@@ -288,7 +301,9 @@ export async function loadTorrentState(
 
     // Validate version
     if (state.version !== STATE_VERSION) {
-      console.warn(`Torrent state version mismatch for ${infoHash}: expected ${STATE_VERSION}, got ${state.version}`);
+      console.warn(
+        `Torrent state version mismatch for ${infoHash}: expected ${STATE_VERSION}, got ${state.version}`
+      );
       // Future: Add migration logic here
     }
 
@@ -319,7 +334,9 @@ export async function loadTorrentState(
  * @param dataDir - Base data directory
  * @returns Array of loaded torrent states
  */
-export async function loadAllTorrentStates(dataDir: string): Promise<LoadedTorrentState[]> {
+export async function loadAllTorrentStates(
+  dataDir: string
+): Promise<LoadedTorrentState[]> {
   const torrentsDir = await ensureTorrentsDir(dataDir);
   const states: LoadedTorrentState[] = [];
 
@@ -339,7 +356,10 @@ export async function loadAllTorrentStates(dataDir: string): Promise<LoadedTorre
           states.push(state);
         }
       } catch (err) {
-        console.error(`Failed to load torrent state for ${infoHash}:`, (err as Error).message);
+        console.error(
+          `Failed to load torrent state for ${infoHash}:`,
+          (err as Error).message
+        );
         // Continue loading other torrents
       }
     }
@@ -359,7 +379,10 @@ export async function loadAllTorrentStates(dataDir: string): Promise<LoadedTorre
  * @param infoHash - Torrent info hash
  * @param dataDir - Base data directory
  */
-export async function deleteTorrentState(infoHash: string, dataDir: string): Promise<void> {
+export async function deleteTorrentState(
+  infoHash: string,
+  dataDir: string
+): Promise<void> {
   const filePath = getStateFilePath(dataDir, infoHash);
 
   try {
@@ -380,7 +403,10 @@ export async function deleteTorrentState(infoHash: string, dataDir: string): Pro
  * @param dataDir - Base data directory
  * @returns true if state file exists
  */
-export async function torrentStateExists(infoHash: string, dataDir: string): Promise<boolean> {
+export async function torrentStateExists(
+  infoHash: string,
+  dataDir: string
+): Promise<boolean> {
   const filePath = getStateFilePath(dataDir, infoHash);
 
   try {
@@ -539,7 +565,10 @@ export class AutoSaveManager {
           await saveTorrentState(info, completedPieces, this.dataDir);
           this.lastSavedDownloaded.set(info.infoHash, info.downloaded);
         } catch (err) {
-          console.error(`Failed to save state for ${info.infoHash}:`, (err as Error).message);
+          console.error(
+            `Failed to save state for ${info.infoHash}:`,
+            (err as Error).message
+          );
         }
       }
     } finally {
@@ -565,12 +594,18 @@ export class AutoSaveManager {
 
         // Save if there's significant progress (at least 1 piece worth)
         const progressDiff = info.downloaded - lastDownloaded;
-        if (progressDiff >= info.pieceLength || info.state !== TorrentState.DOWNLOADING) {
+        if (
+          progressDiff >= info.pieceLength ||
+          info.state !== TorrentState.DOWNLOADING
+        ) {
           try {
             await saveTorrentState(info, completedPieces, this.dataDir);
             this.lastSavedDownloaded.set(info.infoHash, info.downloaded);
           } catch (err) {
-            console.error(`Failed to auto-save state for ${info.infoHash}:`, (err as Error).message);
+            console.error(
+              `Failed to auto-save state for ${info.infoHash}:`,
+              (err as Error).message
+            );
           }
         }
       }

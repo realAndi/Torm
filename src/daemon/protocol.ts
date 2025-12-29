@@ -7,7 +7,12 @@
  * @module daemon/protocol
  */
 
-import type { Torrent, Peer, EngineConfig, EngineStats } from '../engine/types.js';
+import type {
+  Torrent,
+  Peer,
+  EngineConfig,
+  EngineStats,
+} from '../engine/types.js';
 
 // =============================================================================
 // Message Types

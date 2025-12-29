@@ -191,7 +191,10 @@ export class PeerConnection extends TypedEventEmitter<PeerConnectionEvents> {
    * @param options - Connection options including IP, port, and timeout
    * @returns A new PeerConnection wrapping the existing socket
    */
-  static fromSocket(socket: net.Socket, options: FromSocketOptions): PeerConnection {
+  static fromSocket(
+    socket: net.Socket,
+    options: FromSocketOptions
+  ): PeerConnection {
     const connection = new PeerConnection({
       ip: options.ip,
       port: options.port,
@@ -409,7 +412,11 @@ export class PeerConnection extends TypedEventEmitter<PeerConnectionEvents> {
    * The connection will emit 'close' when fully closed.
    */
   close(): void {
-    if (!this.socket || this.state === ConnectionState.Closed || this.state === ConnectionState.Closing) {
+    if (
+      !this.socket ||
+      this.state === ConnectionState.Closed ||
+      this.state === ConnectionState.Closing
+    ) {
       return;
     }
 
@@ -522,7 +529,6 @@ export class PeerConnection extends TypedEventEmitter<PeerConnectionEvents> {
     }
 
     // Remove the data listener
-    const boundHandler = this.handleData.bind(this);
     this.socket.removeAllListeners('data');
 
     // Return a function to restore it
@@ -572,7 +578,6 @@ export class PeerConnection extends TypedEventEmitter<PeerConnectionEvents> {
    * Handle socket close.
    */
   private handleClose(): void {
-    const wasClosing = this.state === ConnectionState.Closing;
     this.state = ConnectionState.Closed;
     this.cleanup();
 
@@ -595,7 +600,9 @@ export class PeerConnection extends TypedEventEmitter<PeerConnectionEvents> {
       this.socket.destroy();
     }
 
-    reject(new NetworkError(`Connection timed out after ${this.connectTimeoutMs}ms`));
+    reject(
+      new NetworkError(`Connection timed out after ${this.connectTimeoutMs}ms`)
+    );
   }
 
   /**
@@ -659,6 +666,8 @@ export class PeerConnection extends TypedEventEmitter<PeerConnectionEvents> {
  * @param options - Connection options
  * @returns A new PeerConnection instance
  */
-export function createPeerConnection(options: PeerConnectionOptions): PeerConnection {
+export function createPeerConnection(
+  options: PeerConnectionOptions
+): PeerConnection {
   return new PeerConnection(options);
 }

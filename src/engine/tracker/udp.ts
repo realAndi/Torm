@@ -198,9 +198,17 @@ export class UDPTracker {
 
     // Build and send announce request
     const transactionId = this.generateTransactionId();
-    const request = this.buildAnnounceRequest(connectionId, transactionId, params);
+    const request = this.buildAnnounceRequest(
+      connectionId,
+      transactionId,
+      params
+    );
 
-    const response = await this.sendRequest(request, transactionId, Action.ANNOUNCE);
+    const response = await this.sendRequest(
+      request,
+      transactionId,
+      Action.ANNOUNCE
+    );
 
     return this.parseAnnounceResponse(response);
   }
@@ -216,7 +224,9 @@ export class UDPTracker {
     // Reject all pending requests
     for (const [transactionId, pending] of this.pendingRequests) {
       clearTimeout(pending.timeout);
-      pending.reject(new TrackerError('Tracker client closed', this.announceUrl));
+      pending.reject(
+        new TrackerError('Tracker client closed', this.announceUrl)
+      );
       this.pendingRequests.delete(transactionId);
     }
 
@@ -310,7 +320,8 @@ export class UDPTracker {
 
     // Handle error response
     if (action === Action.ERROR) {
-      const errorMessage = msg.length > 8 ? msg.subarray(8).toString('utf8') : 'Unknown error';
+      const errorMessage =
+        msg.length > 8 ? msg.subarray(8).toString('utf8') : 'Unknown error';
       pending.reject(new TrackerError(errorMessage, this.announceUrl));
       return;
     }
@@ -320,8 +331,8 @@ export class UDPTracker {
       pending.reject(
         new TrackerError(
           `Unexpected action: expected ${pending.expectedAction}, got ${action}`,
-          this.announceUrl,
-        ),
+          this.announceUrl
+        )
       );
       return;
     }
@@ -336,7 +347,9 @@ export class UDPTracker {
     // Reject all pending requests with this error
     for (const [transactionId, pending] of this.pendingRequests) {
       clearTimeout(pending.timeout);
-      pending.reject(new TrackerError(`Socket error: ${err.message}`, this.announceUrl));
+      pending.reject(
+        new TrackerError(`Socket error: ${err.message}`, this.announceUrl)
+      );
       this.pendingRequests.delete(transactionId);
     }
   }
@@ -370,7 +383,11 @@ export class UDPTracker {
     const transactionId = this.generateTransactionId();
     const request = this.buildConnectRequest(transactionId);
 
-    const response = await this.sendRequest(request, transactionId, Action.CONNECT);
+    const response = await this.sendRequest(
+      request,
+      transactionId,
+      Action.CONNECT
+    );
 
     // Parse connect response (16 bytes)
     // Offset 0: action (4 bytes) - already validated
@@ -434,7 +451,7 @@ export class UDPTracker {
   private buildAnnounceRequest(
     connectionId: bigint,
     transactionId: number,
-    params: UDPAnnounceParams,
+    params: UDPAnnounceParams
   ): Buffer {
     const buffer = Buffer.alloc(98);
 
@@ -465,20 +482,26 @@ export class UDPTracker {
   private async sendRequest(
     request: Buffer,
     transactionId: number,
-    expectedAction: number,
+    expectedAction: number
   ): Promise<Buffer> {
     let retries = 0;
     let timeout = INITIAL_TIMEOUT_MS;
 
     while (retries <= MAX_RETRIES) {
       try {
-        return await this.sendRequestOnce(request, transactionId, expectedAction, timeout);
+        return await this.sendRequestOnce(
+          request,
+          transactionId,
+          expectedAction,
+          timeout
+        );
       } catch (err) {
         if (this.closed) {
           throw err;
         }
 
-        const isTimeout = err instanceof TrackerError && err.message.includes('timeout');
+        const isTimeout =
+          err instanceof TrackerError && err.message.includes('timeout');
 
         if (!isTimeout || retries >= MAX_RETRIES) {
           throw err;
@@ -492,7 +515,10 @@ export class UDPTracker {
         const newTransactionId = this.generateTransactionId();
 
         // Update transaction ID in request
-        request.writeUInt32BE(newTransactionId, expectedAction === Action.CONNECT ? 12 : 12);
+        request.writeUInt32BE(
+          newTransactionId,
+          expectedAction === Action.CONNECT ? 12 : 12
+        );
 
         // Remove old pending request
         const old = this.pendingRequests.get(transactionId);
@@ -505,7 +531,7 @@ export class UDPTracker {
 
     throw new TrackerError(
       `Request failed after ${MAX_RETRIES} retries`,
-      this.announceUrl,
+      this.announceUrl
     );
   }
 
@@ -516,7 +542,7 @@ export class UDPTracker {
     request: Buffer,
     transactionId: number,
     expectedAction: number,
-    timeoutMs: number,
+    timeoutMs: number
   ): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       const socket = this.getSocket();
@@ -524,7 +550,12 @@ export class UDPTracker {
       // Set up timeout
       const timeout = setTimeout(() => {
         this.pendingRequests.delete(transactionId);
-        reject(new TrackerError(`Request timeout after ${timeoutMs}ms`, this.announceUrl));
+        reject(
+          new TrackerError(
+            `Request timeout after ${timeoutMs}ms`,
+            this.announceUrl
+          )
+        );
       }, timeoutMs);
 
       // Store pending request
@@ -540,7 +571,9 @@ export class UDPTracker {
         if (err) {
           clearTimeout(timeout);
           this.pendingRequests.delete(transactionId);
-          reject(new TrackerError(`Send failed: ${err.message}`, this.announceUrl));
+          reject(
+            new TrackerError(`Send failed: ${err.message}`, this.announceUrl)
+          );
         }
       });
     });
@@ -662,7 +695,7 @@ export function parseConnectResponse(response: Buffer): {
 export function buildAnnounceRequest(
   connectionId: bigint,
   transactionId: number,
-  params: UDPAnnounceParams & { key?: number },
+  params: UDPAnnounceParams & { key?: number }
 ): Buffer {
   const buffer = Buffer.alloc(98);
 

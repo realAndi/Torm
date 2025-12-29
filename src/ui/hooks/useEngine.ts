@@ -97,7 +97,9 @@ export function useEngine(): UseEngineResult {
   const engine = engineRef.current;
 
   // React state for torrents and readiness
-  const [torrents, setTorrents] = useState<Torrent[]>(() => engine.getAllTorrents());
+  const [torrents, setTorrents] = useState<Torrent[]>(() =>
+    engine.getAllTorrents()
+  );
   const [isReady, setIsReady] = useState<boolean>(() => engine.isRunning());
 
   // ==========================================================================

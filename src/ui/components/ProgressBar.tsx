@@ -38,7 +38,8 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   const emptyBar = progressChars.empty.repeat(emptyCount);
 
   // Calculate percentage for display (only show 100% when truly complete)
-  const percentage = clampedProgress >= 1 ? 100 : Math.floor(clampedProgress * 100);
+  const percentage =
+    clampedProgress >= 1 ? 100 : Math.floor(clampedProgress * 100);
 
   return (
     <Box>

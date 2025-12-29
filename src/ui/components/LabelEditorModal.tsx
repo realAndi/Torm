@@ -67,7 +67,9 @@ export const LabelEditorModal: React.FC<LabelEditorModalProps> = ({
   // Local state for labels being edited
   const [labels, setLabels] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState('');
-  const [selectedLabelIndex, setSelectedLabelIndex] = useState<number | null>(null);
+  const [selectedLabelIndex, setSelectedLabelIndex] = useState<number | null>(
+    null
+  );
 
   // Reset state when modal opens/closes
   useEffect(() => {
@@ -161,13 +163,22 @@ export const LabelEditorModal: React.FC<LabelEditorModalProps> = ({
       }
 
       // Delete selected label with Backspace (when input is empty)
-      if ((key.backspace || key.delete) && inputValue.length === 0 && selectedLabelIndex !== null) {
+      if (
+        (key.backspace || key.delete) &&
+        inputValue.length === 0 &&
+        selectedLabelIndex !== null
+      ) {
         removeLabel(labels[selectedLabelIndex]);
         return;
       }
 
       // Remove last label with Backspace when input is empty and no selection
-      if ((key.backspace || key.delete) && inputValue.length === 0 && labels.length > 0 && selectedLabelIndex === null) {
+      if (
+        (key.backspace || key.delete) &&
+        inputValue.length === 0 &&
+        labels.length > 0 &&
+        selectedLabelIndex === null
+      ) {
         setSelectedLabelIndex(labels.length - 1);
         return;
       }
@@ -208,7 +219,9 @@ export const LabelEditorModal: React.FC<LabelEditorModalProps> = ({
                   <Text
                     inverse={selectedLabelIndex === index}
                     color={
-                      selectedLabelIndex === index ? undefined : getLabelColor(label)
+                      selectedLabelIndex === index
+                        ? undefined
+                        : getLabelColor(label)
                     }
                   >
                     [{label}]

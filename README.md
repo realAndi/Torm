@@ -14,15 +14,31 @@ Torm is a terminal-based BitTorrent client built with TypeScript and Ink. It pro
 - Configurable download paths and settings
 - Labels for organizing torrents
 
-## Requirements
-
-- [Bun](https://bun.sh) runtime (v1.0.0 or later)
-
 ## Installation
 
-### From npm (recommended)
+### Quick Install (recommended)
+
+**macOS / Linux:**
 
 ```bash
+curl -fsSL https://raw.githubusercontent.com/realAndi/torm/main/scripts/install.sh | bash
+```
+
+**Windows (PowerShell):**
+
+```powershell
+irm https://raw.githubusercontent.com/realAndi/torm/main/scripts/install.ps1 | iex
+```
+
+Then run `torm` to launch the TUI.
+
+### From npm
+
+If you have Node.js or Bun installed:
+
+```bash
+npm install -g torm
+# or
 bun install -g torm
 ```
 

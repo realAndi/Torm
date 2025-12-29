@@ -99,12 +99,12 @@ function createTestOptions(overrides: Partial<PieceManagerOptions> = {}): PieceM
 // =============================================================================
 
 describe('Constants', () => {
-  it('DEFAULT_PIPELINE_LENGTH should be 5', () => {
-    expect(DEFAULT_PIPELINE_LENGTH).toBe(5);
+  it('DEFAULT_PIPELINE_LENGTH should be 256', () => {
+    expect(DEFAULT_PIPELINE_LENGTH).toBe(256);
   });
 
-  it('DEFAULT_ENDGAME_THRESHOLD should be 10', () => {
-    expect(DEFAULT_ENDGAME_THRESHOLD).toBe(10);
+  it('DEFAULT_ENDGAME_THRESHOLD should be 20', () => {
+    expect(DEFAULT_ENDGAME_THRESHOLD).toBe(20);
   });
 
   it('MAX_PIECE_RETRIES should be 3', () => {

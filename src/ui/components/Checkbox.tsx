@@ -78,9 +78,10 @@ export const Checkbox: React.FC<CheckboxProps> = ({
     <Box flexDirection="row">
       <Text>
         <Text color={focused ? colors.primary : colors.muted}>[</Text>
-        <Text color={checked ? colors.success : undefined}>{checkIndicator}</Text>
-        <Text color={focused ? colors.primary : colors.muted}>]</Text>
-        {' '}
+        <Text color={checked ? colors.success : undefined}>
+          {checkIndicator}
+        </Text>
+        <Text color={focused ? colors.primary : colors.muted}>]</Text>{' '}
         <Text color={focused ? colors.primary : undefined} bold={focused}>
           {label}
         </Text>

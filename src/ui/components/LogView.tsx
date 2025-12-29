@@ -25,7 +25,10 @@ export interface LogViewProps {
 /**
  * Log level display configuration
  */
-const LEVEL_DISPLAY: Record<LogEntry['level'], { color: string; prefix: string }> = {
+const LEVEL_DISPLAY: Record<
+  LogEntry['level'],
+  { color: string; prefix: string }
+> = {
   info: { color: colors.primary, prefix: 'INF' },
   warn: { color: colors.warning, prefix: 'WRN' },
   error: { color: colors.error, prefix: 'ERR' },
@@ -48,21 +51,27 @@ const LogViewHeader: React.FC = () => {
     <Box flexDirection="column">
       <Box flexDirection="row" paddingX={1}>
         <Box width={COLUMN_WIDTHS.timestamp}>
-          <Text color={colors.primary} bold>Time</Text>
+          <Text color={colors.primary} bold>
+            Time
+          </Text>
         </Box>
         <Box width={COLUMN_WIDTHS.level}>
-          <Text color={colors.primary} bold>Level</Text>
+          <Text color={colors.primary} bold>
+            Level
+          </Text>
         </Box>
         <Box>
-          <Text color={colors.primary} bold>Message</Text>
+          <Text color={colors.primary} bold>
+            Message
+          </Text>
         </Box>
       </Box>
       <Box paddingX={1}>
         <Text color={colors.muted}>
           {borders.horizontal.repeat(
             COLUMN_WIDTHS.timestamp +
-            COLUMN_WIDTHS.level +
-            COLUMN_WIDTHS.message
+              COLUMN_WIDTHS.level +
+              COLUMN_WIDTHS.message
           )}
         </Text>
       </Box>
@@ -136,7 +145,10 @@ export const LogView: React.FC<LogViewProps> = ({ logs, maxEntries = 20 }) => {
     <Box flexDirection="column">
       <LogViewHeader />
       {displayLogs.map((entry, index) => (
-        <LogEntryRow key={`${entry.timestamp.getTime()}-${index}`} entry={entry} />
+        <LogEntryRow
+          key={`${entry.timestamp.getTime()}-${index}`}
+          entry={entry}
+        />
       ))}
       {logs.length > maxEntries && (
         <Box paddingX={1} marginTop={1}>

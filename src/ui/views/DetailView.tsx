@@ -10,17 +10,27 @@
  * @module ui/views/DetailView
  */
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Box, Text } from 'ink';
 import type { Torrent, Peer } from '../../engine/types.js';
 import { colors, borders } from '../theme/index.js';
 import { useKeyboard } from '../hooks/useKeyboard.js';
-import { Tabs, Tab, getAdjacentTab, getTabByNumber } from '../components/Tabs.js';
+import {
+  Tabs,
+  Tab,
+  getAdjacentTab,
+  getTabByNumber,
+} from '../components/Tabs.js';
 import { PeerList } from '../components/PeerList.js';
 import { FileList } from '../components/FileList.js';
 import { TrackerList } from '../components/TrackerList.js';
 import { LogView, LogEntry } from '../components/LogView.js';
-import { formatBytes, formatEta, formatSpeed, formatProgress } from '../utils/format.js';
+import {
+  formatBytes,
+  formatEta,
+  formatSpeed,
+  formatProgress,
+} from '../utils/format.js';
 import { ProgressBar } from '../components/ProgressBar.js';
 
 /**
@@ -56,10 +66,13 @@ export interface DetailViewProps {
  */
 const DetailHeader: React.FC<{ name: string }> = ({ name }) => {
   return (
-    <Box flexDirection="row" justifyContent="space-between" paddingX={1} paddingY={0}>
-      <Text color={colors.muted}>
-        {'\u2190'} Back (Esc)
-      </Text>
+    <Box
+      flexDirection="row"
+      justifyContent="space-between"
+      paddingX={1}
+      paddingY={0}
+    >
+      <Text color={colors.muted}>{'\u2190'} Back (Esc)</Text>
       <Text bold color={colors.primary}>
         {name.length > 50 ? name.slice(0, 47) + '\u2026' : name}
       </Text>
@@ -82,18 +95,22 @@ const DetailFooter: React.FC<{ torrent: Torrent }> = ({ torrent }) => {
     <Box flexDirection="column" paddingX={1}>
       {/* Separator line */}
       <Box>
-        <Text color={colors.muted}>
-          {borders.horizontal.repeat(70)}
-        </Text>
+        <Text color={colors.muted}>{borders.horizontal.repeat(70)}</Text>
       </Box>
 
       {/* Progress line */}
       <Box flexDirection="row" gap={1}>
         <Text>Progress:</Text>
-        <ProgressBar progress={torrent.progress} width={20} showPercentage={false} />
+        <ProgressBar
+          progress={torrent.progress}
+          width={20}
+          showPercentage={false}
+        />
         <Text color={colors.primary}>{percentage}</Text>
         <Text color={colors.muted}>{'\u2022'}</Text>
-        <Text>{downloaded} / {total}</Text>
+        <Text>
+          {downloaded} / {total}
+        </Text>
         <Text color={colors.muted}>{'\u2022'}</Text>
         <Text>ETA: {eta}</Text>
       </Box>
@@ -106,9 +123,13 @@ const DetailFooter: React.FC<{ torrent: Torrent }> = ({ torrent }) => {
           <Text color={colors.muted}> {'\u2022'} Peers: </Text>
           <Text color={colors.primary}>{torrent.peers}</Text>
           <Text color={colors.muted}> {'\u2022'} </Text>
-          <Text color={colors.success}>{'\u2193'} {downloadSpeed}</Text>
+          <Text color={colors.success}>
+            {'\u2193'} {downloadSpeed}
+          </Text>
           <Text color={colors.muted}> {'\u2022'} </Text>
-          <Text color={colors.primary}>{'\u2191'} {uploadSpeed}</Text>
+          <Text color={colors.primary}>
+            {'\u2191'} {uploadSpeed}
+          </Text>
         </Text>
       </Box>
     </Box>
@@ -160,7 +181,9 @@ export const DetailView: React.FC<DetailViewProps> = ({
 
   // Tab navigation handlers
   const handlePrevTab = useCallback(() => {
-    setActiveTab((current) => getAdjacentTab(DETAIL_TABS, current, -1) as TabId);
+    setActiveTab(
+      (current) => getAdjacentTab(DETAIL_TABS, current, -1) as TabId
+    );
   }, []);
 
   const handleNextTab = useCallback(() => {
@@ -217,9 +240,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
 
       {/* Separator */}
       <Box paddingX={1}>
-        <Text color={colors.muted}>
-          {borders.horizontal.repeat(70)}
-        </Text>
+        <Text color={colors.muted}>{borders.horizontal.repeat(70)}</Text>
       </Box>
 
       {/* Tab bar */}

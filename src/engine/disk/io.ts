@@ -11,11 +11,14 @@
  */
 
 import * as fs from 'fs/promises';
-import * as fsSync from 'fs';
 import * as path from 'path';
-import { $ } from 'bun';
 import { DiskError, DiskFullError } from '../types.js';
-import { TorrentFileInfo, getFilesForPiece, getActualPieceLength, TorrentMetadata } from '../torrent/parser.js';
+import {
+  TorrentFileInfo,
+  getFilesForPiece,
+  getActualPieceLength,
+  TorrentMetadata,
+} from '../torrent/parser.js';
 
 // =============================================================================
 // Types
@@ -132,7 +135,8 @@ export class DiskIO {
   constructor(metadata: TorrentMetadata, options: DiskIOOptions) {
     this.metadata = metadata;
     this.downloadPath = options.downloadPath;
-    this.allocationStrategy = options.allocationStrategy ?? AllocationStrategy.Sparse;
+    this.allocationStrategy =
+      options.allocationStrategy ?? AllocationStrategy.Sparse;
     this.createDirectories = options.createDirectories ?? true;
     this.allocatedFiles = new Set();
     this.fileHandles = new Map();
@@ -206,7 +210,11 @@ export class DiskIO {
    * @returns Block data
    * @throws DiskError if read fails
    */
-  async readBlock(pieceIndex: number, begin: number, length: number): Promise<Buffer> {
+  async readBlock(
+    pieceIndex: number,
+    begin: number,
+    length: number
+  ): Promise<Buffer> {
     const pieceLength = getActualPieceLength(this.metadata, pieceIndex);
     if (begin < 0 || begin + length > pieceLength) {
       throw new DiskError(
@@ -378,16 +386,16 @@ export class DiskIO {
 
     const torrentPath = this.getTorrentPath();
     try {
-      // Bun Shell's rm is natively implemented and cross-platform (macOS, Linux, Windows)
-      // Much faster than Node's fs.rm for large directory trees
-      await $`rm -rf ${torrentPath}`.quiet();
+      // Use Node.js fs.rm with recursive and force options
+      // Works in both Node.js and Bun runtimes
+      await fs.rm(torrentPath, { recursive: true, force: true });
     } catch (err) {
-      // Bun shell throws on non-zero exit, but rm -f shouldn't fail on missing files
+      // fs.rm with force: true shouldn't fail on missing files
       // Only throw if it's not an ENOENT-like situation
-      const message = (err as Error).message || '';
-      if (!message.includes('No such file') && !message.includes('ENOENT')) {
+      const code = (err as NodeJS.ErrnoException).code;
+      if (code !== 'ENOENT') {
         throw new DiskError(
-          `Failed to delete torrent files: ${message}`,
+          `Failed to delete torrent files: ${(err as Error).message}`,
           torrentPath
         );
       }
@@ -461,7 +469,13 @@ export class DiskIO {
     try {
       // Node.js 18.15+ has fs.statfs
       if ('statfs' in fs) {
-        const stats = await (fs as any).statfs(this.downloadPath);
+        const stats = await (
+          fs as unknown as {
+            statfs(
+              path: string
+            ): Promise<{ bavail: number; bfree: number; bsize: number }>;
+          }
+        ).statfs(this.downloadPath);
         // bavail is blocks available to unprivileged users (more accurate)
         // bfree is total free blocks (includes reserved for root)
         const availableBlocks = stats.bavail ?? stats.bfree;
@@ -543,7 +557,10 @@ export class DiskIO {
   /**
    * Write a segment to a file
    */
-  private async writeSegment(segment: FileSegment, pieceData: Buffer): Promise<void> {
+  private async writeSegment(
+    segment: FileSegment,
+    pieceData: Buffer
+  ): Promise<void> {
     // Ensure file is allocated
     await this.allocateFile(segment.fileInfo);
 
@@ -561,7 +578,9 @@ export class DiskIO {
 
       // Check for disk full error (ENOSPC)
       if (nodeErr.code === 'ENOSPC') {
-        const availableBytes = await this.getAvailableSpace().catch(() => undefined);
+        const availableBytes = await this.getAvailableSpace().catch(
+          () => undefined
+        );
         throw new DiskFullError(
           `Disk full: cannot write ${segment.length} bytes to ${segment.filePath}`,
           segment.filePath,
@@ -582,7 +601,10 @@ export class DiskIO {
    *
    * @returns true if segment was fully read, false if file doesn't exist or is too small
    */
-  private async readSegment(segment: FileSegment, pieceData: Buffer): Promise<boolean> {
+  private async readSegment(
+    segment: FileSegment,
+    pieceData: Buffer
+  ): Promise<boolean> {
     // Try to get cached handle first
     const cacheKey = `${segment.filePath}:r`;
     let handle = this.fileHandles.get(cacheKey);
@@ -628,7 +650,10 @@ export class DiskIO {
   /**
    * Allocate a sparse file (creates file but doesn't write data)
    */
-  private async allocateSparseFile(filePath: string, length: number): Promise<void> {
+  private async allocateSparseFile(
+    filePath: string,
+    _length: number
+  ): Promise<void> {
     try {
       // Create file if it doesn't exist
       const handle = await fs.open(filePath, 'a');
@@ -644,7 +669,10 @@ export class DiskIO {
   /**
    * Allocate a full file (pre-allocate with zeros)
    */
-  private async allocateFullFile(filePath: string, length: number): Promise<void> {
+  private async allocateFullFile(
+    filePath: string,
+    length: number
+  ): Promise<void> {
     try {
       // Check if file already exists with correct size
       try {
@@ -687,7 +715,10 @@ export class DiskIO {
   /**
    * Allocate a compact file (use fallocate if available, otherwise sparse)
    */
-  private async allocateCompactFile(filePath: string, length: number): Promise<void> {
+  private async allocateCompactFile(
+    filePath: string,
+    length: number
+  ): Promise<void> {
     try {
       // Try to use truncate for efficient allocation
       const handle = await fs.open(filePath, 'w');
@@ -697,7 +728,7 @@ export class DiskIO {
       } finally {
         await handle.close();
       }
-    } catch (err) {
+    } catch {
       // Fallback to sparse allocation
       await this.allocateSparseFile(filePath, length);
     }
@@ -710,7 +741,10 @@ export class DiskIO {
   /**
    * Open a file handle (cached)
    */
-  private async openFile(filePath: string, flags: string): Promise<fs.FileHandle> {
+  private async openFile(
+    filePath: string,
+    flags: string
+  ): Promise<fs.FileHandle> {
     const cacheKey = `${filePath}:${flags}`;
 
     let handle = this.fileHandles.get(cacheKey);
@@ -783,11 +817,18 @@ export function calculateRequiredSpace(metadata: TorrentMetadata): number {
  * @param requiredBytes - Required space in bytes
  * @returns true if enough space is available
  */
-export async function hasEnoughSpace(dirPath: string, requiredBytes: number): Promise<boolean> {
+export async function hasEnoughSpace(
+  dirPath: string,
+  requiredBytes: number
+): Promise<boolean> {
   try {
     // Use statfs if available (Node.js 18+)
     if ('statfs' in fs) {
-      const stats = await (fs as any).statfs(dirPath);
+      const stats = await (
+        fs as unknown as {
+          statfs(path: string): Promise<{ bfree: number; bsize: number }>;
+        }
+      ).statfs(dirPath);
       const availableBytes = stats.bfree * stats.bsize;
       return availableBytes >= requiredBytes;
     }

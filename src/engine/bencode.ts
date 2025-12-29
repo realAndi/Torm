@@ -74,7 +74,7 @@ function parseInteger(state: ParseState): number | bigint {
   // Must have at least one digit
   if (!isDigit(buffer[state.offset])) {
     throw new Error(
-      `Invalid integer: expected digit at position ${state.offset}`,
+      `Invalid integer: expected digit at position ${state.offset}`
     );
   }
 
@@ -105,7 +105,7 @@ function parseInteger(state: ParseState): number | bigint {
   // Check for 'e' terminator
   if (state.offset >= buffer.length || buffer[state.offset] !== CHAR_E) {
     throw new Error(
-      `Invalid integer: expected 'e' at position ${state.offset}`,
+      `Invalid integer: expected 'e' at position ${state.offset}`
     );
   }
 
@@ -141,18 +141,20 @@ function parseByteString(state: ParseState): Buffer {
 
   if (state.offset === lengthStart) {
     throw new Error(
-      `Invalid byte string: expected length at position ${state.offset}`,
+      `Invalid byte string: expected length at position ${state.offset}`
     );
   }
 
   // Check for colon separator
   if (state.offset >= buffer.length || buffer[state.offset] !== CHAR_COLON) {
     throw new Error(
-      `Invalid byte string: expected ':' at position ${state.offset}`,
+      `Invalid byte string: expected ':' at position ${state.offset}`
     );
   }
 
-  const lengthStr = buffer.subarray(lengthStart, state.offset).toString('ascii');
+  const lengthStr = buffer
+    .subarray(lengthStart, state.offset)
+    .toString('ascii');
   const length = parseInt(lengthStr, 10);
 
   if (length < 0) {
@@ -164,12 +166,14 @@ function parseByteString(state: ParseState): Buffer {
   // Check if we have enough bytes
   if (state.offset + length > buffer.length) {
     throw new Error(
-      `Invalid byte string: not enough data (expected ${length} bytes, got ${buffer.length - state.offset})`,
+      `Invalid byte string: not enough data (expected ${length} bytes, got ${buffer.length - state.offset})`
     );
   }
 
   // Extract the byte string data
-  const data = Buffer.from(buffer.subarray(state.offset, state.offset + length));
+  const data = Buffer.from(
+    buffer.subarray(state.offset, state.offset + length)
+  );
   state.offset += length;
 
   return data;
@@ -218,7 +222,7 @@ function parseDictionary(state: ParseState): { [key: string]: BencodeValue } {
     // Keys must be byte strings
     if (!isDigit(buffer[state.offset])) {
       throw new Error(
-        `Invalid dictionary: expected string key at position ${state.offset}`,
+        `Invalid dictionary: expected string key at position ${state.offset}`
       );
     }
 
@@ -228,7 +232,7 @@ function parseDictionary(state: ParseState): { [key: string]: BencodeValue } {
     // Check key ordering (bencode requires sorted keys)
     if (lastKey !== null && key < lastKey) {
       throw new Error(
-        `Invalid dictionary: keys must be sorted (got "${key}" after "${lastKey}")`,
+        `Invalid dictionary: keys must be sorted (got "${key}" after "${lastKey}")`
       );
     }
     lastKey = key;
@@ -269,7 +273,7 @@ function parseValue(state: ParseState): BencodeValue {
     return parseByteString(state);
   } else {
     throw new Error(
-      `Invalid bencode: unexpected character '${String.fromCharCode(firstByte)}' at position ${state.offset}`,
+      `Invalid bencode: unexpected character '${String.fromCharCode(firstByte)}' at position ${state.offset}`
     );
   }
 }
@@ -300,7 +304,7 @@ export function decode(data: Buffer): BencodeValue {
   // Check for trailing data
   if (state.offset < data.length) {
     throw new Error(
-      `Unexpected data at position ${state.offset} (expected end of input)`,
+      `Unexpected data at position ${state.offset} (expected end of input)`
     );
   }
 
@@ -337,9 +341,7 @@ function encodeInteger(value: number): Buffer {
     throw new Error('Cannot encode non-integer number');
   }
   if (!Number.isSafeInteger(value)) {
-    throw new Error(
-      'Integer out of safe range, use BigInt for large integers',
-    );
+    throw new Error('Integer out of safe range, use BigInt for large integers');
   }
   return Buffer.from(`i${value}e`, 'ascii');
 }

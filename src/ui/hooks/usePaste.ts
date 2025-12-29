@@ -56,8 +56,8 @@ export function parsePastedPaths(content: string): string[] {
 
   if (matches && matches.length > 0) {
     return matches
-      .map(m => m.trim())
-      .filter(m => m.length > 0 && m.toLowerCase().endsWith('.torrent'));
+      .map((m) => m.trim())
+      .filter((m) => m.length > 0 && m.toLowerCase().endsWith('.torrent'));
   }
 
   // Fallback: traditional parsing for other file types

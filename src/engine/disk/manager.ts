@@ -13,8 +13,12 @@
 import { createHash } from 'crypto';
 import { TypedEventEmitter } from '../events.js';
 import { DiskError, DiskFullError } from '../types.js';
-import { TorrentMetadata, getPieceHash, getActualPieceLength } from '../torrent/parser.js';
-import { DiskIO, DiskIOOptions, AllocationStrategy } from './io.js';
+import {
+  TorrentMetadata,
+  getPieceHash,
+  getActualPieceLength,
+} from '../torrent/parser.js';
+import { DiskIO, DiskIOOptions } from './io.js';
 
 // =============================================================================
 // Types
@@ -266,18 +270,22 @@ export class DiskManager extends TypedEventEmitter<DiskManagerEvents> {
     this.readCache = new Map();
     this.readCacheSize = options.readCacheSize ?? DEFAULT_READ_CACHE_SIZE;
     this.writeQueue = [];
-    this.maxWriteQueueSize = options.maxWriteQueueSize ?? DEFAULT_MAX_WRITE_QUEUE_SIZE;
+    this.maxWriteQueueSize =
+      options.maxWriteQueueSize ?? DEFAULT_MAX_WRITE_QUEUE_SIZE;
     this.writeProcessing = false;
     this.verifyOnStart = options.verifyOnStart ?? true;
-    this.verificationConcurrency = options.verificationConcurrency ?? DEFAULT_VERIFICATION_CONCURRENCY;
+    this.verificationConcurrency =
+      options.verificationConcurrency ?? DEFAULT_VERIFICATION_CONCURRENCY;
     this.completedPieces = new Set();
     this.started = false;
     this.stopped = false;
 
     // Disk full handling
     this.checkSpaceBeforeWrite = options.checkSpaceBeforeWrite ?? true;
-    this.spaceCheckInterval = options.spaceCheckInterval ?? DEFAULT_SPACE_CHECK_INTERVAL;
-    this.maxRetryQueueSize = options.maxRetryQueueSize ?? DEFAULT_MAX_RETRY_QUEUE_SIZE;
+    this.spaceCheckInterval =
+      options.spaceCheckInterval ?? DEFAULT_SPACE_CHECK_INTERVAL;
+    this.maxRetryQueueSize =
+      options.maxRetryQueueSize ?? DEFAULT_MAX_RETRY_QUEUE_SIZE;
     this.retryQueue = [];
     this.diskFull = false;
     this.spaceCheckTimer = null;
@@ -410,7 +418,10 @@ export class DiskManager extends TypedEventEmitter<DiskManagerEvents> {
     this.stopped = true;
 
     // Reject any pending retry queue entries
-    const diskFullError = new DiskError('DiskManager stopped while waiting for space', 'stop');
+    const diskFullError = new DiskError(
+      'DiskManager stopped while waiting for space',
+      'stop'
+    );
     for (const entry of this.retryQueue) {
       entry.reject(diskFullError);
     }
@@ -488,10 +499,7 @@ export class DiskManager extends TypedEventEmitter<DiskManagerEvents> {
 
     // Check if we have this piece
     if (!this.completedPieces.has(pieceIndex)) {
-      throw new DiskError(
-        `Piece ${pieceIndex} is not complete`,
-        `readPiece`
-      );
+      throw new DiskError(`Piece ${pieceIndex} is not complete`, `readPiece`);
     }
 
     // Check cache
@@ -526,17 +534,18 @@ export class DiskManager extends TypedEventEmitter<DiskManagerEvents> {
    * @param length - Number of bytes to read
    * @returns Block data
    */
-  async readBlock(pieceIndex: number, begin: number, length: number): Promise<Buffer> {
+  async readBlock(
+    pieceIndex: number,
+    begin: number,
+    length: number
+  ): Promise<Buffer> {
     if (this.stopped) {
       throw new DiskError('DiskManager is stopped', 'readBlock');
     }
 
     // Check if we have this piece
     if (!this.completedPieces.has(pieceIndex)) {
-      throw new DiskError(
-        `Piece ${pieceIndex} is not complete`,
-        `readBlock`
-      );
+      throw new DiskError(`Piece ${pieceIndex} is not complete`, `readBlock`);
     }
 
     // Check if we have the piece cached
@@ -730,7 +739,8 @@ export class DiskManager extends TypedEventEmitter<DiskManagerEvents> {
    * @returns Remaining required space in bytes
    */
   getRemainingRequiredSpace(): number {
-    const completedBytes = this.completedPieces.size * this.metadata.pieceLength;
+    const completedBytes =
+      this.completedPieces.size * this.metadata.pieceLength;
     const remaining = this.metadata.totalLength - completedBytes;
     return Math.max(0, remaining);
   }
@@ -886,7 +896,10 @@ export class DiskManager extends TypedEventEmitter<DiskManagerEvents> {
   /**
    * Handle a disk full error
    */
-  private async handleDiskFull(entry: WriteQueueEntry, error: DiskFullError): Promise<void> {
+  private async handleDiskFull(
+    entry: WriteQueueEntry,
+    error: DiskFullError
+  ): Promise<void> {
     this.diskFull = true;
     this.pausedForDiskFull = true;
 
@@ -903,7 +916,10 @@ export class DiskManager extends TypedEventEmitter<DiskManagerEvents> {
     }
 
     // Move remaining write queue to retry queue
-    while (this.writeQueue.length > 0 && this.retryQueue.length < this.maxRetryQueueSize) {
+    while (
+      this.writeQueue.length > 0 &&
+      this.retryQueue.length < this.maxRetryQueueSize
+    ) {
       const nextEntry = this.writeQueue.shift()!;
       this.retryQueue.push(nextEntry);
     }
@@ -939,7 +955,10 @@ export class DiskManager extends TypedEventEmitter<DiskManagerEvents> {
       return; // Already checking
     }
 
-    this.spaceCheckTimer = setTimeout(() => this.checkSpaceAndRetry(), this.spaceCheckInterval);
+    this.spaceCheckTimer = setTimeout(
+      () => this.checkSpaceAndRetry(),
+      this.spaceCheckInterval
+    );
   }
 
   /**
@@ -993,11 +1012,17 @@ export class DiskManager extends TypedEventEmitter<DiskManagerEvents> {
         }
       } else {
         // Still not enough space, check again later
-        this.spaceCheckTimer = setTimeout(() => this.checkSpaceAndRetry(), this.spaceCheckInterval);
+        this.spaceCheckTimer = setTimeout(
+          () => this.checkSpaceAndRetry(),
+          this.spaceCheckInterval
+        );
       }
     } catch {
       // Error checking space, try again later
-      this.spaceCheckTimer = setTimeout(() => this.checkSpaceAndRetry(), this.spaceCheckInterval);
+      this.spaceCheckTimer = setTimeout(
+        () => this.checkSpaceAndRetry(),
+        this.spaceCheckInterval
+      );
     }
   }
 

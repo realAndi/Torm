@@ -283,7 +283,8 @@ export class PieceManager extends TypedEventEmitter<PieceManagerEvents> {
 
     this.pipelineLength = options.pipelineLength ?? DEFAULT_PIPELINE_LENGTH;
     // Use dynamic endgame threshold based on piece count if not explicitly set
-    this.endgameThreshold = options.endgameThreshold ?? calculateEndgameThreshold(options.pieceCount);
+    this.endgameThreshold =
+      options.endgameThreshold ?? calculateEndgameThreshold(options.pieceCount);
 
     this.pendingRequests = new Map();
     this.requestsByPeer = new Map();
@@ -425,7 +426,11 @@ export class PieceManager extends TypedEventEmitter<PieceManagerEvents> {
     count?: number
   ): Array<{ pieceIndex: number; begin: number; length: number }> {
     const maxRequests = count ?? this.pipelineLength;
-    const requests: Array<{ pieceIndex: number; begin: number; length: number }> = [];
+    const requests: Array<{
+      pieceIndex: number;
+      begin: number;
+      length: number;
+    }> = [];
 
     // Check existing pending requests for this peer
     const existingRequests = this.requestsByPeer.get(peerId)?.size ?? 0;
@@ -433,8 +438,8 @@ export class PieceManager extends TypedEventEmitter<PieceManagerEvents> {
 
     // In endgame mode, be more aggressive - don't limit based on existing requests
     if (this.inEndgame) {
-      // Get our bitfield to check completion
-      const ownBitfield = this.pieceMap.getBitfield();
+      // Get our bitfield to check completion (used for endgame logic)
+      const _ownBitfield = this.pieceMap.getBitfield();
 
       // Request aggressively - use full pipeline even if we have pending requests
       // This allows same blocks to be requested from multiple peers
@@ -458,14 +463,21 @@ export class PieceManager extends TypedEventEmitter<PieceManagerEvents> {
     // Normal mode: select pieces using the strategy
     for (let i = 0; i < neededRequests; i++) {
       // First, try to get blocks from pieces already in progress
-      const inProgressRequest = this.getRequestFromInProgress(peerId, peerBitfield);
+      const inProgressRequest = this.getRequestFromInProgress(
+        peerId,
+        peerBitfield
+      );
       if (inProgressRequest) {
         requests.push(inProgressRequest);
         continue;
       }
 
       // Select a new piece
-      const pieceIndex = this.selector.selectPiece(ownBitfield, peerBitfield, inProgress);
+      const pieceIndex = this.selector.selectPiece(
+        ownBitfield,
+        peerBitfield,
+        inProgress
+      );
       if (pieceIndex === null) {
         break;
       }
@@ -481,7 +493,12 @@ export class PieceManager extends TypedEventEmitter<PieceManagerEvents> {
       }
 
       const blockIndex = missingBlocks[0];
-      const request = this.createBlockRequest(peerId, pieceIndex, blockIndex, pieceState);
+      const request = this.createBlockRequest(
+        peerId,
+        pieceIndex,
+        blockIndex,
+        pieceState
+      );
       if (request) {
         requests.push(request);
       }
@@ -504,7 +521,12 @@ export class PieceManager extends TypedEventEmitter<PieceManagerEvents> {
    * @param begin - Byte offset within the piece
    * @param data - Block data
    */
-  handleBlock(peerId: string, pieceIndex: number, begin: number, data: Buffer): void {
+  handleBlock(
+    peerId: string,
+    pieceIndex: number,
+    begin: number,
+    data: Buffer
+  ): void {
     // Find and remove the pending request
     const blockIndex = Math.floor(begin / BLOCK_SIZE);
     const requestKey = this.getRequestKey(pieceIndex, blockIndex);
@@ -563,7 +585,7 @@ export class PieceManager extends TypedEventEmitter<PieceManagerEvents> {
     // Write the block
     try {
       pieceState.writeBlock(blockIndex, data);
-    } catch (err) {
+    } catch {
       // Invalid block data - ignore
       return;
     }
@@ -747,7 +769,12 @@ export class PieceManager extends TypedEventEmitter<PieceManagerEvents> {
       }
 
       const blockIndex = missingBlocks[0];
-      return this.createBlockRequest(peerId, pieceIndex, blockIndex, pieceState);
+      return this.createBlockRequest(
+        peerId,
+        pieceIndex,
+        blockIndex,
+        pieceState
+      );
     }
 
     return null;
@@ -807,7 +834,11 @@ export class PieceManager extends TypedEventEmitter<PieceManagerEvents> {
     peerBitfield: Buffer,
     count: number
   ): Array<{ pieceIndex: number; begin: number; length: number }> {
-    const requests: Array<{ pieceIndex: number; begin: number; length: number }> = [];
+    const requests: Array<{
+      pieceIndex: number;
+      begin: number;
+      length: number;
+    }> = [];
 
     // In endgame mode, be more aggressive - request up to 2x normal pipeline
     // to ensure we're requesting from multiple peers simultaneously
@@ -825,7 +856,11 @@ export class PieceManager extends TypedEventEmitter<PieceManagerEvents> {
       }
 
       // Request any blocks that aren't received yet
-      for (let blockIndex = 0; blockIndex < pieceState.blockCount; blockIndex++) {
+      for (
+        let blockIndex = 0;
+        blockIndex < pieceState.blockCount;
+        blockIndex++
+      ) {
         const blockState = pieceState.getBlockState(blockIndex);
         if (blockState === BlockState.Received) {
           continue;
@@ -897,7 +932,10 @@ export class PieceManager extends TypedEventEmitter<PieceManagerEvents> {
       this.endgameThreshold
     );
 
-    if (missingPieces.length > 0 && missingPieces.length <= this.endgameThreshold) {
+    if (
+      missingPieces.length > 0 &&
+      missingPieces.length <= this.endgameThreshold
+    ) {
       this.inEndgame = true;
       this.endgamePieces = new Set(missingPieces);
       this.emit('endgameStarted', { missingPieces });
@@ -918,7 +956,11 @@ export class PieceManager extends TypedEventEmitter<PieceManagerEvents> {
   /**
    * Verify a completed piece
    */
-  private verifyPiece(pieceIndex: number, pieceState: PieceState, peerId: string): void {
+  private verifyPiece(
+    pieceIndex: number,
+    pieceState: PieceState,
+    peerId: string
+  ): void {
     const data = pieceState.getData();
     const valid = this.verifier.verify(pieceIndex, data);
 
@@ -968,9 +1010,7 @@ export class PieceManager extends TypedEventEmitter<PieceManagerEvents> {
 
     const expectedHash = this.verifier.getExpectedHash(pieceIndex);
     const actualHash = pieceState.data
-      ? Buffer.from(
-          require('crypto').createHash('sha1').update(pieceState.data).digest()
-        )
+      ? this.verifier.computeHash(pieceState.data)
       : Buffer.alloc(20);
 
     // Emit failure event

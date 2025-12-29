@@ -135,14 +135,20 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   const searchLabelWidth = 10; // "  Search: "
   const filterSectionWidth = 20; // "  Filter: All     "
   const hintWidth = isFocused ? 16 : 18; // "(Tab/Arrows)" or "Press / to search"
-  const searchInputWidth = Math.max(20, innerWidth - searchLabelWidth - filterSectionWidth - hintWidth - 4);
+  const searchInputWidth = Math.max(
+    20,
+    innerWidth - searchLabelWidth - filterSectionWidth - hintWidth - 4
+  );
 
   // Display query with truncation
   const displayQuery =
     searchQuery.length > searchInputWidth - 1
       ? searchQuery.slice(-(searchInputWidth - 1))
       : searchQuery;
-  const inputPadding = Math.max(0, searchInputWidth - displayQuery.length - (isFocused ? 1 : 0));
+  const inputPadding = Math.max(
+    0,
+    searchInputWidth - displayQuery.length - (isFocused ? 1 : 0)
+  );
 
   const borderColor = isFocused ? colors.primary : colors.borderDim;
 
@@ -178,7 +184,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         <Box>
           <Text color={colors.muted}>Filter:</Text>
           <Text> </Text>
-          <Text color={colors.primary} bold>{currentFilterLabel}</Text>
+          <Text color={colors.primary} bold>
+            {currentFilterLabel}
+          </Text>
           <Text>{' '.repeat(Math.max(0, 12 - currentFilterLabel.length))}</Text>
         </Box>
 
@@ -188,9 +196,13 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         {/* Hint section */}
         <Box flexGrow={1} justifyContent="flex-end">
           {isFocused ? (
-            <Text color={colors.muted} dimColor>Tab/←→: Filter  Esc: Close</Text>
+            <Text color={colors.muted} dimColor>
+              Tab/←→: Filter Esc: Close
+            </Text>
           ) : (
-            <Text color={colors.muted} dimColor>Press / to search</Text>
+            <Text color={colors.muted} dimColor>
+              Press / to search
+            </Text>
           )}
           <Text> </Text>
         </Box>

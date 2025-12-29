@@ -294,6 +294,16 @@ export class PieceVerifier extends TypedEventEmitter<PieceVerifierEvents> {
   }
 
   /**
+   * Computes the SHA-1 hash of the provided data.
+   *
+   * @param data - The data to hash
+   * @returns 20-byte SHA-1 hash
+   */
+  computeHash(data: Buffer): Buffer {
+    return computeSha1(data);
+  }
+
+  /**
    * Returns the expected 20-byte SHA-1 hash for a piece.
    *
    * @param pieceIndex - Zero-based index of the piece

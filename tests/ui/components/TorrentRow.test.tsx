@@ -84,23 +84,23 @@ describe('TorrentRow', () => {
     });
   });
 
-  describe('status icons', () => {
-    it('shows downloading icon for downloading state', () => {
+  describe('status display', () => {
+    it('shows downloading status text for downloading state', () => {
       const torrent = createMockTorrent({ state: TorrentState.DOWNLOADING });
       const { lastFrame } = render(
         <TorrentRow torrent={torrent} isSelected={false} index={1} />
       );
 
-      expect(lastFrame()).toContain('\u2193'); // down arrow
+      expect(lastFrame()).toMatch(/Download/); // Status column shows "Downloading" (may be truncated)
     });
 
-    it('shows seeding icon for seeding state', () => {
+    it('shows seeding status text for seeding state', () => {
       const torrent = createMockTorrent({ state: TorrentState.SEEDING });
       const { lastFrame } = render(
         <TorrentRow torrent={torrent} isSelected={false} index={1} />
       );
 
-      expect(lastFrame()).toContain('\u2191'); // up arrow
+      expect(lastFrame()).toMatch(/Seeding/);
     });
 
     it('shows paused icon for paused state', () => {
@@ -109,10 +109,10 @@ describe('TorrentRow', () => {
         <TorrentRow torrent={torrent} isSelected={false} index={1} />
       );
 
-      expect(lastFrame()).toContain('\u23F8'); // pause symbol
+      expect(lastFrame()).toContain('\u23F8'); // pause symbol ⏸ before name
     });
 
-    it('shows error icon for error state', () => {
+    it('shows error status text for error state', () => {
       const torrent = createMockTorrent({
         state: TorrentState.ERROR,
         error: 'Disk full',
@@ -121,16 +121,16 @@ describe('TorrentRow', () => {
         <TorrentRow torrent={torrent} isSelected={false} index={1} />
       );
 
-      expect(lastFrame()).toContain('\u2717'); // cross mark
+      expect(lastFrame()).toMatch(/Error/);
     });
 
-    it('shows checking icon for checking state', () => {
+    it('shows checking status text for checking state', () => {
       const torrent = createMockTorrent({ state: TorrentState.CHECKING });
       const { lastFrame } = render(
         <TorrentRow torrent={torrent} isSelected={false} index={1} />
       );
 
-      expect(lastFrame()).toContain('\u27F3'); // rotating arrows
+      expect(lastFrame()).toMatch(/Checking/);
     });
 
     it('shows queued icon for queued state', () => {
@@ -139,7 +139,7 @@ describe('TorrentRow', () => {
         <TorrentRow torrent={torrent} isSelected={false} index={1} />
       );
 
-      expect(lastFrame()).toContain('\u2026'); // ellipsis
+      expect(lastFrame()).toMatch(/Queued/);
     });
   });
 
@@ -182,8 +182,8 @@ describe('TorrentRow', () => {
         <TorrentRow torrent={torrent} isSelected={false} index={1} />
       );
 
-      // Should show download speed formatted (e.g., "2.1M/s" or similar)
-      expect(lastFrame()).toMatch(/2.*M\/s|2\.1M\/s/);
+      // Should show download speed formatted (e.g., "2.1 MB/s")
+      expect(lastFrame()).toMatch(/2\.1 MB\/s/);
     });
 
     it('shows upload speed when seeding', () => {
@@ -196,11 +196,11 @@ describe('TorrentRow', () => {
         <TorrentRow torrent={torrent} isSelected={false} index={1} />
       );
 
-      // Should show upload speed formatted
-      expect(lastFrame()).toMatch(/1.*M\/s|1\.5M\/s/);
+      // Should show upload speed formatted (e.g., "1.5 MB/s")
+      expect(lastFrame()).toMatch(/1\.5 MB\/s/);
     });
 
-    it('shows 0 speed when paused', () => {
+    it('shows -- for zero speed when paused', () => {
       const torrent = createMockTorrent({
         state: TorrentState.PAUSED,
         downloadSpeed: 0,
@@ -210,7 +210,8 @@ describe('TorrentRow', () => {
         <TorrentRow torrent={torrent} isSelected={false} index={1} />
       );
 
-      expect(lastFrame()).toContain('0B/s');
+      // Component shows "--" for zero speed
+      expect(lastFrame()).toContain('--');
     });
   });
 

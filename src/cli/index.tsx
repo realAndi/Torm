@@ -10,7 +10,7 @@
 import React from 'react';
 import { render, Text, Box } from 'ink';
 import meow from 'meow';
-import { VERSION, APP_NAME } from '../shared/constants.js';
+import { VERSION } from '../shared/constants.js';
 
 // Import the main TUI App
 import { App } from '../ui/App.js';
@@ -208,7 +208,13 @@ function routeCommand(): void {
       }
 
       if (!source) {
-        render(<ErrorDisplay message={'Missing torrent source. Use \'torm add "magnet:..."\' (with quotes) or \'torm add -c\' to paste from clipboard'} />);
+        render(
+          <ErrorDisplay
+            message={
+              "Missing torrent source. Use 'torm add \"magnet:...\"' (with quotes) or 'torm add -c' to paste from clipboard"
+            }
+          />
+        );
         process.exit(1);
       }
       runAdd({
@@ -300,7 +306,9 @@ function routeCommand(): void {
     case 'daemon': {
       const action = args[0] as DaemonAction | undefined;
       if (!action || !['start', 'stop', 'status', 'restart'].includes(action)) {
-        render(<ErrorDisplay message="Missing or invalid daemon action (start|stop|status|restart)" />);
+        render(
+          <ErrorDisplay message="Missing or invalid daemon action (start|stop|status|restart)" />
+        );
         process.exit(1);
       }
       runDaemon({ action });

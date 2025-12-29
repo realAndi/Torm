@@ -16,7 +16,6 @@ import { TypedEventEmitter } from '../events.js';
 import {
   MessageType,
   PROTOCOL_STRING,
-  HANDSHAKE_LENGTH,
   encodeHandshake,
   encodeKeepAlive,
   encodeChoke,
@@ -30,9 +29,7 @@ import {
   encodeCancel,
   encodeExtended,
   decodeHandshake,
-  decodeExtended,
   createReservedBytes,
-  hasCapability,
 } from './messages.js';
 import type { PeerConnection } from './connection.js';
 
@@ -350,7 +347,11 @@ export class WireProtocol extends TypedEventEmitter<WireProtocolEvents> {
    * @param begin - Byte offset within the piece
    * @param length - Number of bytes to request (max 16384)
    */
-  async sendRequest(pieceIndex: number, begin: number, length: number): Promise<void> {
+  async sendRequest(
+    pieceIndex: number,
+    begin: number,
+    length: number
+  ): Promise<void> {
     this.ensureActive();
     this.validatePieceIndex(pieceIndex);
     this.validateOffset(begin);
@@ -367,13 +368,19 @@ export class WireProtocol extends TypedEventEmitter<WireProtocolEvents> {
    * @param begin - Byte offset within the piece
    * @param block - The block data
    */
-  async sendPiece(pieceIndex: number, begin: number, block: Buffer): Promise<void> {
+  async sendPiece(
+    pieceIndex: number,
+    begin: number,
+    block: Buffer
+  ): Promise<void> {
     this.ensureActive();
     this.validatePieceIndex(pieceIndex);
     this.validateOffset(begin);
 
     if (block.length > MAX_BLOCK_SIZE) {
-      throw new Error(`Block size ${block.length} exceeds maximum ${MAX_BLOCK_SIZE}`);
+      throw new Error(
+        `Block size ${block.length} exceeds maximum ${MAX_BLOCK_SIZE}`
+      );
     }
 
     await this.send(encodePiece(pieceIndex, begin, block));
@@ -388,7 +395,11 @@ export class WireProtocol extends TypedEventEmitter<WireProtocolEvents> {
    * @param begin - Byte offset within the piece
    * @param length - Number of bytes (must match original request)
    */
-  async sendCancel(pieceIndex: number, begin: number, length: number): Promise<void> {
+  async sendCancel(
+    pieceIndex: number,
+    begin: number,
+    length: number
+  ): Promise<void> {
     this.ensureActive();
     this.validatePieceIndex(pieceIndex);
     this.validateOffset(begin);
@@ -408,7 +419,11 @@ export class WireProtocol extends TypedEventEmitter<WireProtocolEvents> {
    *
    * @returns Promise resolving to handshake data
    */
-  receiveHandshake(): Promise<{ infoHash: Buffer; peerId: Buffer; reserved: Buffer }> {
+  receiveHandshake(): Promise<{
+    infoHash: Buffer;
+    peerId: Buffer;
+    reserved: Buffer;
+  }> {
     return new Promise((resolve, reject) => {
       // If already received, resolve immediately
       if (this.handshakeReceived) {
@@ -417,7 +432,11 @@ export class WireProtocol extends TypedEventEmitter<WireProtocolEvents> {
       }
 
       // Set up one-time listener for handshake
-      const onHandshake = (data: { infoHash: Buffer; peerId: Buffer; reserved: Buffer }) => {
+      const onHandshake = (data: {
+        infoHash: Buffer;
+        peerId: Buffer;
+        reserved: Buffer;
+      }) => {
         this.off('error', onError);
         resolve(data);
       };
@@ -573,7 +592,9 @@ export class WireProtocol extends TypedEventEmitter<WireProtocolEvents> {
 
     // Validate protocol string length
     if (pstrLen !== 19) {
-      throw new Error(`Invalid protocol string length: ${pstrLen} (expected 19)`);
+      throw new Error(
+        `Invalid protocol string length: ${pstrLen} (expected 19)`
+      );
     }
 
     // Handshake format: 1 + pstrLen + 8 + 20 + 20 = 68 bytes
@@ -589,7 +610,9 @@ export class WireProtocol extends TypedEventEmitter<WireProtocolEvents> {
     // Validate protocol string
     const pstr = handshakeData.subarray(1, 1 + pstrLen).toString('ascii');
     if (pstr !== PROTOCOL_STRING) {
-      throw new Error(`Invalid protocol string: "${pstr}" (expected "${PROTOCOL_STRING}")`);
+      throw new Error(
+        `Invalid protocol string: "${pstr}" (expected "${PROTOCOL_STRING}")`
+      );
     }
 
     // Parse handshake components
@@ -631,7 +654,9 @@ export class WireProtocol extends TypedEventEmitter<WireProtocolEvents> {
 
     // Validate message length
     if (messageLength > MAX_MESSAGE_LENGTH) {
-      throw new Error(`Message length ${messageLength} exceeds maximum ${MAX_MESSAGE_LENGTH}`);
+      throw new Error(
+        `Message length ${messageLength} exceeds maximum ${MAX_MESSAGE_LENGTH}`
+      );
     }
 
     // Check if we have the complete message
@@ -729,7 +754,9 @@ export class WireProtocol extends TypedEventEmitter<WireProtocolEvents> {
    */
   private handleChoke(payload: Buffer): void {
     if (payload.length !== 0) {
-      throw new Error(`Invalid choke payload length: ${payload.length} (expected 0)`);
+      throw new Error(
+        `Invalid choke payload length: ${payload.length} (expected 0)`
+      );
     }
     this.emit('choke');
   }
@@ -739,7 +766,9 @@ export class WireProtocol extends TypedEventEmitter<WireProtocolEvents> {
    */
   private handleUnchoke(payload: Buffer): void {
     if (payload.length !== 0) {
-      throw new Error(`Invalid unchoke payload length: ${payload.length} (expected 0)`);
+      throw new Error(
+        `Invalid unchoke payload length: ${payload.length} (expected 0)`
+      );
     }
     this.emit('unchoke');
   }
@@ -749,7 +778,9 @@ export class WireProtocol extends TypedEventEmitter<WireProtocolEvents> {
    */
   private handleInterested(payload: Buffer): void {
     if (payload.length !== 0) {
-      throw new Error(`Invalid interested payload length: ${payload.length} (expected 0)`);
+      throw new Error(
+        `Invalid interested payload length: ${payload.length} (expected 0)`
+      );
     }
     this.emit('interested');
   }
@@ -759,7 +790,9 @@ export class WireProtocol extends TypedEventEmitter<WireProtocolEvents> {
    */
   private handleNotInterested(payload: Buffer): void {
     if (payload.length !== 0) {
-      throw new Error(`Invalid not-interested payload length: ${payload.length} (expected 0)`);
+      throw new Error(
+        `Invalid not-interested payload length: ${payload.length} (expected 0)`
+      );
     }
     this.emit('notInterested');
   }
@@ -769,7 +802,9 @@ export class WireProtocol extends TypedEventEmitter<WireProtocolEvents> {
    */
   private handleHave(payload: Buffer): void {
     if (payload.length !== 4) {
-      throw new Error(`Invalid have payload length: ${payload.length} (expected 4)`);
+      throw new Error(
+        `Invalid have payload length: ${payload.length} (expected 4)`
+      );
     }
 
     const pieceIndex = payload.readUInt32BE(0);
@@ -789,7 +824,9 @@ export class WireProtocol extends TypedEventEmitter<WireProtocolEvents> {
    */
   private handleRequest(payload: Buffer): void {
     if (payload.length !== 12) {
-      throw new Error(`Invalid request payload length: ${payload.length} (expected 12)`);
+      throw new Error(
+        `Invalid request payload length: ${payload.length} (expected 12)`
+      );
     }
 
     const pieceIndex = payload.readUInt32BE(0);
@@ -798,7 +835,9 @@ export class WireProtocol extends TypedEventEmitter<WireProtocolEvents> {
 
     // Validate block length
     if (length > MAX_BLOCK_SIZE) {
-      throw new Error(`Requested block length ${length} exceeds maximum ${MAX_BLOCK_SIZE}`);
+      throw new Error(
+        `Requested block length ${length} exceeds maximum ${MAX_BLOCK_SIZE}`
+      );
     }
 
     this.emit('request', { pieceIndex, begin, length });
@@ -809,7 +848,9 @@ export class WireProtocol extends TypedEventEmitter<WireProtocolEvents> {
    */
   private handlePieceMessage(payload: Buffer): void {
     if (payload.length < 8) {
-      throw new Error(`Invalid piece payload length: ${payload.length} (minimum 8)`);
+      throw new Error(
+        `Invalid piece payload length: ${payload.length} (minimum 8)`
+      );
     }
 
     const pieceIndex = payload.readUInt32BE(0);
@@ -824,7 +865,9 @@ export class WireProtocol extends TypedEventEmitter<WireProtocolEvents> {
    */
   private handleCancel(payload: Buffer): void {
     if (payload.length !== 12) {
-      throw new Error(`Invalid cancel payload length: ${payload.length} (expected 12)`);
+      throw new Error(
+        `Invalid cancel payload length: ${payload.length} (expected 12)`
+      );
     }
 
     const pieceIndex = payload.readUInt32BE(0);
@@ -895,7 +938,9 @@ export class WireProtocol extends TypedEventEmitter<WireProtocolEvents> {
    */
   private validateBlockLength(length: number): void {
     if (!Number.isInteger(length) || length <= 0 || length > MAX_BLOCK_SIZE) {
-      throw new Error(`Invalid block length: ${length} (must be 1-${MAX_BLOCK_SIZE})`);
+      throw new Error(
+        `Invalid block length: ${length} (must be 1-${MAX_BLOCK_SIZE})`
+      );
     }
   }
 }
@@ -904,8 +949,4 @@ export class WireProtocol extends TypedEventEmitter<WireProtocolEvents> {
 // Exports
 // =============================================================================
 
-export {
-  ProtocolState,
-  MAX_BLOCK_SIZE,
-  MAX_MESSAGE_LENGTH,
-};
+export { ProtocolState, MAX_BLOCK_SIZE, MAX_MESSAGE_LENGTH };

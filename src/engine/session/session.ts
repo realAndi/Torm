@@ -17,7 +17,13 @@
  */
 
 import { TypedEventEmitter } from '../events.js';
-import { TorrentState, Peer, TorrentFile, FilePriority, TrackerInfo } from '../types.js';
+import {
+  TorrentState,
+  Peer,
+  TorrentFile,
+  FilePriority,
+  TrackerInfo,
+} from '../types.js';
 import { TorrentMetadata } from '../torrent/parser.js';
 import { PieceManager, PieceManagerEvents } from '../piece/manager.js';
 import { DiskManager, DiskManagerOptions } from '../disk/manager.js';
@@ -341,7 +347,11 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
     onPeerNotInterested: (data: PeerManagerEvents['peerNotInterested']) => void;
     onPieceReceived: (data: PeerManagerEvents['pieceReceived']) => void;
     onRequestReceived: (data: PeerManagerEvents['requestReceived']) => void;
-    onTrackerAnnounce: (data: { infoHash: string; tracker: TrackerInfo; peers: PeerInfo[] }) => void;
+    onTrackerAnnounce: (data: {
+      infoHash: string;
+      tracker: TrackerInfo;
+      peers: PeerInfo[];
+    }) => void;
     onChoke: (data: { peerId: string }) => void;
     onUnchoke: (data: { peerId: string }) => void;
     onPexPeers: (data: PeerManagerEvents['pexPeers']) => void;
@@ -376,10 +386,14 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
     this.options = {
       downloadPath: options.downloadPath,
       maxConnections: options.maxConnections ?? 30,
-      bandwidthLimits: options.bandwidthLimits ?? { downloadRate: 0, uploadRate: 0 },
+      bandwidthLimits: options.bandwidthLimits ?? {
+        downloadRate: 0,
+        uploadRate: 0,
+      },
       verifyOnStart: options.verifyOnStart ?? true,
       startPaused: options.startPaused ?? false,
-      allocationStrategy: options.allocationStrategy ?? AllocationStrategy.Sparse,
+      allocationStrategy:
+        options.allocationStrategy ?? AllocationStrategy.Sparse,
     };
 
     // Create piece manager
@@ -524,7 +538,7 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
    */
   get seeds(): number {
     const peers = this.peerManager.getPeers(this.infoHash);
-    return peers.filter(p => p.progress >= 1).length;
+    return peers.filter((p) => p.progress >= 1).length;
   }
 
   /**
@@ -621,7 +635,10 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
    * and begins downloading/seeding.
    */
   async start(): Promise<void> {
-    if (this._state !== TorrentState.QUEUED && this._state !== TorrentState.PAUSED) {
+    if (
+      this._state !== TorrentState.QUEUED &&
+      this._state !== TorrentState.PAUSED
+    ) {
       return;
     }
 
@@ -686,11 +703,13 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
    * Stops downloading/uploading but maintains peer connections and tracker state.
    */
   async pause(): Promise<void> {
-    if (this._state !== TorrentState.DOWNLOADING && this._state !== TorrentState.SEEDING) {
+    if (
+      this._state !== TorrentState.DOWNLOADING &&
+      this._state !== TorrentState.SEEDING
+    ) {
       return;
     }
 
-    const previousState = this._state;
     this.setState(TorrentState.PAUSED);
 
     // Stop progress reporting
@@ -698,6 +717,16 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
 
     // Stop choking algorithm
     this.chokingAlgorithm.stop();
+  }
+
+  /**
+   * Set torrent to queued state (used by SessionManager for queue management)
+   */
+  queue(): void {
+    if (this._state === TorrentState.QUEUED) {
+      return;
+    }
+    this.setState(TorrentState.QUEUED);
   }
 
   /**
@@ -814,7 +843,10 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
     }
 
     // Check if now complete and transition to seeding
-    if (this.pieceManager.isComplete && this._state === TorrentState.DOWNLOADING) {
+    if (
+      this.pieceManager.isComplete &&
+      this._state === TorrentState.DOWNLOADING
+    ) {
       this.handleDownloadComplete();
     }
   }
@@ -830,22 +862,34 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
     // Piece manager events
     this.pieceManager.on('pieceComplete', this.boundHandlers.onPieceComplete);
     this.pieceManager.on('pieceFailed', this.boundHandlers.onPieceFailed);
-    this.pieceManager.on('downloadComplete', this.boundHandlers.onDownloadComplete);
+    this.pieceManager.on(
+      'downloadComplete',
+      this.boundHandlers.onDownloadComplete
+    );
 
     // Disk manager events
     this.diskManager.on('pieceWritten', this.boundHandlers.onPieceWritten);
 
     // Peer manager events (filtered by infoHash)
     this.peerManager.on('peerConnected', this.boundHandlers.onPeerConnected);
-    this.peerManager.on('peerDisconnected', this.boundHandlers.onPeerDisconnected);
+    this.peerManager.on(
+      'peerDisconnected',
+      this.boundHandlers.onPeerDisconnected
+    );
     this.peerManager.on('peerBitfield', this.boundHandlers.onPeerBitfield);
     this.peerManager.on('peerHave', this.boundHandlers.onPeerHave);
     this.peerManager.on('peerChoked', this.boundHandlers.onPeerChoked);
     this.peerManager.on('peerUnchoked', this.boundHandlers.onPeerUnchoked);
     this.peerManager.on('peerInterested', this.boundHandlers.onPeerInterested);
-    this.peerManager.on('peerNotInterested', this.boundHandlers.onPeerNotInterested);
+    this.peerManager.on(
+      'peerNotInterested',
+      this.boundHandlers.onPeerNotInterested
+    );
     this.peerManager.on('pieceReceived', this.boundHandlers.onPieceReceived);
-    this.peerManager.on('requestReceived', this.boundHandlers.onRequestReceived);
+    this.peerManager.on(
+      'requestReceived',
+      this.boundHandlers.onRequestReceived
+    );
     this.peerManager.on('pexPeers', this.boundHandlers.onPexPeers);
 
     // Tracker events (filtered by infoHash)
@@ -863,22 +907,34 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
     // Piece manager events
     this.pieceManager.off('pieceComplete', this.boundHandlers.onPieceComplete);
     this.pieceManager.off('pieceFailed', this.boundHandlers.onPieceFailed);
-    this.pieceManager.off('downloadComplete', this.boundHandlers.onDownloadComplete);
+    this.pieceManager.off(
+      'downloadComplete',
+      this.boundHandlers.onDownloadComplete
+    );
 
     // Disk manager events
     this.diskManager.off('pieceWritten', this.boundHandlers.onPieceWritten);
 
     // Peer manager events
     this.peerManager.off('peerConnected', this.boundHandlers.onPeerConnected);
-    this.peerManager.off('peerDisconnected', this.boundHandlers.onPeerDisconnected);
+    this.peerManager.off(
+      'peerDisconnected',
+      this.boundHandlers.onPeerDisconnected
+    );
     this.peerManager.off('peerBitfield', this.boundHandlers.onPeerBitfield);
     this.peerManager.off('peerHave', this.boundHandlers.onPeerHave);
     this.peerManager.off('peerChoked', this.boundHandlers.onPeerChoked);
     this.peerManager.off('peerUnchoked', this.boundHandlers.onPeerUnchoked);
     this.peerManager.off('peerInterested', this.boundHandlers.onPeerInterested);
-    this.peerManager.off('peerNotInterested', this.boundHandlers.onPeerNotInterested);
+    this.peerManager.off(
+      'peerNotInterested',
+      this.boundHandlers.onPeerNotInterested
+    );
     this.peerManager.off('pieceReceived', this.boundHandlers.onPieceReceived);
-    this.peerManager.off('requestReceived', this.boundHandlers.onRequestReceived);
+    this.peerManager.off(
+      'requestReceived',
+      this.boundHandlers.onRequestReceived
+    );
 
     // Tracker events
     this.trackerClient.off('announce', this.boundHandlers.onTrackerAnnounce);
@@ -968,9 +1024,11 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
     // Send our bitfield if we have pieces
     if (this.pieceManager.completedPieces > 0) {
       const bitfield = this.pieceManager.getBitfield();
-      this.peerManager.sendBitfield(this.infoHash, peer.id, bitfield).catch(() => {
-        // Peer may have disconnected
-      });
+      this.peerManager
+        .sendBitfield(this.infoHash, peer.id, bitfield)
+        .catch(() => {
+          // Peer may have disconnected
+        });
     }
 
     this.emit('peerConnected', { peer });
@@ -979,7 +1037,9 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
   /**
    * Handle peer disconnected
    */
-  private handlePeerDisconnected(data: PeerManagerEvents['peerDisconnected']): void {
+  private handlePeerDisconnected(
+    data: PeerManagerEvents['peerDisconnected']
+  ): void {
     if (data.infoHash !== this.infoHash) {
       return;
     }
@@ -1080,7 +1140,9 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
   /**
    * Handle peer interested in us
    */
-  private handlePeerInterested(data: PeerManagerEvents['peerInterested']): void {
+  private handlePeerInterested(
+    data: PeerManagerEvents['peerInterested']
+  ): void {
     if (data.infoHash !== this.infoHash) {
       return;
     }
@@ -1094,7 +1156,9 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
   /**
    * Handle peer not interested in us
    */
-  private handlePeerNotInterested(data: PeerManagerEvents['peerNotInterested']): void {
+  private handlePeerNotInterested(
+    data: PeerManagerEvents['peerNotInterested']
+  ): void {
     if (data.infoHash !== this.infoHash) {
       return;
     }
@@ -1132,7 +1196,11 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
     this.pieceManager.handleBlock(peerId, pieceIndex, begin, block);
 
     // Request more blocks if appropriate
-    if (this._state === TorrentState.DOWNLOADING && peerState && !peerState.peerChoking) {
+    if (
+      this._state === TorrentState.DOWNLOADING &&
+      peerState &&
+      !peerState.peerChoking
+    ) {
       this.requestBlocksFromPeer(peerId);
     }
   }
@@ -1140,7 +1208,9 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
   /**
    * Handle piece request from peer
    */
-  private async handleRequestReceived(data: PeerManagerEvents['requestReceived']): Promise<void> {
+  private async handleRequestReceived(
+    data: PeerManagerEvents['requestReceived']
+  ): Promise<void> {
     if (data.infoHash !== this.infoHash) {
       return;
     }
@@ -1166,7 +1236,13 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
       const block = await this.diskManager.readBlock(pieceIndex, begin, length);
 
       // Send to peer
-      await this.peerManager.sendPiece(this.infoHash, peerId, pieceIndex, begin, block);
+      await this.peerManager.sendPiece(
+        this.infoHash,
+        peerId,
+        pieceIndex,
+        begin,
+        block
+      );
 
       // Update stats
       this._uploaded += block.length;
@@ -1187,7 +1263,11 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
   /**
    * Handle tracker announce response
    */
-  private handleTrackerAnnounce(data: { infoHash: string; tracker: TrackerInfo; peers: PeerInfo[] }): void {
+  private handleTrackerAnnounce(data: {
+    infoHash: string;
+    tracker: TrackerInfo;
+    peers: PeerInfo[];
+  }): void {
     if (data.infoHash !== this.infoHash) {
       return;
     }
@@ -1214,14 +1294,19 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
   /**
    * Handle PEX (Peer Exchange) peers received from a connected peer
    */
-  private handlePexPeers(data: { infoHash: string; peerId: string; added: Array<{ ip: string; port: number }>; dropped: Array<{ ip: string; port: number }> }): void {
+  private handlePexPeers(data: {
+    infoHash: string;
+    peerId: string;
+    added: Array<{ ip: string; port: number }>;
+    dropped: Array<{ ip: string; port: number }>;
+  }): void {
     if (data.infoHash !== this.infoHash) {
       return;
     }
 
     // Convert PEX peers to PeerInfo format and add to peer manager
     if (data.added.length > 0) {
-      const peers = data.added.map(p => ({
+      const peers = data.added.map((p) => ({
         ip: p.ip,
         port: p.port,
       }));
@@ -1328,7 +1413,11 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
    */
   private requestBlocksFromPeers(): void {
     for (const [peerId, peerState] of this.peerStates) {
-      if (peerState.amInterested && !peerState.peerChoking && peerState.bitfield) {
+      if (
+        peerState.amInterested &&
+        !peerState.peerChoking &&
+        peerState.bitfield
+      ) {
         this.requestBlocksFromPeer(peerId);
       }
     }
@@ -1344,7 +1433,10 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
     }
 
     // Get block requests from piece manager
-    const requests = this.pieceManager.getBlockRequests(peerId, peerState.bitfield);
+    const requests = this.pieceManager.getBlockRequests(
+      peerId,
+      peerState.bitfield
+    );
 
     if (requests.length === 0) {
       return;
@@ -1353,7 +1445,11 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
     // Request bandwidth for all blocks at once (total bytes)
     const totalBytes = requests.reduce((sum, r) => sum + r.length, 0);
     try {
-      await this.bandwidthLimiter.request(totalBytes, 'download', this.infoHash);
+      await this.bandwidthLimiter.request(
+        totalBytes,
+        'download',
+        this.infoHash
+      );
     } catch {
       // Rate limited, try again later
       return;
@@ -1384,9 +1480,11 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
     const peers = this.peerManager.getPeers(this.infoHash);
 
     for (const peer of peers) {
-      this.peerManager.sendHave(this.infoHash, peer.id, pieceIndex).catch(() => {
-        // Peer may have disconnected
-      });
+      this.peerManager
+        .sendHave(this.infoHash, peer.id, pieceIndex)
+        .catch(() => {
+          // Peer may have disconnected
+        });
     }
   }
 
@@ -1540,7 +1638,9 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
       // Calculate what the speed would have been using all samples within extended window
       // then decay it based on how stale the data is
       const extendedCutoff = now - SPEED_WINDOW_MS * 2;
-      const extendedRecent = samples.filter((s) => s.timestamp >= extendedCutoff);
+      const extendedRecent = samples.filter(
+        (s) => s.timestamp >= extendedCutoff
+      );
 
       if (extendedRecent.length === 0) {
         return 0;
@@ -1555,7 +1655,10 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
       }
 
       // Apply decay factor based on staleness (linear decay from 1 to 0 over the stale period)
-      const decayFactor = Math.max(0, 1 - (timeSinceLastSample - SPEED_WINDOW_MS) / SPEED_WINDOW_MS);
+      const decayFactor = Math.max(
+        0,
+        1 - (timeSinceLastSample - SPEED_WINDOW_MS) / SPEED_WINDOW_MS
+      );
       return Math.round((totalBytes * 1000 * decayFactor) / timeSpan);
     }
 
@@ -1584,7 +1687,8 @@ export class TorrentSession extends TypedEventEmitter<TorrentSessionEvents> {
       if (this.pieceManager.hasPiece(i)) {
         if (i === this.metadata.pieceCount - 1) {
           // Last piece may be smaller
-          const remainder = this.metadata.totalLength % this.metadata.pieceLength;
+          const remainder =
+            this.metadata.totalLength % this.metadata.pieceLength;
           downloaded += remainder === 0 ? this.metadata.pieceLength : remainder;
         } else {
           downloaded += this.metadata.pieceLength;

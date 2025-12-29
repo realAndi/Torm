@@ -10,11 +10,7 @@ import React, { useEffect, useState } from 'react';
 import { render, Text, Box } from 'ink';
 import { TormEngine } from '../../engine/TormEngine.js';
 import { Torrent } from '../../engine/types.js';
-import {
-  errorMessage,
-  parseTorrentId,
-  truncateText,
-} from '../utils/output.js';
+import { errorMessage, parseTorrentId, truncateText } from '../utils/output.js';
 
 // =============================================================================
 // Types
@@ -39,7 +35,10 @@ interface VerifyResultProps {
 /**
  * Find a torrent by ID (full hash or prefix)
  */
-function findTorrent(engine: TormEngine, torrentId: string): { torrent: Torrent | undefined; hash: string } {
+function findTorrent(
+  engine: TormEngine,
+  torrentId: string
+): { torrent: Torrent | undefined; hash: string } {
   const { type, value } = parseTorrentId(torrentId);
 
   if (type === 'hash') {
@@ -57,7 +56,7 @@ function findTorrent(engine: TormEngine, torrentId: string): { torrent: Torrent 
   if (matches.length > 1) {
     throw new Error(
       `Ambiguous torrent ID "${torrentId}" matches ${matches.length} torrents. ` +
-      'Please provide a longer prefix.'
+        'Please provide a longer prefix.'
     );
   }
 
@@ -71,7 +70,12 @@ function findTorrent(engine: TormEngine, torrentId: string): { torrent: Torrent 
 /**
  * Component to display the result of verifying a torrent
  */
-const VerifyResult: React.FC<VerifyResultProps> = ({ torrent, error, loading, success }) => {
+const VerifyResult: React.FC<VerifyResultProps> = ({
+  torrent,
+  error,
+  loading,
+  success,
+}) => {
   if (loading) {
     return (
       <Box>
@@ -118,7 +122,9 @@ const VerifyResult: React.FC<VerifyResultProps> = ({ torrent, error, loading, su
 /**
  * Execute the verify command (non-interactive).
  */
-export async function executeVerify(options: VerifyCommandOptions): Promise<void> {
+export async function executeVerify(
+  options: VerifyCommandOptions
+): Promise<void> {
   const { torrentId } = options;
 
   const engine = new TormEngine();
@@ -142,7 +148,9 @@ export async function executeVerify(options: VerifyCommandOptions): Promise<void
     console.log('[OK] Verification complete');
     console.log(`  Name: ${truncateText(torrent.name, 50)}`);
     console.log(`  State: ${updated?.state || torrent.state}`);
-    console.log(`  Progress: ${Math.floor((updated?.progress || torrent.progress) * 100)}%`);
+    console.log(
+      `  Progress: ${Math.floor((updated?.progress || torrent.progress) * 100)}%`
+    );
 
     await engine.stop();
   } catch (err) {
@@ -160,7 +168,9 @@ export async function executeVerify(options: VerifyCommandOptions): Promise<void
 /**
  * Verify command component using Ink for rendering
  */
-export function VerifyCommand({ torrentId }: VerifyCommandOptions): React.ReactElement {
+export function VerifyCommand({
+  torrentId,
+}: VerifyCommandOptions): React.ReactElement {
   const [torrent, setTorrent] = useState<Torrent | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -203,7 +213,14 @@ export function VerifyCommand({ torrentId }: VerifyCommandOptions): React.ReactE
     doVerify();
   }, [torrentId]);
 
-  return <VerifyResult torrent={torrent} error={error} loading={loading} success={success} />;
+  return (
+    <VerifyResult
+      torrent={torrent}
+      error={error}
+      loading={loading}
+      success={success}
+    />
+  );
 }
 
 /**

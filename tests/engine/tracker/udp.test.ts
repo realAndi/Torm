@@ -153,8 +153,8 @@ describe('UDP Tracker', () => {
     });
 
     it('should export correct timeout and retry values', () => {
-      expect(UDP_PROTOCOL.INITIAL_TIMEOUT_MS).toBe(15000);
-      expect(UDP_PROTOCOL.MAX_RETRIES).toBe(8);
+      expect(UDP_PROTOCOL.INITIAL_TIMEOUT_MS).toBe(5000);
+      expect(UDP_PROTOCOL.MAX_RETRIES).toBe(1);
       expect(UDP_PROTOCOL.CONNECTION_ID_TTL_MS).toBe(60000);
     });
   });

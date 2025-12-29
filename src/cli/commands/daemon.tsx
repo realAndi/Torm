@@ -8,10 +8,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { render, Text, Box } from 'ink';
-import {
-  DaemonManager,
-  type DaemonInfo,
-} from '../../daemon/index.js';
+import { DaemonManager, type DaemonInfo } from '../../daemon/index.js';
 import {
   formatBytes,
   formatDuration,
@@ -60,17 +57,19 @@ const DaemonStatusDisplay: React.FC<{ info: DaemonInfo }> = ({ info }) => {
 
   return (
     <Box flexDirection="column" paddingY={1}>
-      <Text color="green" bold>Daemon is running</Text>
+      <Text color="green" bold>
+        Daemon is running
+      </Text>
       <Box marginTop={1} flexDirection="column" gap={0}>
         {info.pid && (
           <Box>
-            <Text dimColor>PID:            </Text>
+            <Text dimColor>PID: </Text>
             <Text>{info.pid}</Text>
           </Box>
         )}
         {info.uptime !== undefined && (
           <Box>
-            <Text dimColor>Uptime:         </Text>
+            <Text dimColor>Uptime: </Text>
             <Text>{formatDuration(info.uptime)}</Text>
           </Box>
         )}
@@ -82,13 +81,13 @@ const DaemonStatusDisplay: React.FC<{ info: DaemonInfo }> = ({ info }) => {
         )}
         {info.downloadSpeed !== undefined && (
           <Box>
-            <Text dimColor>Download:       </Text>
+            <Text dimColor>Download: </Text>
             <Text>{formatBytes(info.downloadSpeed)}/s</Text>
           </Box>
         )}
         {info.uploadSpeed !== undefined && (
           <Box>
-            <Text dimColor>Upload:         </Text>
+            <Text dimColor>Upload: </Text>
             <Text>{formatBytes(info.uploadSpeed)}/s</Text>
           </Box>
         )}
@@ -100,7 +99,13 @@ const DaemonStatusDisplay: React.FC<{ info: DaemonInfo }> = ({ info }) => {
 /**
  * Component to display the result of a daemon action
  */
-const DaemonResult: React.FC<DaemonResultProps> = ({ info, action, error, loading, message }) => {
+const DaemonResult: React.FC<DaemonResultProps> = ({
+  info,
+  action,
+  error,
+  loading,
+  message,
+}) => {
   if (loading) {
     const actionText = {
       start: 'Starting daemon...',
@@ -127,7 +132,9 @@ const DaemonResult: React.FC<DaemonResultProps> = ({ info, action, error, loadin
   if (message) {
     return (
       <Box flexDirection="column" paddingY={1}>
-        <Text color="green" bold>{message}</Text>
+        <Text color="green" bold>
+          {message}
+        </Text>
       </Box>
     );
   }
@@ -187,7 +194,9 @@ async function executeStatus(): Promise<DaemonInfo> {
  *
  * @param options - Command options
  */
-export async function executeDaemon(options: DaemonCommandOptions): Promise<void> {
+export async function executeDaemon(
+  options: DaemonCommandOptions
+): Promise<void> {
   const { action } = options;
 
   try {
@@ -218,10 +227,14 @@ export async function executeDaemon(options: DaemonCommandOptions): Promise<void
             console.log(formatKeyValue('Torrents', String(info.torrents)));
           }
           if (info.downloadSpeed !== undefined) {
-            console.log(formatKeyValue('Download', `${formatBytes(info.downloadSpeed)}/s`));
+            console.log(
+              formatKeyValue('Download', `${formatBytes(info.downloadSpeed)}/s`)
+            );
           }
           if (info.uploadSpeed !== undefined) {
-            console.log(formatKeyValue('Upload', `${formatBytes(info.uploadSpeed)}/s`));
+            console.log(
+              formatKeyValue('Upload', `${formatBytes(info.uploadSpeed)}/s`)
+            );
           }
         }
         break;
@@ -248,7 +261,9 @@ export async function executeDaemon(options: DaemonCommandOptions): Promise<void
 /**
  * Interactive daemon command using Ink for rendering
  */
-export function DaemonCommand({ action }: DaemonCommandOptions): React.ReactElement {
+export function DaemonCommand({
+  action,
+}: DaemonCommandOptions): React.ReactElement {
   const [info, setInfo] = useState<DaemonInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -298,7 +313,15 @@ export function DaemonCommand({ action }: DaemonCommandOptions): React.ReactElem
     doAction();
   }, [action]);
 
-  return <DaemonResult info={info} action={action} error={error} loading={loading} message={message} />;
+  return (
+    <DaemonResult
+      info={info}
+      action={action}
+      error={error}
+      loading={loading}
+      message={message}
+    />
+  );
 }
 
 /**

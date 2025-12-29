@@ -26,7 +26,8 @@ function isValidTorrentSource(value: string): boolean {
   const trimmed = value.trim();
   if (trimmed.length === 0) return false;
   if (trimmed.startsWith('magnet:?')) return true;
-  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return true;
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://'))
+    return true;
   if (trimmed.endsWith('.torrent')) return true;
   return false;
 }
@@ -74,21 +75,24 @@ export const AddTorrentModal: React.FC<AddTorrentModalProps> = ({
   }, [visible, effectiveDefaultPath]);
 
   // Detect .torrent files in source (drag-and-drop detection)
-  const handleSourceChange = useCallback((value: string) => {
-    // Check if this looks like .torrent file(s) were dropped
-    const paths = parsePastedPaths(value);
-    const expandedPaths = paths.map(expandPath);
-    const torrentFiles = filterTorrentFiles(expandedPaths);
+  const handleSourceChange = useCallback(
+    (value: string) => {
+      // Check if this looks like .torrent file(s) were dropped
+      const paths = parsePastedPaths(value);
+      const expandedPaths = paths.map(expandPath);
+      const torrentFiles = filterTorrentFiles(expandedPaths);
 
-    if (torrentFiles.length >= 1 && onBatchFiles) {
-      // .torrent file(s) detected - switch to batch mode for visual feedback
-      onBatchFiles(torrentFiles);
-      return;
-    }
+      if (torrentFiles.length >= 1 && onBatchFiles) {
+        // .torrent file(s) detected - switch to batch mode for visual feedback
+        onBatchFiles(torrentFiles);
+        return;
+      }
 
-    // Other input (magnet link, URL, etc.) - handle normally
-    setSource(value);
-  }, [onBatchFiles]);
+      // Other input (magnet link, URL, etc.) - handle normally
+      setSource(value);
+    },
+    [onBatchFiles]
+  );
 
   const isValid = isValidTorrentSource(source);
   const isEmpty = source.trim().length === 0;
@@ -129,7 +133,13 @@ export const AddTorrentModal: React.FC<AddTorrentModalProps> = ({
   const contentWidth = modalWidth - 8;
 
   return (
-    <Modal visible={visible} title="Add Torrent" onClose={onClose} width={modalWidth} minHeight={20}>
+    <Modal
+      visible={visible}
+      title="Add Torrent"
+      onClose={onClose}
+      width={modalWidth}
+      minHeight={20}
+    >
       <Box flexDirection="column" gap={1}>
         {/* Source input */}
         <Text color={activeField === 'source' ? colors.primary : colors.muted}>
@@ -144,7 +154,11 @@ export const AddTorrentModal: React.FC<AddTorrentModalProps> = ({
         />
 
         {/* Validation hint */}
-        <Text color={isEmpty ? colors.muted : isValid ? colors.success : colors.warning}>
+        <Text
+          color={
+            isEmpty ? colors.muted : isValid ? colors.success : colors.warning
+          }
+        >
           {isEmpty
             ? 'Paste magnet/URL, or drag .torrent files here'
             : isValid
@@ -170,21 +184,27 @@ export const AddTorrentModal: React.FC<AddTorrentModalProps> = ({
           {activeField === 'source' ? (
             <Box gap={2}>
               <Text>
-                <Text color={canSubmit ? colors.primary : colors.muted} bold>[Enter]</Text>
+                <Text color={canSubmit ? colors.primary : colors.muted} bold>
+                  [Enter]
+                </Text>
                 <Text color={canSubmit ? undefined : colors.muted}> Add</Text>
               </Text>
               <Text>
-                <Text color={colors.muted} bold>[↓]</Text>
+                <Text color={colors.muted} bold>
+                  [↓]
+                </Text>
                 <Text color={colors.muted}> Edit path</Text>
               </Text>
               <Text>
-                <Text color={colors.muted} bold>[Esc]</Text>
+                <Text color={colors.muted} bold>
+                  [Esc]
+                </Text>
                 <Text color={colors.muted}> Cancel</Text>
               </Text>
             </Box>
           ) : (
             <Text color={colors.muted}>
-              ↑↓: select  Tab/→: complete  Enter: add  Esc: back
+              ↑↓: select Tab/→: complete Enter: add Esc: back
             </Text>
           )}
         </Box>
