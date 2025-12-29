@@ -1,0 +1,71 @@
+{
+  "name": "torm",
+  "version": "0.1.0",
+  "description": "A terminal-based BitTorrent client with an interactive TUI",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "torm": "./bin/torm.js"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "bun build src/cli/index.tsx --outdir dist --target bun",
+    "dev": "bun --watch src/cli/index.tsx",
+    "start": "bun run dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx}\""
+  },
+  "keywords": [
+    "bittorrent",
+    "torrent",
+    "cli",
+    "terminal",
+    "tui",
+    "ink",
+    "react",
+    "p2p",
+    "download",
+    "file-sharing"
+  ],
+  "author": "Andi <https://github.com/realAndi>",
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/realAndi/torm.git"
+  },
+  "bugs": {
+    "url": "https://github.com/realAndi/torm/issues"
+  },
+  "homepage": "https://github.com/realAndi/torm#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "geoip-lite": "^1.4.10",
+    "ink": "^6.6.0",
+    "ink-scroll-list": "^0.3.3",
+    "meow": "^14.0.0",
+    "react": "^19.2.3",
+    "react-devtools-core": "^7.0.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@types/bun": "^1.2.12",
+    "@types/react": "^19.2.7",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "ink-testing-library": "^4.0.0",
+    "prettier": "^3.7.4",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.50.1",
+    "vitest": "^4.0.16"
+  }
+}

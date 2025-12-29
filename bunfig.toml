@@ -1,0 +1,10 @@
+# Bun configuration for Torm
+# https://bun.sh/docs/runtime/bunfig
+
+[build]
+# Target Bun runtime for CLI application
+target = "bun"
+
+[test]
+# Test configuration
+coverage = false
