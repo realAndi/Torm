@@ -1,6 +1,12 @@
+<p align="center">
+  <img src="photos/torm.png" alt="Torm Mascot" width="120">
+</p>
+
 # Torm
 
 Torm is a terminal-based BitTorrent client built with TypeScript and Ink. It provides both an interactive terminal user interface (TUI) and a command-line interface (CLI) for managing torrents.
+
+![Torm UI](photos/example-screenshot.png)
 
 ## Features
 
