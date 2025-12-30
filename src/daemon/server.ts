@@ -2,7 +2,7 @@
  * Daemon Server for Torm
  *
  * Runs the TormEngine as a background daemon process, accepting connections
- * from clients (TUI, CLI) via Unix socket.
+ * from clients (TUI, CLI) via Unix socket (macOS/Linux) or Named Pipe (Windows).
  *
  * @module daemon/server
  */
@@ -10,9 +10,9 @@
 import { createServer, type Server, type Socket } from 'net';
 import { unlink, appendFile, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
-import { dirname, resolve } from 'path';
-import { homedir } from 'os';
+import { dirname } from 'path';
 import { TormEngine } from '../engine/TormEngine.js';
+import { expandPath } from '../utils/platform.js';
 import type { EngineConfig, Torrent } from '../engine/types.js';
 import {
   type Message,
@@ -29,7 +29,7 @@ import {
 // =============================================================================
 
 export interface DaemonServerOptions {
-  /** Path to Unix socket (default: /tmp/torm.sock) */
+  /** Path to socket/pipe (Unix socket or Windows Named Pipe) */
   socketPath?: string;
 
   /** Engine configuration */
@@ -42,16 +42,6 @@ export interface DaemonServerOptions {
 // =============================================================================
 // Helper Functions
 // =============================================================================
-
-/**
- * Expand ~ to home directory
- */
-function expandPath(path: string): string {
-  if (path.startsWith('~/')) {
-    return resolve(homedir(), path.slice(2));
-  }
-  return path;
-}
 
 /**
  * Format timestamp for logging

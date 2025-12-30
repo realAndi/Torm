@@ -11,6 +11,7 @@ import React from 'react';
 import { render, Text, Box } from 'ink';
 import meow from 'meow';
 import { VERSION } from '../shared/constants.js';
+import { readClipboard } from '../utils/platform.js';
 
 // Import the main TUI App
 import { App } from '../ui/App.js';
@@ -192,19 +193,14 @@ function routeCommand(): void {
 
       // Read from clipboard if -c flag is set
       if (flags.clipboard) {
-        try {
-          const proc = Bun.spawnSync(['pbpaste']);
-          source = proc.stdout.toString().trim();
-          if (!source) {
-            render(<ErrorDisplay message="Clipboard is empty" />);
-            process.exit(1);
-          }
-          // When using clipboard, first arg becomes download path
-          downloadPath = args[0] || flags.downloadPath;
-        } catch {
-          render(<ErrorDisplay message="Failed to read from clipboard" />);
+        const clipboardContent = readClipboard();
+        if (!clipboardContent) {
+          render(<ErrorDisplay message="Clipboard is empty or unavailable" />);
           process.exit(1);
         }
+        source = clipboardContent;
+        // When using clipboard, first arg becomes download path
+        downloadPath = args[0] || flags.downloadPath;
       }
 
       if (!source) {

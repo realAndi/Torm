@@ -8,23 +8,30 @@
  */
 
 import type { EngineConfig } from '../types.js';
+import {
+  getDefaultDataDir,
+  getDefaultDownloadPath,
+  getDefaultSocketPath,
+  getDefaultLogFile,
+  getDefaultPidFile,
+} from '../../utils/platform.js';
 
 /**
  * Default engine configuration.
  *
  * All fields have sensible defaults suitable for most use cases:
- * - Data stored in ~/.torm
- * - Downloads saved to ~/.torm/downloads
+ * - Data stored in platform-appropriate directory (~/.torm on Unix, %LOCALAPPDATA%/torm on Windows)
+ * - Downloads saved to data directory/downloads
  * - Moderate connection limits to balance performance and resources
  * - DHT and PEX enabled for better peer discovery
  * - Standard BitTorrent port range
  */
 export const DEFAULT_CONFIG: EngineConfig = {
   /** Default data directory for storing application state */
-  dataDir: '~/.torm',
+  dataDir: getDefaultDataDir(),
 
   /** Default download directory for completed files */
-  downloadPath: '~/.torm/downloads',
+  downloadPath: getDefaultDownloadPath(),
 
   /** Maximum total peer connections across all torrents */
   maxConnections: 200,
@@ -61,17 +68,17 @@ export const DEFAULT_CONFIG: EngineConfig = {
     /** Background daemon mode enabled by default */
     enabled: true,
 
-    /** Unix socket path for IPC */
-    socketPath: '/tmp/torm.sock',
+    /** Socket/pipe path for IPC (Unix socket or Windows Named Pipe) */
+    socketPath: getDefaultSocketPath(),
 
     /** Auto-start daemon when TUI launches */
     autoStart: true,
 
     /** Log file path */
-    logFile: '~/.torm/daemon.log',
+    logFile: getDefaultLogFile(),
 
     /** PID file path */
-    pidFile: '~/.torm/daemon.pid',
+    pidFile: getDefaultPidFile(),
   },
 
   /** Encryption mode: disabled by default until MSE handshake is fully debugged */
