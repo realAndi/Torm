@@ -9,24 +9,26 @@
  */
 
 import { resolve } from 'path';
-import { homedir } from 'os';
 import { DaemonServer } from './server.js';
 import { DEFAULT_SOCKET_PATH } from './protocol.js';
+import {
+  expandPath,
+  isWindows,
+  getDefaultLogFile,
+  getDefaultDataDir,
+} from '../utils/platform.js';
 
 // =============================================================================
 // Configuration from Environment
 // =============================================================================
 
-function expandPath(path: string): string {
-  if (path.startsWith('~/')) {
-    return resolve(homedir(), path.slice(2));
-  }
-  return path;
-}
-
 const socketPath = process.env.TORM_SOCKET_PATH ?? DEFAULT_SOCKET_PATH;
-const logFile = expandPath(process.env.TORM_LOG_FILE ?? '~/.torm/daemon.log');
-const dataDir = expandPath(process.env.TORM_DATA_DIR ?? '~/.torm');
+const logFile = process.env.TORM_LOG_FILE
+  ? expandPath(process.env.TORM_LOG_FILE)
+  : getDefaultLogFile();
+const dataDir = process.env.TORM_DATA_DIR
+  ? expandPath(process.env.TORM_DATA_DIR)
+  : getDefaultDataDir();
 
 // =============================================================================
 // Main Entry Point
@@ -62,7 +64,10 @@ async function main(): Promise<void> {
     }
   };
 
-  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  // SIGTERM is not available on Windows, only register on Unix
+  if (!isWindows) {
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
+  }
   process.on('SIGINT', () => shutdown('SIGINT'));
 
   // Handle uncaught errors

@@ -10,25 +10,33 @@
 import { readFile, writeFile, unlink, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import { dirname, resolve } from 'path';
-import { homedir } from 'os';
 import { DaemonClient } from './client.js';
 import { DEFAULT_SOCKET_PATH } from './protocol.js';
+import {
+  expandPath,
+  isProcessRunning,
+  terminateProcess,
+  isWindows,
+  getDefaultDataDir,
+  getDefaultLogFile,
+  getDefaultPidFile,
+} from '../utils/platform.js';
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface DaemonManagerOptions {
-  /** Path to Unix socket (default: /tmp/torm.sock) */
+  /** Path to socket/pipe (Unix socket or Windows Named Pipe) */
   socketPath?: string;
 
-  /** Path to PID file (default: ~/.torm/daemon.pid) */
+  /** Path to PID file */
   pidFile?: string;
 
-  /** Path to log file (default: ~/.torm/daemon.log) */
+  /** Path to log file */
   logFile?: string;
 
-  /** Path to data directory (default: ~/.torm) */
+  /** Path to data directory */
   dataDir?: string;
 }
 
@@ -53,33 +61,6 @@ export interface DaemonInfo {
 }
 
 // =============================================================================
-// Helper Functions
-// =============================================================================
-
-/**
- * Expand ~ to home directory
- */
-function expandPath(path: string): string {
-  if (path.startsWith('~/')) {
-    return resolve(homedir(), path.slice(2));
-  }
-  return path;
-}
-
-/**
- * Check if a process with the given PID is running
- */
-function isProcessRunning(pid: number): boolean {
-  try {
-    // Sending signal 0 tests if process exists without killing it
-    process.kill(pid, 0);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-// =============================================================================
 // DaemonManager Class
 // =============================================================================
 
@@ -91,9 +72,15 @@ export class DaemonManager {
 
   constructor(options: DaemonManagerOptions = {}) {
     this.socketPath = options.socketPath ?? DEFAULT_SOCKET_PATH;
-    this.pidFile = expandPath(options.pidFile ?? '~/.torm/daemon.pid');
-    this.logFile = expandPath(options.logFile ?? '~/.torm/daemon.log');
-    this.dataDir = expandPath(options.dataDir ?? '~/.torm');
+    this.pidFile = options.pidFile
+      ? expandPath(options.pidFile)
+      : getDefaultPidFile();
+    this.logFile = options.logFile
+      ? expandPath(options.logFile)
+      : getDefaultLogFile();
+    this.dataDir = options.dataDir
+      ? expandPath(options.dataDir)
+      : getDefaultDataDir();
   }
 
   // ===========================================================================
@@ -228,12 +215,12 @@ export class DaemonManager {
     // Check if process is still running by PID and kill if needed
     if (pid && isProcessRunning(pid)) {
       try {
-        process.kill(pid, 'SIGTERM');
+        terminateProcess(pid, false); // Graceful termination (SIGTERM on Unix)
       } catch {
         // Process may already be dead
       }
 
-      // Wait briefly for SIGTERM
+      // Wait briefly for graceful termination
       const maxWait = 2000;
       const waitInterval = 50;
       let waited = 0;
@@ -246,7 +233,7 @@ export class DaemonManager {
       // Force kill if still running
       if (isProcessRunning(pid)) {
         try {
-          process.kill(pid, 'SIGKILL');
+          terminateProcess(pid, true); // Force termination (SIGKILL on Unix)
         } catch {
           // Process may already be dead
         }
@@ -384,8 +371,8 @@ export class DaemonManager {
       }
     }
 
-    // Remove socket file
-    if (existsSync(this.socketPath)) {
+    // Remove socket file (Unix only - Windows Named Pipes don't create files)
+    if (!isWindows && existsSync(this.socketPath)) {
       try {
         await unlink(this.socketPath);
       } catch {

@@ -696,7 +696,8 @@ describe('DiskIO', () => {
       const metadata = createSingleFileMetadata();
       const diskIO = new DiskIO(metadata, { downloadPath: testDir });
 
-      await expect(diskIO.deleteFiles()).resolves.not.toThrow();
+      // Should complete without throwing
+      await diskIO.deleteFiles();
 
       await diskIO.closeAllHandles();
     });

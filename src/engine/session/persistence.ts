@@ -12,6 +12,7 @@
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import { TorrentState } from '../types.js';
+import { expandPath } from '../../utils/platform.js';
 
 // =============================================================================
 // Constants
@@ -141,20 +142,6 @@ async function ensureTorrentsDir(dataDir: string): Promise<string> {
   }
 
   return torrentsDir;
-}
-
-/**
- * Expands ~ to user's home directory
- *
- * @param filePath - Path that may contain ~
- * @returns Expanded path
- */
-function expandPath(filePath: string): string {
-  if (filePath.startsWith('~')) {
-    const home = process.env.HOME || process.env.USERPROFILE || '';
-    return path.join(home, filePath.slice(1));
-  }
-  return filePath;
 }
 
 /**
@@ -628,10 +615,7 @@ export class AutoSaveManager {
 // Exports
 // =============================================================================
 
-export {
-  TORRENTS_DIR,
-  STATE_FILE_EXT,
-  STATE_VERSION,
-  expandPath,
-  getStateFilePath,
-};
+export { TORRENTS_DIR, STATE_FILE_EXT, STATE_VERSION, getStateFilePath };
+
+// Re-export expandPath from platform utils for backward compatibility
+export { expandPath } from '../../utils/platform.js';

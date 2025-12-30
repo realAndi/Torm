@@ -13,6 +13,7 @@ import type {
   EngineConfig,
   EngineStats,
 } from '../engine/types.js';
+import { getDefaultSocketPath } from '../utils/platform.js';
 
 // =============================================================================
 // Message Types
@@ -320,8 +321,8 @@ export function deserializeMessage(data: string): Message {
 /** Default daemon port (TCP) */
 export const DEFAULT_DAEMON_PORT = 6800;
 
-/** Default daemon socket path (Unix socket) */
-export const DEFAULT_SOCKET_PATH = '/tmp/torm.sock';
+/** Default daemon socket/pipe path (Unix socket or Windows Named Pipe) */
+export const DEFAULT_SOCKET_PATH = getDefaultSocketPath();
 
 /** Protocol version */
 export const PROTOCOL_VERSION = 1;

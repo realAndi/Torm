@@ -22,16 +22,6 @@ function createMockTracker(overrides: Partial<TrackerInfo> = {}): TrackerInfo {
 }
 
 describe('TrackerList', () => {
-  // Mock Date.now() for consistent time-based tests
-  beforeEach(() => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2024-01-15T12:00:00Z'));
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   describe('empty state', () => {
     it('renders empty state', () => {
       const { lastFrame } = render(<TrackerList trackers={[]} />);
@@ -192,9 +182,10 @@ describe('TrackerList', () => {
 
   describe('last announce time', () => {
     it('shows last announce time in relative format', () => {
+      const now = Date.now();
       const trackers: TrackerInfo[] = [
         createMockTracker({
-          lastAnnounce: new Date('2024-01-15T11:58:00Z'), // 2 minutes ago
+          lastAnnounce: new Date(now - 2 * 60 * 1000), // 2 minutes ago
         }),
       ];
       const { lastFrame } = render(<TrackerList trackers={trackers} />);
@@ -210,9 +201,10 @@ describe('TrackerList', () => {
     });
 
     it('shows last announce in hours when older', () => {
+      const now = Date.now();
       const trackers: TrackerInfo[] = [
         createMockTracker({
-          lastAnnounce: new Date('2024-01-15T10:00:00Z'), // 2 hours ago
+          lastAnnounce: new Date(now - 2 * 60 * 60 * 1000), // 2 hours ago
         }),
       ];
       const { lastFrame } = render(<TrackerList trackers={trackers} />);
@@ -220,9 +212,10 @@ describe('TrackerList', () => {
     });
 
     it('shows last announce in seconds when recent', () => {
+      const now = Date.now();
       const trackers: TrackerInfo[] = [
         createMockTracker({
-          lastAnnounce: new Date('2024-01-15T11:59:30Z'), // 30 seconds ago
+          lastAnnounce: new Date(now - 30 * 1000), // 30 seconds ago
         }),
       ];
       const { lastFrame } = render(<TrackerList trackers={trackers} />);
@@ -232,9 +225,10 @@ describe('TrackerList', () => {
 
   describe('next announce time', () => {
     it('shows next announce time', () => {
+      const now = Date.now();
       const trackers: TrackerInfo[] = [
         createMockTracker({
-          nextAnnounce: new Date('2024-01-15T12:25:00Z'), // in 25 minutes
+          nextAnnounce: new Date(now + 25 * 60 * 1000), // in 25 minutes
         }),
       ];
       const { lastFrame } = render(<TrackerList trackers={trackers} />);
@@ -250,9 +244,10 @@ describe('TrackerList', () => {
     });
 
     it('shows now for past next announce', () => {
+      const now = Date.now();
       const trackers: TrackerInfo[] = [
         createMockTracker({
-          nextAnnounce: new Date('2024-01-15T11:59:00Z'), // 1 minute ago
+          nextAnnounce: new Date(now - 60 * 1000), // 1 minute ago
         }),
       ];
       const { lastFrame } = render(<TrackerList trackers={trackers} />);

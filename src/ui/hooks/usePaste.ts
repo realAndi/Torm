@@ -9,6 +9,7 @@
 
 import { useInput } from 'ink';
 import { useRef, useCallback } from 'react';
+import { expandPath } from '../../utils/platform.js';
 
 /**
  * Result of parsing pasted content
@@ -113,17 +114,6 @@ export function parsePastedPaths(content: string): string[] {
  */
 export function filterTorrentFiles(paths: string[]): string[] {
   return paths.filter((path) => path.toLowerCase().endsWith('.torrent'));
-}
-
-/**
- * Expand ~ to home directory in paths
- */
-function expandPath(path: string): string {
-  if (path.startsWith('~/')) {
-    const home = process.env.HOME || process.env.USERPROFILE || '';
-    return home + path.slice(1);
-  }
-  return path;
 }
 
 /**
