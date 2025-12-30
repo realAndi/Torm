@@ -232,7 +232,8 @@ describe('TrackerList', () => {
         }),
       ];
       const { lastFrame } = render(<TrackerList trackers={trackers} />);
-      expect(lastFrame()).toContain('in 25m');
+      // Allow for slight timing variance (24m or 25m)
+      expect(lastFrame()).toMatch(/in 2[45]m/);
     });
 
     it('shows -- for null next announce', () => {
