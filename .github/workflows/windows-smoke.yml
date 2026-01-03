@@ -46,7 +46,10 @@ jobs:
         shell: pwsh
         run: |
           # Find and copy Windows executables to working directory for easier access
-          $version = "0.3.0"
+          # Read version from package.json to stay in sync
+          $packageJson = Get-Content "package.json" | ConvertFrom-Json
+          $version = $packageJson.version
+          Write-Host "Detected version: $version"
           $releaseDir = "dist\releases"
 
           $cliSource = "$releaseDir\torm-$version-windows-x64.exe"
