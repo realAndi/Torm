@@ -104,25 +104,19 @@ jobs:
             $attempt++
             Start-Sleep -Milliseconds 500
 
-            # Check if named pipe exists
-            $pipeExists = Test-Path "\\.\pipe\torm-test"
-
-            if ($pipeExists) {
-              Write-Host "Named pipe found, checking daemon status..."
-
-              try {
-                $output = & .\torm.exe daemon status 2>&1
-                if ($LASTEXITCODE -eq 0 -and $output -match "running|Running|connected|Connected") {
-                  Write-Host "Daemon is ready! (attempt $attempt)"
-                  $ready = $true
-                } else {
-                  Write-Host "Attempt $attempt : Daemon not ready yet - $output"
-                }
-              } catch {
-                Write-Host "Attempt $attempt : Status check failed - $_"
+            # Try connecting directly - Test-Path doesn't work for named pipes on Windows
+            try {
+              $output = & .\torm.exe daemon status 2>&1
+              $outputStr = $output -join " "
+              if ($LASTEXITCODE -eq 0 -and $outputStr -match "running|Running|connected|Connected|Daemon is running") {
+                Write-Host "Daemon is ready! (attempt $attempt)"
+                Write-Host "Status output: $outputStr"
+                $ready = $true
+              } else {
+                Write-Host "Attempt $attempt : Daemon not ready yet (exit code: $LASTEXITCODE) - $outputStr"
               }
-            } else {
-              Write-Host "Attempt $attempt : Waiting for named pipe..."
+            } catch {
+              Write-Host "Attempt $attempt : Status check failed - $_"
             }
           }
 
@@ -252,12 +246,12 @@ jobs:
 
           # Force kill if PID file exists
           if (Test-Path "artifacts\daemon.pid") {
-            $pid = Get-Content "artifacts\daemon.pid"
-            $proc = Get-Process -Id $pid -ErrorAction SilentlyContinue
+            $daemonPid = Get-Content "artifacts\daemon.pid"
+            $proc = Get-Process -Id $daemonPid -ErrorAction SilentlyContinue
 
             if ($proc) {
-              Write-Host "Force stopping daemon (PID: $pid)..."
-              Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue
+              Write-Host "Force stopping daemon (PID: $daemonPid)..."
+              Stop-Process -Id $daemonPid -Force -ErrorAction SilentlyContinue
               Start-Sleep -Seconds 1
             }
           }
