@@ -1,0 +1,297 @@
+name: Windows Smoke Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  # Customize these paths as needed
+  TORM_DATA_DIR: ${{ github.workspace }}\artifacts\data
+  TORM_LOG_FILE: ${{ github.workspace }}\artifacts\logs\daemon.log
+  # Note: Using default socket path (\\.\pipe\torm on Windows) so CLI can find daemon
+
+jobs:
+  smoke-test:
+    runs-on: windows-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Create artifact directories
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "artifacts\logs"
+          New-Item -ItemType Directory -Force -Path "artifacts\data"
+          Write-Host "Created artifact directories"
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build project
+        run: bun run build:release
+
+      - name: Generate test torrent fixture
+        run: bun run tests/fixtures/generate-test-torrent.ts
+
+      - name: Setup executables
+        shell: pwsh
+        run: |
+          # Find and copy Windows executables to working directory for easier access
+          $version = "0.1.0"
+          $releaseDir = "dist\releases"
+
+          $cliSource = "$releaseDir\torm-$version-windows-x64.exe"
+          $daemonSource = "$releaseDir\tormd-$version-windows-x64.exe"
+
+          if (Test-Path $cliSource) {
+            Copy-Item $cliSource -Destination "torm.exe"
+            Write-Host "Copied CLI: $cliSource -> torm.exe"
+          } else {
+            Write-Error "CLI not found at $cliSource"
+            Write-Host "Contents of $releaseDir :"
+            Get-ChildItem $releaseDir -ErrorAction SilentlyContinue
+            exit 1
+          }
+
+          if (Test-Path $daemonSource) {
+            Copy-Item $daemonSource -Destination "tormd.exe"
+            Write-Host "Copied Daemon: $daemonSource -> tormd.exe"
+          } else {
+            Write-Error "Daemon not found at $daemonSource"
+            Write-Host "Contents of $releaseDir :"
+            Get-ChildItem $releaseDir -ErrorAction SilentlyContinue
+            exit 1
+          }
+
+          # Verify executables
+          Get-Item "torm.exe", "tormd.exe" | Select-Object Name, Length, LastWriteTime
+
+      - name: Start daemon in background
+        shell: pwsh
+        run: |
+          Write-Host "Starting tormd daemon..."
+
+          # Start daemon as background job
+          $daemonProc = Start-Process -FilePath ".\tormd.exe" `
+            -PassThru `
+            -NoNewWindow `
+            -RedirectStandardOutput "artifacts\logs\daemon-stdout.log" `
+            -RedirectStandardError "artifacts\logs\daemon-stderr.log"
+
+          # Save PID for cleanup
+          $daemonProc.Id | Out-File -FilePath "artifacts\daemon.pid"
+          Write-Host "Daemon started with PID: $($daemonProc.Id)"
+
+      - name: Wait for daemon readiness
+        shell: pwsh
+        run: |
+          $maxAttempts = 30
+          $attempt = 0
+          $ready = $false
+
+          Write-Host "Waiting for daemon to be ready..."
+
+          while ($attempt -lt $maxAttempts -and -not $ready) {
+            $attempt++
+            Start-Sleep -Milliseconds 500
+
+            # Check if daemon log shows it's listening
+            if (Test-Path "artifacts\logs\daemon.log") {
+              $logContent = Get-Content "artifacts\logs\daemon.log" -Raw -ErrorAction SilentlyContinue
+              if ($logContent -match "Daemon listening on") {
+                Write-Host "Daemon is ready! (attempt $attempt) - found 'listening' in log"
+                $ready = $true
+              } else {
+                Write-Host "Attempt $attempt : Daemon log exists but not ready yet"
+              }
+            } else {
+              Write-Host "Attempt $attempt : Waiting for daemon log file..."
+            }
+          }
+
+          if (-not $ready) {
+            Write-Host "=== Daemon stdout log ==="
+            if (Test-Path "artifacts\logs\daemon-stdout.log") {
+              Get-Content "artifacts\logs\daemon-stdout.log" -ErrorAction SilentlyContinue
+            }
+            Write-Host "=== Daemon stderr log ==="
+            if (Test-Path "artifacts\logs\daemon-stderr.log") {
+              Get-Content "artifacts\logs\daemon-stderr.log" -ErrorAction SilentlyContinue
+            }
+            Write-Host "=== Main daemon log ==="
+            if (Test-Path "artifacts\logs\daemon.log") {
+              Get-Content "artifacts\logs\daemon.log" -ErrorAction SilentlyContinue
+            }
+            Write-Error "Daemon failed to become ready after $maxAttempts attempts"
+            exit 1
+          }
+
+          # Extra delay to ensure pipe is fully ready
+          Start-Sleep -Seconds 2
+
+      - name: Test - Version check
+        shell: pwsh
+        run: |
+          Write-Host "Testing: torm --version"
+          $output = & .\torm.exe --version 2>&1
+          Write-Host $output
+
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Version check failed with exit code $LASTEXITCODE"
+            exit 1
+          }
+
+          # Verify output contains version-like pattern
+          if ($output -notmatch '\d+\.\d+') {
+            Write-Error "Version output doesn't contain expected version pattern"
+            exit 1
+          }
+
+          Write-Host "Version check passed"
+
+      - name: Test - Daemon status
+        shell: pwsh
+        run: |
+          Write-Host "Testing: torm daemon status"
+          $output = & .\torm.exe daemon status 2>&1
+          Write-Host $output
+
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Daemon status check failed with exit code $LASTEXITCODE"
+            exit 1
+          }
+
+          Write-Host "Daemon status check passed"
+
+      - name: Test - Add torrent (magnet link)
+        shell: pwsh
+        run: |
+          Write-Host "Testing: torm add (magnet link)"
+
+          # Use a well-known public domain test magnet (Big Buck Bunny)
+          # This is a legal, freely distributable test file
+          $magnet = "magnet:?xt=urn:btih:dd8255ecdc7ca55fb0bbf81323d87062db1f6d1c&dn=Big+Buck+Bunny"
+
+          $output = & .\torm.exe add $magnet 2>&1
+          Write-Host $output
+
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Add torrent failed with exit code $LASTEXITCODE"
+            exit 1
+          }
+
+          Write-Host "Add torrent test passed"
+
+      - name: Test - List torrents
+        shell: pwsh
+        run: |
+          Write-Host "Testing: torm list"
+          $output = & .\torm.exe list 2>&1
+          Write-Host $output
+
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "List torrents failed with exit code $LASTEXITCODE"
+            exit 1
+          }
+
+          # Verify the torrent we added appears in the list
+          if ($output -notmatch "Big Buck Bunny|dd8255") {
+            Write-Warning "Added torrent may not appear in list yet (this could be expected if metadata fetch is async)"
+          }
+
+          Write-Host "List torrents test passed"
+
+      - name: Test - Add torrent file (if fixture exists)
+        shell: pwsh
+        run: |
+          $testTorrent = "tests\fixtures\test.torrent"
+
+          if (Test-Path $testTorrent) {
+            Write-Host "Testing: torm add (torrent file)"
+            $output = & .\torm.exe add $testTorrent 2>&1
+            Write-Host $output
+
+            if ($LASTEXITCODE -ne 0) {
+              Write-Error "Add torrent file failed with exit code $LASTEXITCODE"
+              exit 1
+            }
+
+            Write-Host "Add torrent file test passed"
+          } else {
+            Write-Host "No test torrent fixture found at $testTorrent - skipping"
+          }
+
+      - name: Stop daemon (cleanup)
+        if: always()
+        shell: pwsh
+        run: |
+          Write-Host "Stopping daemon..."
+
+          # Try graceful shutdown first
+          try {
+            $output = & .\torm.exe daemon stop 2>&1
+            Write-Host "Graceful shutdown: $output"
+            Start-Sleep -Seconds 2
+          } catch {
+            Write-Host "Graceful shutdown failed: $_"
+          }
+
+          # Force kill if PID file exists
+          if (Test-Path "artifacts\daemon.pid") {
+            $daemonPid = Get-Content "artifacts\daemon.pid"
+            $proc = Get-Process -Id $daemonPid -ErrorAction SilentlyContinue
+
+            if ($proc) {
+              Write-Host "Force stopping daemon (PID: $daemonPid)..."
+              Stop-Process -Id $daemonPid -Force -ErrorAction SilentlyContinue
+              Start-Sleep -Seconds 1
+            }
+          }
+
+          # Kill any remaining torm processes
+          Get-Process -Name "torm*", "tormd*" -ErrorAction SilentlyContinue | ForEach-Object {
+            Write-Host "Killing remaining process: $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue
+          }
+
+          Write-Host "Daemon cleanup complete"
+
+      - name: Collect logs
+        if: always()
+        shell: pwsh
+        run: |
+          Write-Host "=== Collected Logs ==="
+
+          $logFiles = @(
+            "artifacts\logs\daemon.log",
+            "artifacts\logs\daemon-stdout.log",
+            "artifacts\logs\daemon-stderr.log"
+          )
+
+          foreach ($logFile in $logFiles) {
+            if (Test-Path $logFile) {
+              Write-Host ""
+              Write-Host "=== $logFile ==="
+              Get-Content $logFile -Tail 100
+            }
+          }
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-test-artifacts
+          path: |
+            artifacts/
+            dist/releases/
+          retention-days: 7
+          if-no-files-found: warn

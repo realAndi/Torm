@@ -305,10 +305,11 @@ describe('Format Utilities', () => {
 
     it('should format future times with "in" prefix', () => {
       const now = Date.now();
-      expect(formatTimeUntil(new Date(now + 30000))).toBe('in 30s');
-      expect(formatTimeUntil(new Date(now + 60000))).toBe('in 1m');
-      expect(formatTimeUntil(new Date(now + 3600000))).toBe('in 1h');
-      expect(formatTimeUntil(new Date(now + 86400000))).toBe('in 1d');
+      // Add small buffer (500ms) to prevent flaky tests due to execution time
+      expect(formatTimeUntil(new Date(now + 30500))).toBe('in 30s');
+      expect(formatTimeUntil(new Date(now + 60500))).toBe('in 1m');
+      expect(formatTimeUntil(new Date(now + 3600500))).toBe('in 1h');
+      expect(formatTimeUntil(new Date(now + 86400500))).toBe('in 1d');
     });
   });
 
