@@ -120,7 +120,6 @@ describe('StatusBar', () => {
       expect(frame).toContain('d:Delete');
       expect(frame).toContain('/:Search');
       expect(frame).toContain('s:Settings');
-      expect(frame).toContain('?:Help');
     });
 
     it('should format ETA correctly in torrent info', () => {

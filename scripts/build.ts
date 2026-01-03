@@ -6,10 +6,12 @@
  */
 
 import { $ } from 'bun';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 
-const VERSION = process.env.VERSION || '0.1.0';
+// Read version from package.json to stay in sync
+const packageJson = JSON.parse(await readFile('./package.json', 'utf-8'));
+const VERSION = process.env.VERSION || packageJson.version;
 const CLI_ENTRY = './src/cli/index.tsx';
 const DAEMON_ENTRY = './src/daemon/entry.ts';
 const OUT_DIR = './dist/releases';

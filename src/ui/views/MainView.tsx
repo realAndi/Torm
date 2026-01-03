@@ -47,6 +47,10 @@ export interface MainViewProps {
   mascotSleepZCount?: number;
   /** Whether downloads are active */
   isDownloading?: boolean;
+  /** Whether an update is available */
+  updateAvailable?: boolean;
+  /** Latest version available */
+  latestVersion?: string | null;
 }
 
 /**
@@ -77,6 +81,8 @@ export const MainView: React.FC<MainViewProps> = ({
   mascotSleeping = false,
   mascotSleepZCount = 0,
   isDownloading = false,
+  updateAvailable = false,
+  latestVersion,
 }) => {
   const { columns } = useTerminalSize();
 
@@ -135,6 +141,8 @@ export const MainView: React.FC<MainViewProps> = ({
         daemonConnected={daemonConnected}
         daemonUptime={daemonUptime}
         connectionStatus={connectionStatus}
+        updateAvailable={updateAvailable}
+        latestVersion={latestVersion}
       />
     </Box>
   );

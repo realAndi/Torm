@@ -57,7 +57,7 @@ export interface DetailViewProps {
   logs?: LogEntry[];
   /** Callback to return to main view */
   onBack: () => void;
-  /** Whether keyboard input is enabled (disable when help overlay is open) */
+  /** Whether keyboard input is enabled (disable when modals are open) */
   keyboardEnabled?: boolean;
 }
 

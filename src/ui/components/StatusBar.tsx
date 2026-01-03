@@ -29,6 +29,10 @@ export interface StatusBarProps {
   daemonUptime?: number;
   /** Connection status message (shown when connecting) */
   connectionStatus?: string;
+  /** Whether an update is available */
+  updateAvailable?: boolean;
+  /** Latest version available */
+  latestVersion?: string | null;
 }
 
 /**
@@ -134,6 +138,8 @@ export const StatusBar: React.FC<StatusBarProps> = ({
   daemonConnected = false,
   daemonUptime,
   connectionStatus,
+  updateAvailable = false,
+  latestVersion,
 }) => {
   const innerWidth = Math.max(width - 2, 10);
 
@@ -196,7 +202,6 @@ export const StatusBar: React.FC<StatusBarProps> = ({
     { key: 'd', action: 'Delete' },
     { key: '/', action: 'Search' },
     { key: 's', action: 'Settings' },
-    { key: '?', action: 'Help' },
   ];
 
   return (
@@ -228,7 +233,7 @@ export const StatusBar: React.FC<StatusBarProps> = ({
       <Box>
         <Text color={colors.border}>{borders.vertical}</Text>
         <Box width={innerWidth} paddingX={1} justifyContent="space-between">
-          {/* Left: Hotkeys */}
+          {/* Left: Hotkeys + Update notification */}
           <Box>
             {shortcuts.map((s, i) => (
               <React.Fragment key={s.key}>
@@ -239,6 +244,14 @@ export const StatusBar: React.FC<StatusBarProps> = ({
                 <Text color={colors.muted}>:{s.action}</Text>
               </React.Fragment>
             ))}
+            {updateAvailable && latestVersion && (
+              <>
+                <Text color={colors.dim}> </Text>
+                <Text color={colors.warning} bold>
+                  v{latestVersion} available
+                </Text>
+              </>
+            )}
           </Box>
 
           {/* Right: Daemon status + Speeds (only if not compact) */}

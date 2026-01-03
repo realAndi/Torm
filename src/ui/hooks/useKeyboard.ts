@@ -14,7 +14,7 @@ import { useInput, Key } from 'ink';
  *
  * Arrow keys: 'up', 'down', 'left', 'right'
  * Vim-style: 'j' (down), 'k' (up), 'h' (left), 'l' (right)
- * Actions: 'q', 'p', 'r', 'd', 'a', 'enter', 'escape', '?', '/', 'L' (labels), 'S' (settings)
+ * Actions: 'q', 'p', 'r', 'd', 'a', 'enter', 'escape', '/', 'L' (labels), 'S' (settings)
  * Tab numbers: '1', '2', '3', '4'
  */
 export type KeyName =
@@ -39,7 +39,6 @@ export type KeyName =
   | 'enter'
   | 'escape'
   | 'backspace'
-  | '?'
   | '/'
   // Tab numbers
   | '1'
@@ -82,7 +81,6 @@ export interface UseKeyboardOptions {
  * - Vim-style navigation (j=down, k=up, h=left, l=right)
  * - Action keys (q=quit, p=pause, r=resume, d=delete, a=add)
  * - Navigation keys (Enter, Escape, Backspace)
- * - Help key (?)
  * - Search key (/)
  * - Tab numbers (1-4)
  *
@@ -97,7 +95,6 @@ export interface UseKeyboardOptions {
  *     j: () => selectNext(),  // vim-style
  *     enter: () => openDetails(),
  *     q: () => quit(),
- *     '?': () => toggleHelp(),
  *   },
  *   enabled: !showModal,  // Disable when modal is open
  * });
@@ -210,10 +207,7 @@ export function useKeyboard({
           handlers.S?.();
           break;
 
-        // Help and search
-        case '?':
-          handlers['?']?.();
-          break;
+        // Search
         case '/':
           handlers['/']?.();
           break;
