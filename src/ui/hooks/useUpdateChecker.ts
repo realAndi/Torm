@@ -42,7 +42,10 @@ function getCurrentVersion(): string {
  * Compare semantic versions
  * Returns true if latestVersion is newer than currentVersion
  */
-function isNewerVersion(currentVersion: string, latestVersion: string): boolean {
+function isNewerVersion(
+  currentVersion: string,
+  latestVersion: string
+): boolean {
   const current = currentVersion.split('.').map(Number);
   const latest = latestVersion.split('.').map(Number);
 
@@ -60,7 +63,9 @@ function isNewerVersion(currentVersion: string, latestVersion: string): boolean 
  * Fetch latest version from npm registry
  */
 async function fetchLatestVersion(): Promise<string> {
-  const response = await fetch(`https://registry.npmjs.org/${PACKAGE_NAME}/latest`);
+  const response = await fetch(
+    `https://registry.npmjs.org/${PACKAGE_NAME}/latest`
+  );
 
   if (!response.ok) {
     throw new Error(`Failed to fetch: ${response.status}`);

@@ -114,7 +114,6 @@ export const App: React.FC = () => {
   // View state
   const [currentView, setCurrentView] = useState<ViewType>('main');
 
-
   // Modal states
   const [showAddModal, setShowAddModal] = useState(false);
   const [showBatchAddModal, setShowBatchAddModal] = useState(false);
@@ -185,7 +184,6 @@ export const App: React.FC = () => {
   const handleCancelQuit = useCallback(() => {
     setShowQuitConfirm(false);
   }, []);
-
 
   /**
    * Pause the selected torrent
@@ -683,7 +681,6 @@ export const App: React.FC = () => {
           onStopDaemon={shutdownDaemon}
         />
       )}
-
     </Box>
   );
 };
