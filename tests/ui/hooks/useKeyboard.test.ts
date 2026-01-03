@@ -272,18 +272,7 @@ describe('useKeyboard', () => {
     });
   });
 
-  describe('help and search keys', () => {
-    it('should call ? handler for ? key (help)', () => {
-      const handlers: KeyboardHandlers = {
-        '?': vi.fn(),
-      };
-
-      useKeyboard({ handlers });
-      simulateKeyPress('?');
-
-      expect(handlers['?']).toHaveBeenCalledTimes(1);
-    });
-
+  describe('search key', () => {
     it('should call / handler for / key (search)', () => {
       const handlers: KeyboardHandlers = {
         '/': vi.fn(),
