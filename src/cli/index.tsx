@@ -68,6 +68,7 @@ const cli = meow(
 `,
   {
     importMeta: import.meta,
+    version: VERSION,
     flags: {
       version: {
         type: 'boolean',
