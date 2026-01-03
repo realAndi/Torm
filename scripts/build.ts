@@ -10,24 +10,51 @@ import { mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 
 const VERSION = process.env.VERSION || '0.1.0';
-const ENTRY_POINT = './src/cli/index.tsx';
+const CLI_ENTRY = './src/cli/index.tsx';
+const DAEMON_ENTRY = './src/daemon/entry.ts';
 const OUT_DIR = './dist/releases';
 
 interface Target {
   name: string;
   target: string;
-  outfile: string;
+  cliOutfile: string;
+  daemonOutfile: string;
 }
 
 const targets: Target[] = [
   // macOS
-  { name: 'macOS ARM64', target: 'bun-darwin-arm64', outfile: `torm-${VERSION}-darwin-arm64` },
-  { name: 'macOS x64', target: 'bun-darwin-x64', outfile: `torm-${VERSION}-darwin-x64` },
+  {
+    name: 'macOS ARM64',
+    target: 'bun-darwin-arm64',
+    cliOutfile: `torm-${VERSION}-darwin-arm64`,
+    daemonOutfile: `tormd-${VERSION}-darwin-arm64`,
+  },
+  {
+    name: 'macOS x64',
+    target: 'bun-darwin-x64',
+    cliOutfile: `torm-${VERSION}-darwin-x64`,
+    daemonOutfile: `tormd-${VERSION}-darwin-x64`,
+  },
   // Linux
-  { name: 'Linux x64', target: 'bun-linux-x64', outfile: `torm-${VERSION}-linux-x64` },
-  { name: 'Linux ARM64', target: 'bun-linux-arm64', outfile: `torm-${VERSION}-linux-arm64` },
+  {
+    name: 'Linux x64',
+    target: 'bun-linux-x64',
+    cliOutfile: `torm-${VERSION}-linux-x64`,
+    daemonOutfile: `tormd-${VERSION}-linux-x64`,
+  },
+  {
+    name: 'Linux ARM64',
+    target: 'bun-linux-arm64',
+    cliOutfile: `torm-${VERSION}-linux-arm64`,
+    daemonOutfile: `tormd-${VERSION}-linux-arm64`,
+  },
   // Windows
-  { name: 'Windows x64', target: 'bun-windows-x64', outfile: `torm-${VERSION}-windows-x64.exe` },
+  {
+    name: 'Windows x64',
+    target: 'bun-windows-x64',
+    cliOutfile: `torm-${VERSION}-windows-x64.exe`,
+    daemonOutfile: `tormd-${VERSION}-windows-x64.exe`,
+  },
 ];
 
 async function build() {
@@ -40,18 +67,31 @@ async function build() {
 
   const results: { target: string; success: boolean; error?: string }[] = [];
 
-  for (const { name, target, outfile } of targets) {
+  for (const { name, target, cliOutfile, daemonOutfile } of targets) {
     console.log(`Building ${name}...`);
-    const outPath = `${OUT_DIR}/${outfile}`;
+    const cliOutPath = `${OUT_DIR}/${cliOutfile}`;
+    const daemonOutPath = `${OUT_DIR}/${daemonOutfile}`;
 
+    // Build CLI
     try {
-      await $`bun build ${ENTRY_POINT} --compile --minify --target=${target} --outfile=${outPath}`.quiet();
-      console.log(`  ✓ ${outPath}`);
+      await $`bun build ${CLI_ENTRY} --compile --minify --target=${target} --outfile=${cliOutPath}`.quiet();
+      console.log(`  ✓ CLI: ${cliOutPath}`);
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      console.log(`  ✗ CLI Failed: ${errorMsg}`);
+      results.push({ target: `${name} CLI`, success: false, error: errorMsg });
+      continue;
+    }
+
+    // Build Daemon
+    try {
+      await $`bun build ${DAEMON_ENTRY} --compile --minify --target=${target} --outfile=${daemonOutPath}`.quiet();
+      console.log(`  ✓ Daemon: ${daemonOutPath}`);
       results.push({ target: name, success: true });
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      console.log(`  ✗ Failed: ${errorMsg}`);
-      results.push({ target: name, success: false, error: errorMsg });
+      console.log(`  ✗ Daemon Failed: ${errorMsg}`);
+      results.push({ target: `${name} Daemon`, success: false, error: errorMsg });
     }
   }
 

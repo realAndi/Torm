@@ -42,23 +42,38 @@ jobs:
       - name: Generate test torrent fixture
         run: bun run tests/fixtures/generate-test-torrent.ts
 
-      - name: Verify build artifacts
+      - name: Setup executables
         shell: pwsh
         run: |
-          $artifacts = @(
-            ".\torm.exe",
-            ".\tormd.exe"
-          )
+          # Find and copy Windows executables to working directory for easier access
+          $version = "0.1.0"
+          $releaseDir = "dist\releases"
 
-          foreach ($artifact in $artifacts) {
-            if (Test-Path $artifact) {
-              Write-Host "Found: $artifact"
-              Get-Item $artifact | Select-Object Name, Length, LastWriteTime
-            } else {
-              Write-Error "Missing build artifact: $artifact"
-              exit 1
-            }
+          $cliSource = "$releaseDir\torm-$version-windows-x64.exe"
+          $daemonSource = "$releaseDir\tormd-$version-windows-x64.exe"
+
+          if (Test-Path $cliSource) {
+            Copy-Item $cliSource -Destination "torm.exe"
+            Write-Host "Copied CLI: $cliSource -> torm.exe"
+          } else {
+            Write-Error "CLI not found at $cliSource"
+            Write-Host "Contents of $releaseDir :"
+            Get-ChildItem $releaseDir -ErrorAction SilentlyContinue
+            exit 1
           }
+
+          if (Test-Path $daemonSource) {
+            Copy-Item $daemonSource -Destination "tormd.exe"
+            Write-Host "Copied Daemon: $daemonSource -> tormd.exe"
+          } else {
+            Write-Error "Daemon not found at $daemonSource"
+            Write-Host "Contents of $releaseDir :"
+            Get-ChildItem $releaseDir -ErrorAction SilentlyContinue
+            exit 1
+          }
+
+          # Verify executables
+          Get-Item "torm.exe", "tormd.exe" | Select-Object Name, Length, LastWriteTime
 
       - name: Start daemon in background
         shell: pwsh
@@ -282,7 +297,6 @@ jobs:
           name: smoke-test-artifacts
           path: |
             artifacts/
-            torm.exe
-            tormd.exe
+            dist/releases/
           retention-days: 7
           if-no-files-found: warn
