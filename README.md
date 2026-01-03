@@ -259,6 +259,34 @@ bun run format
 
 Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
+## Acknowledgments
+
+Torm is built on the shoulders of giants. Thanks to these projects and their maintainers:
+
+### Core Dependencies
+
+- **[Ink](https://github.com/vadimdemedes/ink)** by Vadim Demedes - React for CLIs, the foundation of Torm's terminal UI
+- **[React](https://react.dev)** by Meta - The declarative UI paradigm that makes the TUI possible
+- **[meow](https://github.com/sindresorhus/meow)** by Sindre Sorhus - CLI argument parsing done right
+- **[geoip-lite](https://github.com/geoip-lite/node-geoip)** - IP geolocation for peer country flags
+- **[ink-scroll-list](https://github.com/nickmccurdy/ink-scroll-list)** - Scrollable lists for Ink
+
+### Runtime & Tooling
+
+- **[Bun](https://bun.sh)** by Oven - The fast JavaScript runtime that powers Torm
+- **[TypeScript](https://www.typescriptlang.org)** by Microsoft - Type safety for the entire codebase
+- **[Vitest](https://vitest.dev)** - Fast unit testing framework
+
+### Protocol References
+
+Torm implements the BitTorrent protocol from scratch, guided by:
+
+- **[BEP 3](https://www.bittorrent.org/beps/bep_0003.html)** - The BitTorrent Protocol Specification
+- **[BEP 9](https://www.bittorrent.org/beps/bep_0009.html)** - Extension for Peers to Send Metadata Files
+- **[BEP 10](https://www.bittorrent.org/beps/bep_0010.html)** - Extension Protocol
+- **[BEP 11](https://www.bittorrent.org/beps/bep_0011.html)** - Peer Exchange (PEX)
+- **[BEP 15](https://www.bittorrent.org/beps/bep_0015.html)** - UDP Tracker Protocol
+
 ## License
 
 Torm is licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0).
