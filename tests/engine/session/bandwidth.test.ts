@@ -324,7 +324,7 @@ describe('BandwidthLimiter', () => {
         await limiter.request(1000, 'download');
         const elapsed = Date.now() - startTime;
 
-        expect(elapsed).toBe(0); // Should be immediate
+        expect(elapsed).toBeLessThanOrEqual(5); // Should be nearly immediate (allow small timing variance)
       });
 
       it('should consume tokens from bucket on grant', async () => {
