@@ -16,7 +16,6 @@ export {
 } from './StatusBar.js';
 export { TorrentRow, type TorrentRowProps } from './TorrentRow.js';
 export { TorrentList, type TorrentListProps } from './TorrentList.js';
-export { HelpOverlay, type HelpOverlayProps } from './HelpOverlay.js';
 export { Modal, type ModalProps } from './Modal.js';
 export { TextInput, type TextInputProps } from './TextInput.js';
 export { PathInput, type PathInputProps } from './PathInput.js';

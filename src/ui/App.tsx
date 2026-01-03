@@ -5,7 +5,6 @@
  * - Engine connection and torrent state
  * - View routing (MainView, DetailView)
  * - Global keyboard shortcuts
- * - Help overlay visibility
  * - Modal dialogs (Add Torrent, Delete Confirmation)
  *
  * @module ui/App
@@ -19,9 +18,9 @@ import { useKeyboard } from './hooks/useKeyboard.js';
 import { useTerminalSize } from './hooks/useTerminalSize.js';
 import { useMascotState } from './hooks/useMascotState.js';
 import { usePaste } from './hooks/usePaste.js';
+import { useUpdateChecker } from './hooks/useUpdateChecker.js';
 import { MainView } from './views/MainView.js';
 import { DetailView } from './views/DetailView.js';
-import { HelpOverlay } from './components/HelpOverlay.js';
 import { AddTorrentModal } from './components/AddTorrentModal.js';
 import { BatchAddModal } from './components/BatchAddModal.js';
 import { ConfirmDialog } from './components/ConfirmDialog.js';
@@ -47,19 +46,16 @@ type ViewType = 'main' | 'detail';
  * - Manage torrent selection via useTorrents hook
  * - Handle global keyboard shortcuts via useKeyboard hook
  * - Route to correct view (MainView or DetailView)
- * - Manage help overlay visibility
  * - Manage modal dialogs (Add Torrent, Delete Confirmation)
  *
  * State:
  * - currentView: 'main' | 'detail'
- * - showHelp: boolean
  * - showAddModal: boolean
  * - showDeleteConfirm: boolean
  * - deleteFiles: boolean
  *
  * Keyboard shortcuts (handled by this component):
  * - q: Quit application
- * - ?: Toggle help overlay
  * - up/k: Select previous torrent
  * - down/j: Select next torrent
  * - p: Pause selected torrent
@@ -118,8 +114,6 @@ export const App: React.FC = () => {
   // View state
   const [currentView, setCurrentView] = useState<ViewType>('main');
 
-  // Help overlay state
-  const [showHelp, setShowHelp] = useState<boolean>(false);
 
   // Modal states
   const [showAddModal, setShowAddModal] = useState(false);
@@ -140,6 +134,9 @@ export const App: React.FC = () => {
     isConnected: isReady,
     isConnecting,
   });
+
+  // Update checker (checks npm for new versions)
+  const { updateAvailable, latestVersion } = useUpdateChecker();
 
   // Search/filter states
   const [searchQuery, setSearchQuery] = useState('');
@@ -189,19 +186,6 @@ export const App: React.FC = () => {
     setShowQuitConfirm(false);
   }, []);
 
-  /**
-   * Toggle help overlay visibility
-   */
-  const handleToggleHelp = useCallback(() => {
-    setShowHelp((prev) => !prev);
-  }, []);
-
-  /**
-   * Close help overlay
-   */
-  const handleCloseHelp = useCallback(() => {
-    setShowHelp(false);
-  }, []);
 
   /**
    * Pause the selected torrent
@@ -470,7 +454,7 @@ export const App: React.FC = () => {
   // Keyboard Handling
   // ==========================================================================
 
-  // Keyboard handlers (disabled when help or modals are shown)
+  // Keyboard handlers (disabled when modals are shown)
   // Main view handlers only active in main view, global handlers always active
   const isMainView = currentView === 'main';
 
@@ -478,7 +462,6 @@ export const App: React.FC = () => {
     handlers: {
       // Global shortcuts (always active)
       q: handleQuit,
-      '?': handleToggleHelp,
       // Main view navigation (only in main view and not searching)
       up: isMainView && !isSearchFocused ? selectPrev : undefined,
       k: isMainView && !isSearchFocused ? selectPrev : undefined,
@@ -503,7 +486,6 @@ export const App: React.FC = () => {
       // Note: escape/backspace handled by DetailView when in detail view
     },
     enabled:
-      !showHelp &&
       !showAddModal &&
       !showBatchAddModal &&
       !showDeleteConfirm &&
@@ -518,7 +500,6 @@ export const App: React.FC = () => {
   usePaste({
     onTorrentFiles: handleTorrentFilesDrop,
     enabled:
-      !showHelp &&
       !showAddModal &&
       !showBatchAddModal &&
       !showDeleteConfirm &&
@@ -582,7 +563,6 @@ export const App: React.FC = () => {
           logs={[]}
           onBack={handleBackToMain}
           keyboardEnabled={
-            !showHelp &&
             !showAddModal &&
             !showBatchAddModal &&
             !showDeleteConfirm &&
@@ -615,6 +595,8 @@ export const App: React.FC = () => {
         mascotSleeping={mascotState.isSleeping}
         mascotSleepZCount={mascotState.sleepZCount}
         isDownloading={totalDownloadSpeed > 0}
+        updateAvailable={updateAvailable}
+        latestVersion={latestVersion}
       />
     );
   };
@@ -622,7 +604,8 @@ export const App: React.FC = () => {
   return (
     <Box flexDirection="column" height="100%">
       {/* Main content area - hidden when settings, add modal, batch add modal, or quit confirm is open */}
-      {!showSettings &&
+      {/* Note: Only hide for settings when config is loaded, otherwise settings modal won't render */}
+      {!(showSettings && config) &&
         !showAddModal &&
         !showBatchAddModal &&
         !showQuitConfirm &&
@@ -701,8 +684,6 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* Help overlay (conditionally rendered) */}
-      <HelpOverlay visible={showHelp} onClose={handleCloseHelp} />
     </Box>
   );
 };
