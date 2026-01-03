@@ -10,7 +10,7 @@ env:
   # Customize these paths as needed
   TORM_DATA_DIR: ${{ github.workspace }}\artifacts\data
   TORM_LOG_FILE: ${{ github.workspace }}\artifacts\logs\daemon.log
-  TORM_SOCKET_PATH: \\.\pipe\torm-test
+  # Note: Using default socket path (\\.\pipe\torm on Windows) so CLI can find daemon
 
 jobs:
   smoke-test:
