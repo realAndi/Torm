@@ -104,19 +104,17 @@ jobs:
             $attempt++
             Start-Sleep -Milliseconds 500
 
-            # Try connecting directly - Test-Path doesn't work for named pipes on Windows
-            try {
-              $output = & .\torm.exe daemon status 2>&1
-              $outputStr = $output -join " "
-              if ($LASTEXITCODE -eq 0 -and $outputStr -match "running|Running|connected|Connected|Daemon is running") {
-                Write-Host "Daemon is ready! (attempt $attempt)"
-                Write-Host "Status output: $outputStr"
+            # Check if daemon log shows it's listening
+            if (Test-Path "artifacts\logs\daemon.log") {
+              $logContent = Get-Content "artifacts\logs\daemon.log" -Raw -ErrorAction SilentlyContinue
+              if ($logContent -match "Daemon listening on") {
+                Write-Host "Daemon is ready! (attempt $attempt) - found 'listening' in log"
                 $ready = $true
               } else {
-                Write-Host "Attempt $attempt : Daemon not ready yet (exit code: $LASTEXITCODE) - $outputStr"
+                Write-Host "Attempt $attempt : Daemon log exists but not ready yet"
               }
-            } catch {
-              Write-Host "Attempt $attempt : Status check failed - $_"
+            } else {
+              Write-Host "Attempt $attempt : Waiting for daemon log file..."
             }
           }
 
@@ -136,6 +134,9 @@ jobs:
             Write-Error "Daemon failed to become ready after $maxAttempts attempts"
             exit 1
           }
+
+          # Extra delay to ensure pipe is fully ready
+          Start-Sleep -Seconds 2
 
       - name: Test - Version check
         shell: pwsh
